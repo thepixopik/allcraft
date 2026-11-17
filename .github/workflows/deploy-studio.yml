@@ -1,0 +1,49 @@
+name: Assemble & Deploy AllCraft Studio
+
+on:
+  workflow_dispatch:
+  repository_dispatch:
+    types: [app-updated]
+  push:
+    branches: [main]
+    paths:
+      - "apps.json"
+      - "site/**"
+      - "scripts/**"
+      - ".github/workflows/deploy-studio.yml"
+
+concurrency:
+  group: allcraft-studio-deploy
+  cancel-in-progress: true
+
+jobs:
+  assemble-and-deploy:
+    name: Pull All Apps & Deploy to Cloudflare Pages
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout Studio Hub
+        uses: actions/checkout@v4
+
+      - name: Assemble Latest Artifacts from All Repos
+        env:
+          STUDIO_PAT: ${{ secrets.STUDIO_PAT }}
+        run: python3 scripts/assemble.py
+
+      - name: Setup Node.js for Wrangler
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Deploy Combined Studio to Cloudflare Pages
+        env:
+          RAW_CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          RAW_CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          export CLOUDFLARE_API_TOKEN="$(printf '%s' "$RAW_CF_TOKEN" | tr -d '[:space:]')"
+          export CLOUDFLARE_ACCOUNT_ID="$(printf '%s' "$RAW_CF_ACCOUNT" | tr -d '[:space:]')"
+
+          npx --yes wrangler@4 pages deploy dist \
+            --project-name="the-allcraft" \
+            --branch="main" \
+            --commit-dirty=true
