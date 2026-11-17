@@ -103,13 +103,22 @@
 /deck/index.html
   Cache-Control: no-cache
 
+/pdf/*
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Embedder-Policy: require-corp
+  Cross-Origin-Resource-Policy: same-origin
+
 /pdf/
   Cache-Control: no-cache
   Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Embedder-Policy: require-corp
+  Cross-Origin-Resource-Policy: same-origin
 
 /pdf/index.html
   Cache-Control: no-cache
   Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Embedder-Policy: require-corp
+  Cross-Origin-Resource-Policy: same-origin
 
 /pdf/models/*
   Cache-Control: no-cache
@@ -123,16 +132,19 @@
 /effect/*
   Cross-Origin-Opener-Policy: same-origin
   Cross-Origin-Embedder-Policy: require-corp
+  Cross-Origin-Resource-Policy: same-origin
 
 /effect/
   Cache-Control: no-cache
   Cross-Origin-Opener-Policy: same-origin
   Cross-Origin-Embedder-Policy: require-corp
+  Cross-Origin-Resource-Policy: same-origin
 
 /effect/index.html
   Cache-Control: no-cache
   Cross-Origin-Opener-Policy: same-origin
   Cross-Origin-Embedder-Policy: require-corp
+  Cross-Origin-Resource-Policy: same-origin
 
 /effect/sw.js
   Cache-Control: no-cache
