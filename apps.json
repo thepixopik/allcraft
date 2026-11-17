@@ -18,6 +18,15 @@
       "branch": "main",
       "mount_path": "photo",
       "required": true
+    },
+    {
+      "id": "film",
+      "name": "The AllCraft Film",
+      "repo": "thepixopik/filmcraft",
+      "artifact_name": "the-allcraft-film-web",
+      "branch": "main",
+      "mount_path": "film",
+      "required": false
     }
   ]
 }
