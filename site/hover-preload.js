@@ -1,7 +1,29 @@
 (() => {
-  const CACHE_NAME = "allcraft-wasm-v1";
+  const CACHE_NAME = "allcraft-wasm-v2";
   let manifestPromise = null;
   const inflight = new Set();
+
+  if ("caches" in window) {
+    caches.delete("allcraft-wasm-v1").catch(() => {});
+  }
+
+  const SLUG_TO_MOUNT = {
+    photo: "/photo/", photocraft: "/photo/",
+    vector: "/vector/", vectorcraft: "/vector/",
+    film: "/film/", filmcraft: "/film/",
+    light: "/light/", lightcraft: "/light/",
+    pdf: "/pdf/", pdfcraft: "/pdf/",
+    effect: "/effect/", effectcraft: "/effect/",
+    ani: "/ani/", anicraft: "/ani/",
+    design: "/design/", designcraft: "/design/",
+    texture: "/texture/", texturecraft: "/texture/",
+    material: "/material/", materialcraft: "/material/",
+    sound: "/sound/", soundcraft: "/sound/",
+    word: "/word/", wordcraft: "/word/",
+    deck: "/deck/", deckcraft: "/deck/",
+    cad: "/cad/", cadcraft: "/cad/",
+    grid: "/grid/", gridcraft: "/grid/",
+  };
 
   const canPrefetch = () => {
     const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
@@ -22,6 +44,21 @@
     return manifestPromise;
   };
 
+  const fetchWindowedBuffers = async (urls, concurrency = 3) => {
+    const out = new Array(urls.length);
+    let cursor = 0;
+    const worker = async () => {
+      while (cursor < urls.length) {
+        const idx = cursor++;
+        const r = await fetch(urls[idx], { priority: "low", cache: "force-cache" });
+        if (!r.ok) throw new Error("part fetch failed");
+        out[idx] = new Uint8Array(await r.arrayBuffer());
+      }
+    };
+    await Promise.all(Array.from({ length: Math.min(concurrency, urls.length) }, worker));
+    return out;
+  };
+
   const warmApp = async (mount) => {
     if (!mount || inflight.has(mount) || !canPrefetch()) return;
     inflight.add(mount);
@@ -31,27 +68,18 @@
       const entry = manifest[mount];
       if (!entry) return;
 
-      // Warm entry HTML & small JS glue in browser cache
       fetch(mount, { priority: "low" }).catch(() => {});
       for (const jsUrl of entry.js || []) {
         fetch(jsUrl, { priority: "low" }).catch(() => {});
       }
 
-      // If decompressed Wasm is already in CacheStorage, zero Wasm download needed!
       if (entry.cache_key && "caches" in window && typeof DecompressionStream !== "undefined") {
         const cache = await caches.open(CACHE_NAME);
-        const existing = await cache.match(entry.cache_key);
-        if (existing) return;
+        if (await cache.match(entry.cache_key)) return;
 
         const parts = entry.parts || [];
         if (parts.length > 0) {
-          const buffers = await Promise.all(
-            parts.map(async (u) => {
-              const r = await fetch(u, { priority: "low", cache: "force-cache" });
-              if (!r.ok) throw new Error("part fetch failed");
-              return new Uint8Array(await r.arrayBuffer());
-            })
-          );
+          const buffers = await fetchWindowedBuffers(parts, 3);
           const stream = new ReadableStream({
             start(ctrl) {
               for (const b of buffers) ctrl.enqueue(b);
@@ -74,8 +102,7 @@
         }
       }
 
-      // Fallback: warm raw files in HTTP cache
-      for (const pUrl of entry.parts || []) {
+      for (const pUrl of (entry.parts || []).slice(0, 3)) {
         fetch(pUrl, { priority: "low", cache: "force-cache" }).catch(() => {});
       }
     } catch (_) {
@@ -83,25 +110,24 @@
     }
   };
 
-  const normalizeMount = (href) => {
+  const resolveMount = (href) => {
     if (!href) return null;
     try {
       const u = new URL(href, location.origin);
       if (u.origin !== location.origin) return null;
-      const m = u.pathname.match(/^\/(photo|vector|film|light|pdf|effect|ani|design|texture|material|sound|word|deck|cad|grid)\/?$/);
-      return m ? `/${m[1]}/` : null;
+      const seg = u.pathname.replace(/^\/+|\/+$/g, "");
+      return SLUG_TO_MOUNT[seg] || null;
     } catch (_) {
       return null;
     }
   };
 
-  // Hover & touchstart listener for any direct Launch link (/photo/, /vector/, etc.)
   let hoverTimer = null;
   document.addEventListener(
     "pointerover",
     (e) => {
       const a = e.target && e.target.closest ? e.target.closest("a[href]") : null;
-      const mount = a ? normalizeMount(a.getAttribute("href")) : null;
+      const mount = a ? resolveMount(a.getAttribute("href")) : null;
       if (!mount) return;
       clearTimeout(hoverTimer);
       hoverTimer = setTimeout(() => warmApp(mount), 90);
@@ -113,20 +139,14 @@
     "touchstart",
     (e) => {
       const a = e.target && e.target.closest ? e.target.closest("a[href]") : null;
-      const mount = a ? normalizeMount(a.getAttribute("href")) : null;
+      const mount = a ? resolveMount(a.getAttribute("href")) : null;
       if (mount) warmApp(mount);
     },
     { passive: true }
   );
 
-  // On a dedicated Detail Page (/photocraft/, etc.), gently pre-warm that single app during idle time on fast 4G/Wi-Fi
   const pageApp = document.documentElement.getAttribute("data-preload-app");
-  if (pageApp) {
-    const conn = navigator.connection || {};
-    const fastEnough = !conn.effectiveType || conn.effectiveType === "4g";
-    if (fastEnough && canPrefetch()) {
-      const schedule = window.requestIdleCallback || ((fn) => setTimeout(fn, 1200));
-      schedule(() => setTimeout(() => warmApp(pageApp), 900));
-    }
+  if (pageApp && canPrefetch()) {
+    setTimeout(() => warmApp(pageApp), 300);
   }
 })();

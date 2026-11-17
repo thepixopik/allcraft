@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""Assemble all Craft web app artifacts from apps.json into dist/, generate /<slug>/ detail pages, inject Photoshop-style splash UI + Instant CacheStorage Wasm loader, and emit /prefetch-manifest.json."""
+"""Assemble all 15 Craft web app artifacts into dist/, strip + repack Wasm into 1.5 MiB pipelined streaming chunks, inject Photoshop-style splash UI + Zero-Clone CacheStorage Wasm loader, and emit /prefetch-manifest.json."""
 
 import datetime
+import gzip
 import hashlib
 import io
 import json
@@ -22,6 +23,7 @@ APPS_CONFIG = ROOT / "apps.json"
 SITE_DIR = ROOT / "site"
 DIST_DIR = ROOT / "dist"
 CF_MAX_FILE_BYTES = 25 * 1024 * 1024  # 25 MiB Cloudflare Pages single-asset limit
+STREAM_CHUNK_BYTES = int(1.5 * 1024 * 1024)  # 1.5 MiB pipelined streaming chunks
 
 SPLASH_PROFILES = {
     "vector": {
@@ -407,7 +409,7 @@ SPLASH_PROFILES = {
           <rect x="28" y="108" width="128" height="22" rx="6" fill="url(#fg2)" opacity="0.9"/>
           <rect x="86" y="140" width="144" height="22" rx="6" fill="#7c3aed" opacity="0.75"/>
           <rect x="42" y="172" width="160" height="22" rx="6" fill="#a855f7" opacity="0.55"/>
-          <rect x="28" y="216" width="202" height="36" rx="6" fill="rgba(255,255,255,0.05)" stroke="rgba(192,132,252,0.3)"/>
+          <rect x="28" y="216" width="202" height="36" rx="6" fill="rgba(192,132,252,0.05)" stroke="rgba(192,132,252,0.3)"/>
           <path d="M 38 234 L 54 222 L 66 244 L 82 220 L 96 242 L 112 226 L 128 244 L 146 221 L 164 240 L 182 226 L 204 238 L 218 232" fill="none" stroke="#e879f9" stroke-width="2"/>
           <line x1="134" y1="76" x2="134" y2="278" stroke="#fff" stroke-width="2"/>
           <polygon points="127,76 141,76 134,86" fill="#fff"/>
@@ -522,8 +524,6 @@ SPLASH_PROFILES = {
 
 
 class StripCrossOriginAuthRedirectHandler(urllib.request.HTTPRedirectHandler):
-    """Strip GitHub Authorization header when redirected to Azure/GitHub Actions blob storage."""
-
     def redirect_request(self, req, fp, code, msg, headers, newurl):
         new_req = super().redirect_request(req, fp, code, msg, headers, newurl)
         if new_req is None:
@@ -585,8 +585,349 @@ def pick_latest_artifact(repo: str, artifact_name: str, branch: str, token: str)
     return valid[0]
 
 
+def strip_wasm_bytes(raw: bytes) -> bytes:
+    """Safely strip non-essential custom sections (name, producers, .debug*, reloc.*) in pure Python."""
+    try:
+        if len(raw) < 8 or raw[:8] != b"\x00asm\x01\x00\x00\x00":
+            return raw
+        out = bytearray(raw[:8])
+        pos = 8
+        n = len(raw)
+        while pos < n:
+            sec_id = raw[pos]
+            p = pos + 1
+            sec_len = 0
+            shift = 0
+            while True:
+                if p >= n:
+                    return raw
+                b = raw[p]
+                p += 1
+                sec_len |= (b & 0x7F) << shift
+                if (b & 0x80) == 0:
+                    break
+                shift += 7
+            sec_end = p + sec_len
+            if sec_end > n:
+                return raw
+            drop = False
+            if sec_id == 0 and p < sec_end:
+                np = p
+                name_len = 0
+                nshift = 0
+                while np < sec_end:
+                    nb = raw[np]
+                    np += 1
+                    name_len |= (nb & 0x7F) << nshift
+                    if (nb & 0x80) == 0:
+                        break
+                    nshift += 7
+                if np + name_len <= sec_end:
+                    sec_name = raw[np : np + name_len].decode("utf-8", errors="replace")
+                    if (
+                        sec_name in ("name", "producers")
+                        or sec_name.startswith(".debug")
+                        or sec_name.startswith("reloc.")
+                    ):
+                        drop = True
+            if not drop:
+                out.extend(raw[pos:sec_end])
+            pos = sec_end
+        return bytes(out)
+    except Exception:
+        return raw
+
+
+def build_streaming_loader_script(
+    app_id: str, bar_id: str, pct_id: str, chunks_map: dict, parts_hash: str, first_parts: list[str]
+) -> str:
+    manifest_json = json.dumps(chunks_map, separators=(",", ":"))
+    preload_links = "\n  ".join(
+        f'<link rel="preload" href="./{p}" as="fetch" crossorigin>' for p in first_parts[:3]
+    )
+    return f"""{preload_links}
+  <script id="ac-stream-wasm-loader">
+(() => {{
+  const chunks = {manifest_json};
+  const CACHE_NAME = "allcraft-wasm-v2";
+  const APP_PREFIX = "https://allcraft.cache/wasm/{app_id}/";
+  const BUILD_PREFIX = "https://allcraft.cache/wasm/{app_id}/{parts_hash}/";
+  const BAR_ID = "{bar_id}";
+  const PCT_ID = "{pct_id}";
+  const origFetch = window.fetch.bind(window);
+  const eagerReady = new Map();
+
+  if ("caches" in window) {{
+    caches.delete("allcraft-wasm-v1").catch(() => {{}});
+  }}
+
+  const setProgress = (pct) => {{
+    const bar = document.getElementById(BAR_ID);
+    const pctEl = document.getElementById(PCT_ID);
+    if (bar) bar.style.width = Math.max(3, pct) + "%";
+    if (pctEl) pctEl.textContent = pct + "%";
+  }};
+
+  const cacheInIdle = (dir, parts, cacheKey) => {{
+    if (!("caches" in window) || typeof DecompressionStream === "undefined") return;
+    const run = async () => {{
+      try {{
+        const cache = await caches.open(CACHE_NAME);
+        if (await cache.match(cacheKey)) return;
+        const bufs = [];
+        for (const p of parts) {{
+          const r = await origFetch(dir + p, {{ cache: "force-cache" }});
+          if (!r.ok) return;
+          bufs.push(new Uint8Array(await r.arrayBuffer()));
+        }}
+        const gz = new ReadableStream({{
+          start(c) {{
+            for (const b of bufs) c.enqueue(b);
+            c.close();
+          }}
+        }});
+        const wasmBlob = await new Response(gz.pipeThrough(new DecompressionStream("gzip"))).blob();
+        await cache.put(
+          cacheKey,
+          new Response(wasmBlob, {{
+            status: 200,
+            headers: {{
+              "Content-Type": "application/wasm",
+              "Cross-Origin-Resource-Policy": "same-origin"
+            }}
+          }})
+        );
+        const keys = await cache.keys();
+        for (const req of keys) {{
+          if (req.url.startsWith(APP_PREFIX) && !req.url.startsWith(BUILD_PREFIX)) {{
+            cache.delete(req);
+          }}
+        }}
+      }} catch (_) {{}}
+    }};
+    const schedule = window.requestIdleCallback || ((fn) => setTimeout(fn, 2000));
+    schedule(() => setTimeout(run, 1800));
+  }};
+
+  const startWasmStream = (fileName, meta, dir = "./") => {{
+    const cacheKey = BUILD_PREFIX + fileName;
+    const promise = (async () => {{
+      if ("caches" in window) {{
+        try {{
+          const cache = await caches.open(CACHE_NAME);
+          const hit = await cache.match(cacheKey);
+          if (hit) {{
+            setProgress(100);
+            return hit;
+          }}
+        }} catch (_) {{}}
+      }}
+
+      const parts = meta.parts;
+      const totalBytes = meta.total || 0;
+      let loadedBytes = 0;
+
+      // Windowed-3 prefetcher + packet-by-packet streaming into DecompressionStream & instantiateStreaming
+      const CONCURRENCY = 3;
+      const started = new Array(parts.length);
+      let nextToStart = 0;
+
+      const startPart = (idx) => {{
+        if (idx >= parts.length || started[idx]) return started[idx];
+        started[idx] = origFetch(dir + parts[idx]).then((res) => {{
+          if (!res.ok) throw new Error("Failed to fetch " + parts[idx] + " (" + res.status + ")");
+          return res;
+        }});
+        return started[idx];
+      }};
+
+      for (let k = 0; k < Math.min(CONCURRENCY, parts.length); k++) {{
+        startPart(nextToStart++);
+      }}
+
+      const gzStream = new ReadableStream({{
+        async start(controller) {{
+          try {{
+            for (let i = 0; i < parts.length; i++) {{
+              startPart(nextToStart++);
+              const res = await startPart(i);
+              if (res.body) {{
+                const reader = res.body.getReader();
+                while (true) {{
+                  const {{ done, value }} = await reader.read();
+                  if (done) break;
+                  loadedBytes += value.byteLength;
+                  if (totalBytes > 0) {{
+                    setProgress(Math.min(99, Math.round((loadedBytes / totalBytes) * 100)));
+                  }}
+                  controller.enqueue(value);
+                }}
+              }} else {{
+                const buf = new Uint8Array(await res.arrayBuffer());
+                loadedBytes += buf.byteLength;
+                if (totalBytes > 0) {{
+                  setProgress(Math.min(99, Math.round((loadedBytes / totalBytes) * 100)));
+                }}
+                controller.enqueue(buf);
+              }}
+            }}
+            setProgress(100);
+            controller.close();
+            cacheInIdle(dir, parts, cacheKey);
+          }} catch (err) {{
+            controller.error(err);
+          }}
+        }}
+      }});
+
+      return new Response(gzStream.pipeThrough(new DecompressionStream("gzip")), {{
+        status: 200,
+        headers: {{
+          "Content-Type": "application/wasm",
+          "Cross-Origin-Resource-Policy": "same-origin"
+        }}
+      }});
+    }})();
+    eagerReady.set(fileName, promise);
+    return promise;
+  }};
+
+  // Eager start at 0ms in <head> before JS glue module finishes downloading!
+  for (const [fn, meta] of Object.entries(chunks)) {{
+    startWasmStream(fn, meta, "./");
+  }}
+
+  window.fetch = async (input, init) => {{
+    const rawUrl = typeof input === "string" ? input : (input instanceof URL ? input.href : (input && input.url) || "");
+    const cleanUrl = rawUrl.split("?")[0].split("#")[0];
+    const slash = cleanUrl.lastIndexOf("/");
+    const fileName = cleanUrl.substring(slash + 1);
+    if (eagerReady.has(fileName)) {{
+      const p = eagerReady.get(fileName);
+      eagerReady.delete(fileName);
+      return p;
+    }}
+    const meta = chunks[fileName];
+    if (!meta) {{
+      return origFetch(input, init);
+    }}
+    const dir = slash >= 0 ? cleanUrl.substring(0, slash + 1) : "./";
+    return startWasmStream(fileName, meta, dir);
+  }};
+}})();
+</script>"""
+
+
+def repack_and_optimize_app(target_dir: pathlib.Path, app_id: str, mount_path: str) -> dict:
+    """Strip Wasm symbols, slice into 1.5 MiB streaming chunks, and upgrade index.html's loader script."""
+    profile = SPLASH_PROFILES[app_id]
+    bar_id = profile["bar_id"]
+    pct_id = profile["pct_id"]
+    index_path = target_dir / "index.html"
+    html = index_path.read_text(encoding="utf-8")
+
+    for sidecar in list(target_dir.glob("*.gz")) + list(target_dir.glob("*.br")):
+        sidecar.unlink()
+
+    old_shim_re = re.compile(
+        r"<script>\s*\(\(\)\s*=>\s*\{\s*const chunks\s*=\s*(\{.*?\});.*?\}\)\(\);\s*</script>",
+        re.DOTALL,
+    )
+    m = old_shim_re.search(html)
+
+    new_chunks_map: dict[str, dict] = {}
+    all_new_parts: list[str] = []
+    primary_wasm_key: str | None = None
+
+    if m:
+        old_chunks = json.loads(m.group(1))
+        for wasm_key, meta in old_chunks.items():
+            old_parts = meta.get("parts", []) if isinstance(meta, dict) else list(meta)
+            gz_concat = bytearray()
+            for p in old_parts:
+                p_file = target_dir / p
+                if p_file.is_file():
+                    gz_concat.extend(p_file.read_bytes())
+                    p_file.unlink()
+            raw_orig = gzip.decompress(bytes(gz_concat))
+            raw_stripped = strip_wasm_bytes(raw_orig)
+            recomp = gzip.compress(raw_stripped, compresslevel=9)
+            digest = hashlib.sha256(recomp).hexdigest()[:12]
+            stem = wasm_key[:-5] if wasm_key.endswith(".wasm") else wasm_key
+
+            parts_list: list[str] = []
+            for idx, off in enumerate(range(0, len(recomp), STREAM_CHUNK_BYTES)):
+                part_name = f"{stem}-{digest}.wasm.part{idx}"
+                (target_dir / part_name).write_bytes(recomp[off : off + STREAM_CHUNK_BYTES])
+                parts_list.append(part_name)
+                all_new_parts.append(part_name)
+
+            saved_kb = (len(gz_concat) - len(recomp)) / 1024
+            print(
+                f"    Repacked {wasm_key}: raw {len(raw_orig)/1048576:.1f} -> {len(raw_stripped)/1048576:.1f} MiB | "
+                f"gzip {len(recomp)/1048576:.2f} MiB ({saved_kb:+.0f} KiB) across {len(parts_list)} x 1.5 MiB streaming chunks"
+            )
+            new_chunks_map[wasm_key] = {"parts": parts_list, "total": len(recomp)}
+            if primary_wasm_key is None:
+                primary_wasm_key = wasm_key
+    else:
+        for wasm_file in sorted(target_dir.glob("*.wasm")):
+            wasm_key = wasm_file.name
+            raw_orig = wasm_file.read_bytes()
+            raw_stripped = strip_wasm_bytes(raw_orig)
+            recomp = gzip.compress(raw_stripped, compresslevel=9)
+            digest = hashlib.sha256(recomp).hexdigest()[:12]
+            stem = wasm_file.stem
+            parts_list = []
+            for idx, off in enumerate(range(0, len(recomp), STREAM_CHUNK_BYTES)):
+                part_name = f"{stem}-{digest}.wasm.part{idx}"
+                (target_dir / part_name).write_bytes(recomp[off : off + STREAM_CHUNK_BYTES])
+                parts_list.append(part_name)
+                all_new_parts.append(part_name)
+            wasm_file.unlink()
+            print(
+                f"    Chunked raw {wasm_key}: {len(raw_orig)/1048576:.1f} MiB -> "
+                f"{len(recomp)/1048576:.2f} MiB gzip across {len(parts_list)} x 1.5 MiB streaming chunks"
+            )
+            new_chunks_map[wasm_key] = {"parts": parts_list, "total": len(recomp)}
+            if primary_wasm_key is None:
+                primary_wasm_key = wasm_key
+
+    parts_hash = hashlib.sha256(",".join(all_new_parts).encode("utf-8")).hexdigest()[:12]
+    if new_chunks_map:
+        html = re.sub(r'<link\b[^>]*\bhref="[^"]*\.wasm"[^>]*>', "", html)
+        new_loader = build_streaming_loader_script(
+            app_id, bar_id, pct_id, new_chunks_map, parts_hash, all_new_parts
+        )
+        if m:
+            m2 = old_shim_re.search(html)
+            if m2:
+                html = html[: m2.start()] + new_loader + html[m2.end() :]
+            else:
+                html = re.sub(r"(<head\b[^>]*>)", r"\1\n  " + new_loader, html, count=1, flags=re.IGNORECASE)
+        else:
+            html = re.sub(r"(<head\b[^>]*>)", r"\1\n  " + new_loader, html, count=1, flags=re.IGNORECASE)
+        index_path.write_text(html, encoding="utf-8")
+
+    js_files = [
+        f"/{mount_path}/{f.name}"
+        for f in sorted(target_dir.glob("*.js"))
+        if f.name not in ("sw.js",)
+    ]
+    cache_key = (
+        f"https://allcraft.cache/wasm/{app_id}/{parts_hash}/{primary_wasm_key}"
+        if primary_wasm_key and all_new_parts
+        else None
+    )
+    return {
+        "js": js_files,
+        "parts": [f"/{mount_path}/{p}" for p in all_new_parts],
+        "parts_hash": parts_hash,
+        "cache_key": cache_key,
+    }
+
+
 def replace_div_by_id(html: str, div_id: str, replacement: str) -> tuple[str, bool]:
-    """Find `<div ... id=div_id ...>` (quoted or unquoted), balance nested `<div>` tags, and replace it."""
     pattern = re.compile(
         r"<div\b[^>]*\bid=(?:\"|\')?" + re.escape(div_id) + r"(?:\"|\')?(?=[\s>/])[^>]*>",
         re.IGNORECASE,
@@ -610,52 +951,8 @@ def replace_div_by_id(html: str, div_id: str, replacement: str) -> tuple[str, bo
     return html, False
 
 
-def extract_prefetch_info(target_dir: pathlib.Path, app_id: str, mount_path: str) -> dict:
-    """Inspect index.html and extracted files to build prefetch & CacheStorage metadata."""
-    index_path = target_dir / "index.html"
-    html = index_path.read_text(encoding="utf-8") if index_path.is_file() else ""
-
-    js_files = [
-        f"/{mount_path}/{f.name}"
-        for f in sorted(target_dir.glob("*.js"))
-        if f.name not in ("sw.js",)
-    ]
-
-    wasm_key = None
-    parts_rel: list[str] = []
-    m = re.search(r"const chunks\s*=\s*(\{.*?\});", html)
-    if m:
-        try:
-            chunks_obj = json.loads(m.group(1))
-            for k, val in chunks_obj.items():
-                wasm_key = k
-                parts_rel = val.get("parts", []) if isinstance(val, dict) else list(val)
-                break
-        except Exception:
-            pass
-
-    if not parts_rel:
-        parts_rel = [f.name for f in sorted(target_dir.glob("*.part*"))]
-
-    parts_urls = [f"/{mount_path}/{p}" for p in parts_rel]
-    parts_hash = hashlib.sha256(",".join(parts_rel).encode("utf-8")).hexdigest()[:12]
-    cache_key = (
-        f"https://allcraft.cache/wasm/{app_id}/{parts_hash}/{wasm_key}"
-        if wasm_key and parts_rel
-        else None
-    )
-
-    return {
-        "js": js_files,
-        "parts": parts_urls,
-        "wasm_key": wasm_key,
-        "parts_hash": parts_hash,
-        "cache_key": cache_key,
-    }
-
-
-def inject_photoshop_splash_and_cache(target_dir: pathlib.Path, app_id: str, prefetch_meta: dict) -> None:
-    """Inject Photoshop-style splash UI AND instant CacheStorage Wasm wrapper."""
+def inject_photoshop_splash(target_dir: pathlib.Path, app_id: str) -> None:
+    """Inject the Photoshop-style desktop splash window and update sw.js if present."""
     profile = SPLASH_PROFILES.get(app_id)
     index_path = target_dir / "index.html"
     if not profile or not index_path.is_file():
@@ -672,7 +969,6 @@ def inject_photoshop_splash_and_cache(target_dir: pathlib.Path, app_id: str, pre
     )
     extra_html = profile.get("extra_html", "")
     stages_json = json.dumps(profile["stages"])
-    parts_hash = prefetch_meta.get("parts_hash") or "v1"
 
     splash_css = f"""<style id="ac-ps-splash-style">
 #{cid} {{
@@ -688,7 +984,7 @@ def inject_photoshop_splash_and_cache(target_dir: pathlib.Path, app_id: str, pre
   background: #1c1d22; border-radius: 18px; overflow: hidden;
   border: 1px solid rgba(255,255,255,0.10);
   box-shadow: 0 32px 90px rgba(0,0,0,0.72), 0 0 0 1px rgba(0,0,0,0.5);
-  animation: acSplashIn 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: acSplashIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }}
 @keyframes acSplashIn {{
   from {{ opacity: 0; transform: scale(0.97) translateY(6px); }}
@@ -721,7 +1017,7 @@ def inject_photoshop_splash_and_cache(target_dir: pathlib.Path, app_id: str, pre
 .ac-ps-track {{ width: 100%; height: 4px; background: rgba(255,255,255,0.08); border-radius: 999px; overflow: hidden; }}
 .ac-ps-fill {{
   width: 3%; height: 100%; background: {profile["accent"]}; border-radius: 999px;
-  box-shadow: 0 0 12px {profile["accent"]}; transition: width 0.14s ease-out;
+  box-shadow: 0 0 12px {profile["accent"]}; transition: width 0.1s ease-out;
 }}
 .ac-ps-foot {{ margin-top: 14px; font-size: 10.5px; color: #64748b; letter-spacing: 0.02em; }}
 .ac-ps-right {{ position: relative; background: #121318; border-left: 1px solid rgba(255,255,255,0.06); overflow: hidden; }}
@@ -745,7 +1041,7 @@ def inject_photoshop_splash_and_cache(target_dir: pathlib.Path, app_id: str, pre
         </div>
         <p class="ac-ps-tagline">{profile["tagline"]}</p>
         <div class="ac-ps-pills">
-          <span class="ac-ps-pill">WebGPU Accelerated</span>
+          <span class="ac-ps-pill">HTTP/3 Parallel Stream</span>
           <span class="ac-ps-pill">Instant Local Cache</span>
           <span class="ac-ps-pill">Rust + Wasm</span>
         </div>
@@ -768,67 +1064,8 @@ def inject_photoshop_splash_and_cache(target_dir: pathlib.Path, app_id: str, pre
   </div>
 </div>"""
 
-    # Instant CacheStorage layer + stage observer:
-    # Wraps pack_wasm.py's window.fetch so decompressed .wasm bytes are cached in CacheStorage ("allcraft-wasm-v1")
-    # and served directly off disk (<0.25s) on repeat visits or after hover pre-warming!
-    cache_and_observer_js = f"""<script id="ac-instant-wasm-cache">
+    observer_js = f"""<script>
 (() => {{
-  const CACHE_NAME = "allcraft-wasm-v1";
-  const APP_PREFIX = "https://allcraft.cache/wasm/{app_id}/";
-  const BUILD_PREFIX = "https://allcraft.cache/wasm/{app_id}/{parts_hash}/";
-  if ("caches" in window && typeof window.fetch === "function") {{
-    const underFetch = window.fetch.bind(window);
-    window.fetch = async (input, init) => {{
-      const rawUrl = typeof input === "string" ? input : (input instanceof URL ? input.href : (input && input.url) || "");
-      const cleanUrl = rawUrl.split("?")[0].split("#")[0];
-      if (!cleanUrl.endsWith(".wasm")) {{
-        return underFetch(input, init);
-      }}
-      const slash = cleanUrl.lastIndexOf("/");
-      const fileName = cleanUrl.substring(slash + 1);
-      const cacheKey = BUILD_PREFIX + fileName;
-      try {{
-        const cache = await caches.open(CACHE_NAME);
-        const hit = await cache.match(cacheKey);
-        if (hit) {{
-          const bar = document.getElementById("{bar_id}");
-          const pctEl = document.getElementById("{pct_id}");
-          if (bar) bar.style.width = "100%";
-          if (pctEl) pctEl.textContent = "100%";
-          return hit;
-        }}
-        const res = await underFetch(input, init);
-        if (res && res.ok) {{
-          const copy = res.clone();
-          (async () => {{
-            try {{
-              const blob = await copy.blob();
-              await cache.put(
-                cacheKey,
-                new Response(blob, {{
-                  status: 200,
-                  headers: {{
-                    "Content-Type": "application/wasm",
-                    "Cross-Origin-Resource-Policy": "same-origin"
-                  }}
-                }})
-              );
-              const keys = await cache.keys();
-              for (const req of keys) {{
-                if (req.url.startsWith(APP_PREFIX) && !req.url.startsWith(BUILD_PREFIX)) {{
-                  cache.delete(req);
-                }}
-              }}
-            }} catch (_) {{}}
-          }})();
-        }}
-        return res;
-      }} catch (_) {{
-        return underFetch(input, init);
-      }}
-    }};
-  }}
-
   const stages = {stages_json};
   const bind = () => {{
     const rawEl = document.getElementById("{pct_id}");
@@ -865,20 +1102,28 @@ def inject_photoshop_splash_and_cache(target_dir: pathlib.Path, app_id: str, pre
         return
 
     if "</head>" in new_html:
-        new_html = new_html.replace("</head>", splash_css + cache_and_observer_js + "</head>", 1)
+        new_html = new_html.replace("</head>", splash_css + observer_js + "</head>", 1)
     else:
-        new_html = splash_css + cache_and_observer_js + new_html
+        new_html = splash_css + observer_js + new_html
 
     index_path.write_text(new_html, encoding="utf-8")
 
+    # Refresh sw.js if present (e.g. effectcraft) so FILES & VERSION match new 1.5 MiB .part* files
     sw_path = target_dir / "sw.js"
     if sw_path.is_file():
+        rel_files = sorted(
+            f.relative_to(target_dir).as_posix()
+            for f in target_dir.rglob("*")
+            if f.is_file() and f.name != "sw.js"
+        )
+        file_list = ["./"] + [f"./{f}" for f in rel_files]
+        new_ver = hashlib.sha256((new_html + ",".join(rel_files)).encode("utf-8")).hexdigest()[:16]
         sw_txt = sw_path.read_text(encoding="utf-8")
-        new_ver = hashlib.sha256(new_html.encode("utf-8")).hexdigest()[:16]
         sw_txt = re.sub(r'const VERSION = "[^"]*";', f'const VERSION = "{new_ver}";', sw_txt, count=1)
+        sw_txt = re.sub(r"const FILES = \[[^\]]*\];", f"const FILES = {json.dumps(file_list)};", sw_txt, count=1)
         sw_path.write_text(sw_txt, encoding="utf-8")
 
-    print(f"    Injected Splash ({profile['code']}) + Instant CacheStorage Wasm Loader into dist/{app_id}/index.html")
+    print(f"    Injected Splash ({profile['code']}) into dist/{app_id}/index.html")
 
 
 def write_building_placeholder(target_dir: pathlib.Path, app_name: str) -> None:
@@ -889,7 +1134,7 @@ def write_building_placeholder(target_dir: pathlib.Path, app_name: str) -> None:
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="refresh" content="15">
-  <title>Building {app_name} — The AllCraft Studio</title>
+  <title>Building {app_name} — AllCraft Studio</title>
   <style>
     html, body {{ margin: 0; height: 100%; background: #0b0b0c; color: #f4f4f6; font: 15px/1.55 system-ui, sans-serif; display: flex; align-items: center; justify-content: center; text-align: center; }}
     .box {{ max-width: 460px; padding: 30px; background: #141418; border: 1px solid #282830; }}
@@ -909,7 +1154,6 @@ def write_building_placeholder(target_dir: pathlib.Path, app_name: str) -> None:
 
 
 def normalize_extracted_app(target_dir: pathlib.Path) -> None:
-    """Flatten single nested folder if needed, and strip inner _headers/.htaccess files."""
     if not (target_dir / "index.html").is_file():
         candidates = list(target_dir.glob("*/index.html"))
         if len(candidates) == 1:
@@ -986,8 +1230,8 @@ def main() -> None:
             print(f"ERROR: dist/{mount_path}/index.html missing after extracting {artifact_name}!", file=sys.stderr)
             sys.exit(1)
 
-        pmeta = extract_prefetch_info(target_dir, app_id, mount_path)
-        inject_photoshop_splash_and_cache(target_dir, app_id, pmeta)
+        pmeta = repack_and_optimize_app(target_dir, app_id, mount_path)
+        inject_photoshop_splash(target_dir, app_id)
         prefetch_manifest[f"/{mount_path}/"] = {
             "js": pmeta["js"],
             "parts": pmeta["parts"],
