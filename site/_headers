@@ -1,4 +1,4 @@
-# Unified Cloudflare Pages _headers for The AllCraft Studio (15-App Suite + /apps/<slug>/ Detail Pages)
+# Unified Cloudflare Pages _headers for The AllCraft Studio (15-App Suite + Direct Slug Detail Pages)
 
 /*
   X-Content-Type-Options: nosniff
@@ -11,7 +11,10 @@
 /index.html
   Cache-Control: no-cache
 
-/apps/*
+/hover-preload.js
+  Cache-Control: no-cache
+
+/prefetch-manifest.json
   Cache-Control: no-cache
 
 /build-manifest.json

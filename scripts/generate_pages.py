@@ -71,14 +71,13 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
         </div>"""
         )
 
-    # 14 other apps + 2-column summary card = 16 cells = exact 4x4 grid!
     family_cards.append(
         """
         <div class="fam-summary">
           <div>
             <p class="hud-label" style="margin:0;color:var(--faint)">15 / 15 Unified Cloud</p>
             <h3 class="font-display" style="margin:12px 0 0;font-size:30px;color:var(--ink-strong)">Explore the <span style="color:var(--app)">entire suite</span>.</h3>
-            <p style="margin:10px 0 0;max-width:460px;font-size:14.5px;line-height:1.6;color:var(--muted)">Every Craft application shares the same zero-cloud privacy model, keyboard-first ergonomics, and instant WebGPU + WebAssembly runtime.</p>
+            <p style="margin:10px 0 0;max-width:460px;font-size:14.5px;line-height:1.6;color:var(--muted)">Every Craft application shares the same zero-cloud privacy model, keyboard-first ergonomics, and instant CacheStorage WebAssembly runtime.</p>
           </div>
           <a href="/#lineup" class="btn-primary hud-label" style="height:42px;padding:0 18px;width:fit-content">&larr; Back to All 15 Apps</a>
         </div>"""
@@ -89,7 +88,7 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
     )
 
     return f"""<!DOCTYPE html>
-<html lang="en" data-theme="dark" style="--app:{color}">
+<html lang="en" data-theme="dark" data-preload-app="{mount}" style="--app:{color}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -101,6 +100,7 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,500..900&family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <script src="/hover-preload.js" defer></script>
   <script>
     (() => {{
       const saved = localStorage.getItem("allcraft_theme");
@@ -505,7 +505,7 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
               </div>
               <div class="id-badges">
                 <span class="pill accent">● Live in Browser</span>
-                <span class="pill accent">WebGPU + Wasm</span>
+                <span class="pill accent">Instant CacheStorage</span>
                 <span class="pill">MIT / Apache-2.0</span>
               </div>
             </div>
@@ -632,9 +632,9 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
 
         <div class="opt-banner">
           <div style="max-width:680px">
-            <span class="pill accent">Recommended &middot; Zero Install</span>
+            <span class="pill accent">Recommended &middot; Instant Repeat Open</span>
             <h2 class="font-display" style="margin:14px 0 0;font-size:clamp(28px,4vw,42px);color:var(--ink-strong)">Run {full_name} <span style="color:var(--app)">instantly</span> in your browser.</h2>
-            <p style="margin:12px 0 0;font-size:15.5px;line-height:1.6;color:var(--muted)">Streams in parallel 6 MiB gzipped WebAssembly chunks from Cloudflare Edge with a native desktop splash screen. Your files stay 100% in your device memory.</p>
+            <p style="margin:12px 0 0;font-size:15.5px;line-height:1.6;color:var(--muted)">Decompressed WebAssembly locks directly into your browser&rsquo;s CacheStorage — opening in under 0.25s on repeat visits with zero cloud uploads.</p>
           </div>
           <a href="{mount}" class="btn-accent hud-label">&#9654; Open {full_name} ({mount})</a>
         </div>

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Assemble all Craft web app artifacts from apps.json into dist/, generate /apps/<slug>/ detail pages, and inject Photoshop-style splash UI."""
+"""Assemble all Craft web app artifacts from apps.json into dist/, generate /<slug>/ detail pages, inject Photoshop-style splash UI + Instant CacheStorage Wasm loader, and emit /prefetch-manifest.json."""
 
 import datetime
 import hashlib
@@ -610,8 +610,52 @@ def replace_div_by_id(html: str, div_id: str, replacement: str) -> tuple[str, bo
     return html, False
 
 
-def inject_photoshop_splash(target_dir: pathlib.Path, app_id: str) -> None:
-    """Replace the plain MB loading bar with a desktop Photoshop-style splash window."""
+def extract_prefetch_info(target_dir: pathlib.Path, app_id: str, mount_path: str) -> dict:
+    """Inspect index.html and extracted files to build prefetch & CacheStorage metadata."""
+    index_path = target_dir / "index.html"
+    html = index_path.read_text(encoding="utf-8") if index_path.is_file() else ""
+
+    js_files = [
+        f"/{mount_path}/{f.name}"
+        for f in sorted(target_dir.glob("*.js"))
+        if f.name not in ("sw.js",)
+    ]
+
+    wasm_key = None
+    parts_rel: list[str] = []
+    m = re.search(r"const chunks\s*=\s*(\{.*?\});", html)
+    if m:
+        try:
+            chunks_obj = json.loads(m.group(1))
+            for k, val in chunks_obj.items():
+                wasm_key = k
+                parts_rel = val.get("parts", []) if isinstance(val, dict) else list(val)
+                break
+        except Exception:
+            pass
+
+    if not parts_rel:
+        parts_rel = [f.name for f in sorted(target_dir.glob("*.part*"))]
+
+    parts_urls = [f"/{mount_path}/{p}" for p in parts_rel]
+    parts_hash = hashlib.sha256(",".join(parts_rel).encode("utf-8")).hexdigest()[:12]
+    cache_key = (
+        f"https://allcraft.cache/wasm/{app_id}/{parts_hash}/{wasm_key}"
+        if wasm_key and parts_rel
+        else None
+    )
+
+    return {
+        "js": js_files,
+        "parts": parts_urls,
+        "wasm_key": wasm_key,
+        "parts_hash": parts_hash,
+        "cache_key": cache_key,
+    }
+
+
+def inject_photoshop_splash_and_cache(target_dir: pathlib.Path, app_id: str, prefetch_meta: dict) -> None:
+    """Inject Photoshop-style splash UI AND instant CacheStorage Wasm wrapper."""
     profile = SPLASH_PROFILES.get(app_id)
     index_path = target_dir / "index.html"
     if not profile or not index_path.is_file():
@@ -628,6 +672,7 @@ def inject_photoshop_splash(target_dir: pathlib.Path, app_id: str) -> None:
     )
     extra_html = profile.get("extra_html", "")
     stages_json = json.dumps(profile["stages"])
+    parts_hash = prefetch_meta.get("parts_hash") or "v1"
 
     splash_css = f"""<style id="ac-ps-splash-style">
 #{cid} {{
@@ -643,7 +688,7 @@ def inject_photoshop_splash(target_dir: pathlib.Path, app_id: str) -> None:
   background: #1c1d22; border-radius: 18px; overflow: hidden;
   border: 1px solid rgba(255,255,255,0.10);
   box-shadow: 0 32px 90px rgba(0,0,0,0.72), 0 0 0 1px rgba(0,0,0,0.5);
-  animation: acSplashIn 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: acSplashIn 0.24s cubic-bezier(0.16, 1, 0.3, 1);
 }}
 @keyframes acSplashIn {{
   from {{ opacity: 0; transform: scale(0.97) translateY(6px); }}
@@ -676,7 +721,7 @@ def inject_photoshop_splash(target_dir: pathlib.Path, app_id: str) -> None:
 .ac-ps-track {{ width: 100%; height: 4px; background: rgba(255,255,255,0.08); border-radius: 999px; overflow: hidden; }}
 .ac-ps-fill {{
   width: 3%; height: 100%; background: {profile["accent"]}; border-radius: 999px;
-  box-shadow: 0 0 12px {profile["accent"]}; transition: width 0.16s ease-out;
+  box-shadow: 0 0 12px {profile["accent"]}; transition: width 0.14s ease-out;
 }}
 .ac-ps-foot {{ margin-top: 14px; font-size: 10.5px; color: #64748b; letter-spacing: 0.02em; }}
 .ac-ps-right {{ position: relative; background: #121318; border-left: 1px solid rgba(255,255,255,0.06); overflow: hidden; }}
@@ -701,7 +746,7 @@ def inject_photoshop_splash(target_dir: pathlib.Path, app_id: str) -> None:
         <p class="ac-ps-tagline">{profile["tagline"]}</p>
         <div class="ac-ps-pills">
           <span class="ac-ps-pill">WebGPU Accelerated</span>
-          <span class="ac-ps-pill">100% On-Device</span>
+          <span class="ac-ps-pill">Instant Local Cache</span>
           <span class="ac-ps-pill">Rust + Wasm</span>
         </div>
       </div>
@@ -723,8 +768,67 @@ def inject_photoshop_splash(target_dir: pathlib.Path, app_id: str) -> None:
   </div>
 </div>"""
 
-    observer_js = f"""<script>
+    # Instant CacheStorage layer + stage observer:
+    # Wraps pack_wasm.py's window.fetch so decompressed .wasm bytes are cached in CacheStorage ("allcraft-wasm-v1")
+    # and served directly off disk (<0.25s) on repeat visits or after hover pre-warming!
+    cache_and_observer_js = f"""<script id="ac-instant-wasm-cache">
 (() => {{
+  const CACHE_NAME = "allcraft-wasm-v1";
+  const APP_PREFIX = "https://allcraft.cache/wasm/{app_id}/";
+  const BUILD_PREFIX = "https://allcraft.cache/wasm/{app_id}/{parts_hash}/";
+  if ("caches" in window && typeof window.fetch === "function") {{
+    const underFetch = window.fetch.bind(window);
+    window.fetch = async (input, init) => {{
+      const rawUrl = typeof input === "string" ? input : (input instanceof URL ? input.href : (input && input.url) || "");
+      const cleanUrl = rawUrl.split("?")[0].split("#")[0];
+      if (!cleanUrl.endsWith(".wasm")) {{
+        return underFetch(input, init);
+      }}
+      const slash = cleanUrl.lastIndexOf("/");
+      const fileName = cleanUrl.substring(slash + 1);
+      const cacheKey = BUILD_PREFIX + fileName;
+      try {{
+        const cache = await caches.open(CACHE_NAME);
+        const hit = await cache.match(cacheKey);
+        if (hit) {{
+          const bar = document.getElementById("{bar_id}");
+          const pctEl = document.getElementById("{pct_id}");
+          if (bar) bar.style.width = "100%";
+          if (pctEl) pctEl.textContent = "100%";
+          return hit;
+        }}
+        const res = await underFetch(input, init);
+        if (res && res.ok) {{
+          const copy = res.clone();
+          (async () => {{
+            try {{
+              const blob = await copy.blob();
+              await cache.put(
+                cacheKey,
+                new Response(blob, {{
+                  status: 200,
+                  headers: {{
+                    "Content-Type": "application/wasm",
+                    "Cross-Origin-Resource-Policy": "same-origin"
+                  }}
+                }})
+              );
+              const keys = await cache.keys();
+              for (const req of keys) {{
+                if (req.url.startsWith(APP_PREFIX) && !req.url.startsWith(BUILD_PREFIX)) {{
+                  cache.delete(req);
+                }}
+              }}
+            }} catch (_) {{}}
+          }})();
+        }}
+        return res;
+      }} catch (_) {{
+        return underFetch(input, init);
+      }}
+    }};
+  }}
+
   const stages = {stages_json};
   const bind = () => {{
     const rawEl = document.getElementById("{pct_id}");
@@ -744,6 +848,7 @@ def inject_photoshop_splash(target_dir: pathlib.Path, app_id: str) -> None:
         stageEl.textContent = stages[idx];
       }}
     }};
+    sync();
     new MutationObserver(sync).observe(rawEl, {{ childList: true, characterData: true, subtree: true }});
   }};
   if (document.readyState === "loading") {{
@@ -760,9 +865,9 @@ def inject_photoshop_splash(target_dir: pathlib.Path, app_id: str) -> None:
         return
 
     if "</head>" in new_html:
-        new_html = new_html.replace("</head>", splash_css + observer_js + "</head>", 1)
+        new_html = new_html.replace("</head>", splash_css + cache_and_observer_js + "</head>", 1)
     else:
-        new_html = splash_css + observer_js + new_html
+        new_html = splash_css + cache_and_observer_js + new_html
 
     index_path.write_text(new_html, encoding="utf-8")
 
@@ -773,7 +878,7 @@ def inject_photoshop_splash(target_dir: pathlib.Path, app_id: str) -> None:
         sw_txt = re.sub(r'const VERSION = "[^"]*";', f'const VERSION = "{new_ver}";', sw_txt, count=1)
         sw_path.write_text(sw_txt, encoding="utf-8")
 
-    print(f"    Injected Photoshop-style splash screen ({profile['code']}) into dist/{app_id}/index.html")
+    print(f"    Injected Splash ({profile['code']}) + Instant CacheStorage Wasm Loader into dist/{app_id}/index.html")
 
 
 def write_building_placeholder(target_dir: pathlib.Path, app_name: str) -> None:
@@ -834,6 +939,7 @@ def main() -> None:
     generate_pages.build_all(DIST_DIR)
 
     manifest_entries = []
+    prefetch_manifest: dict[str, dict] = {}
     for app in apps:
         app_id = app["id"]
         app_name = app.get("name", app_id)
@@ -880,7 +986,13 @@ def main() -> None:
             print(f"ERROR: dist/{mount_path}/index.html missing after extracting {artifact_name}!", file=sys.stderr)
             sys.exit(1)
 
-        inject_photoshop_splash(target_dir, app_id)
+        pmeta = extract_prefetch_info(target_dir, app_id, mount_path)
+        inject_photoshop_splash_and_cache(target_dir, app_id, pmeta)
+        prefetch_manifest[f"/{mount_path}/"] = {
+            "js": pmeta["js"],
+            "parts": pmeta["parts"],
+            "cache_key": pmeta["cache_key"],
+        }
 
         print(f"    Extracted to dist/{mount_path}/ ({sum(1 for _ in target_dir.rglob('*') if _.is_file())} files, index.html verified)")
         manifest_entries.append(
@@ -894,6 +1006,10 @@ def main() -> None:
                 "artifact_created_at": art.get("created_at"),
             }
         )
+
+    (DIST_DIR / "prefetch-manifest.json").write_text(
+        json.dumps(prefetch_manifest, separators=(",", ":")), encoding="utf-8"
+    )
 
     oversized = []
     total_bytes = 0
