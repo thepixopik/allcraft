@@ -36,6 +36,15 @@
       "branch": "main",
       "mount_path": "pdf",
       "required": false
+    },
+    {
+      "id": "design",
+      "name": "The AllCraft Design",
+      "repo": "thepixopik/designcraft",
+      "artifact_name": "the-allcraft-design-web",
+      "branch": "main",
+      "mount_path": "design",
+      "required": false
     }
   ]
 }
