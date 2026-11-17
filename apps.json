@@ -1,0 +1,23 @@
+{
+  "project_name": "the-allcraft",
+  "apps": [
+    {
+      "id": "vector",
+      "name": "The AllCraft Vector",
+      "repo": "thepixopik/vectorcraft",
+      "artifact_name": "the-allcraft-web-cloudflare",
+      "branch": "main",
+      "mount_path": "vector",
+      "required": true
+    },
+    {
+      "id": "photo",
+      "name": "The AllCraft Photo",
+      "repo": "thepixopik/photocraft",
+      "artifact_name": "the-allcraft-photo-web",
+      "branch": "main",
+      "mount_path": "photo",
+      "required": true
+    }
+  ]
+}
