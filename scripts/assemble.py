@@ -152,6 +152,69 @@ SPLASH_PROFILES = {
           <rect x="182" y="124" width="32" height="122" rx="3" fill="rgba(255,255,255,0.12)"/>
         </svg>""",
     },
+    "word": {
+        "container_id": "wordcraft_loading",
+        "bar_id": "wc_load_bar",
+        "pct_id": "wc_load_pct",
+        "code": "Wd",
+        "title": "The AllCraft Word",
+        "tagline": "Print-Layout Word Processor, Equations & Citations",
+        "accent": "#818CF8",
+        "accent_soft": "rgba(129, 140, 248, 0.24)",
+        "badge_bg": "#15173B",
+        "stages": [
+            "Initializing Print-Layout Page & Font Shaper…",
+            "Loading DOCX, ODT, RTF & Markdown Parsers…",
+            "Preparing LaTeX Equation & Citation Engine…",
+            "Loading Track Changes, Styles & Mail Merge…",
+            "Opening Document Workspace…",
+        ],
+        "art_svg": """<svg viewBox="0 0 260 360" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="wg1" cx="55%" cy="32%" r="68%"><stop offset="0%" stop-color="#6366f1" stop-opacity="0.55"/><stop offset="100%" stop-color="#111222" stop-opacity="0"/></radialGradient>
+          </defs>
+          <rect width="260" height="360" fill="#111222"/>
+          <rect width="260" height="360" fill="url(#wg1)"/>
+          <rect x="54" y="72" width="152" height="212" rx="12" fill="rgba(255,255,255,0.06)" stroke="#818cf8" stroke-width="1.6"/>
+          <text x="74" y="132" font-family="Georgia, serif" font-size="38" font-weight="700" fill="#c7d2fe">Aa</text>
+          <line x1="74" y1="158" x2="186" y2="158" stroke="#818cf8" stroke-width="3.5" stroke-linecap="round"/>
+          <line x1="74" y1="178" x2="178" y2="178" stroke="rgba(255,255,255,0.38)" stroke-width="3" stroke-linecap="round"/>
+          <line x1="74" y1="196" x2="184" y2="196" stroke="rgba(255,255,255,0.38)" stroke-width="3" stroke-linecap="round"/>
+          <line x1="74" y1="214" x2="152" y2="214" stroke="rgba(255,255,255,0.28)" stroke-width="3" stroke-linecap="round"/>
+          <rect x="74" y="234" width="68" height="24" rx="5" fill="rgba(99,102,241,0.28)" stroke="#818cf8" stroke-width="1"/>
+        </svg>""",
+    },
+    "pdf": {
+        "container_id": "pdfcraft_loading",
+        "bar_id": "pdf_load_bar",
+        "pct_id": "pdf_load_pct",
+        "code": "Pd",
+        "title": "The AllCraft PDF",
+        "tagline": "Document Editing, On-Device OCR, Forms & Signing",
+        "accent": "#10B981",
+        "accent_soft": "rgba(16, 185, 129, 0.24)",
+        "badge_bg": "#08291E",
+        "stages": [
+            "Initializing Vector Page Renderer & Font Engine…",
+            "Loading Form Fields, Redaction & Digital Signer…",
+            "Preparing On-Device Neural OCR Worker…",
+            "Loading Page Organizer & Preflight Rules…",
+            "Opening PDF Workbench…",
+        ],
+        "art_svg": """<svg viewBox="0 0 260 360" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="dg1" cx="55%" cy="35%" r="68%"><stop offset="0%" stop-color="#10b981" stop-opacity="0.5"/><stop offset="100%" stop-color="#0d1916" stop-opacity="0"/></radialGradient>
+          </defs>
+          <rect width="260" height="360" fill="#0d1916"/>
+          <rect width="260" height="360" fill="url(#dg1)"/>
+          <rect x="58" y="76" width="144" height="196" rx="12" fill="rgba(255,255,255,0.06)" stroke="#34d399" stroke-width="1.6"/>
+          <line x1="80" y1="112" x2="162" y2="112" stroke="#a7f3d0" stroke-width="4" stroke-linecap="round"/>
+          <line x1="80" y1="132" x2="180" y2="132" stroke="rgba(255,255,255,0.35)" stroke-width="3" stroke-linecap="round"/>
+          <line x1="80" y1="148" x2="172" y2="148" stroke="rgba(255,255,255,0.35)" stroke-width="3" stroke-linecap="round"/>
+          <line x1="44" y1="176" x2="216" y2="176" stroke="#10b981" stroke-width="2.5"/>
+          <path d="M 82 232 Q 106 206, 122 228 T 174 216" fill="none" stroke="#34d399" stroke-width="2.8" stroke-linecap="round"/>
+        </svg>""",
+    },
     "film": {
         "container_id": "loading",
         "bar_id": "fc_load_bar",
@@ -252,37 +315,6 @@ SPLASH_PROFILES = {
             <line x1="222" y1="168" x2="222" y2="192"/>
           </g>
           <line x1="28" y1="180" x2="234" y2="180" stroke="rgba(255,255,255,0.28)" stroke-width="1.4"/>
-        </svg>""",
-    },
-    "pdf": {
-        "container_id": "pdfcraft_loading",
-        "bar_id": "pdf_load_bar",
-        "pct_id": "pdf_load_pct",
-        "code": "Pd",
-        "title": "The AllCraft PDF",
-        "tagline": "Document Editing, On-Device OCR, Forms & Signing",
-        "accent": "#10B981",
-        "accent_soft": "rgba(16, 185, 129, 0.24)",
-        "badge_bg": "#08291E",
-        "stages": [
-            "Initializing Vector Page Renderer & Font Engine…",
-            "Loading Form Fields, Redaction & Digital Signer…",
-            "Preparing On-Device Neural OCR Worker…",
-            "Loading Page Organizer & Preflight Rules…",
-            "Opening PDF Workbench…",
-        ],
-        "art_svg": """<svg viewBox="0 0 260 360" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <radialGradient id="dg1" cx="55%" cy="35%" r="68%"><stop offset="0%" stop-color="#10b981" stop-opacity="0.5"/><stop offset="100%" stop-color="#0d1916" stop-opacity="0"/></radialGradient>
-          </defs>
-          <rect width="260" height="360" fill="#0d1916"/>
-          <rect width="260" height="360" fill="url(#dg1)"/>
-          <rect x="58" y="76" width="144" height="196" rx="12" fill="rgba(255,255,255,0.06)" stroke="#34d399" stroke-width="1.6"/>
-          <line x1="80" y1="112" x2="162" y2="112" stroke="#a7f3d0" stroke-width="4" stroke-linecap="round"/>
-          <line x1="80" y1="132" x2="180" y2="132" stroke="rgba(255,255,255,0.35)" stroke-width="3" stroke-linecap="round"/>
-          <line x1="80" y1="148" x2="172" y2="148" stroke="rgba(255,255,255,0.35)" stroke-width="3" stroke-linecap="round"/>
-          <line x1="44" y1="176" x2="216" y2="176" stroke="#10b981" stroke-width="2.5"/>
-          <path d="M 82 232 Q 106 206, 122 228 T 174 216" fill="none" stroke="#34d399" stroke-width="2.8" stroke-linecap="round"/>
         </svg>""",
     },
 }

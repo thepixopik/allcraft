@@ -38,6 +38,24 @@
       "required": true
     },
     {
+      "id": "word",
+      "name": "The AllCraft Word",
+      "repo": "thepixopik/wordcraft",
+      "artifact_name": "the-allcraft-word-web",
+      "branch": "main",
+      "mount_path": "word",
+      "required": false
+    },
+    {
+      "id": "pdf",
+      "name": "The AllCraft PDF",
+      "repo": "thepixopik/pdfcraft",
+      "artifact_name": "the-allcraft-pdf-web",
+      "branch": "main",
+      "mount_path": "pdf",
+      "required": true
+    },
+    {
       "id": "film",
       "name": "The AllCraft Film",
       "repo": "thepixopik/filmcraft",
@@ -62,15 +80,6 @@
       "artifact_name": "the-allcraft-sound-web",
       "branch": "main",
       "mount_path": "sound",
-      "required": false
-    },
-    {
-      "id": "pdf",
-      "name": "The AllCraft PDF",
-      "repo": "thepixopik/pdfcraft",
-      "artifact_name": "the-allcraft-pdf-web",
-      "branch": "main",
-      "mount_path": "pdf",
       "required": true
     }
   ]
