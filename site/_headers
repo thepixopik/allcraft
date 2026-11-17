@@ -1,4 +1,4 @@
-# Unified Cloudflare Pages _headers for The AllCraft Studio (/, /vector/*, /photo/*, /film/*, /pdf/*, /design/*, and future /:app/* apps)
+# Unified Cloudflare Pages _headers for The AllCraft Studio (/, /vector/*, /photo/*, /light/*, /film/*, /pdf/*, /design/*)
 
 /*
   X-Content-Type-Options: nosniff
@@ -24,6 +24,18 @@
   Cache-Control: no-cache
 
 /photo/index.html
+  Cache-Control: no-cache
+
+/light/
+  Cache-Control: no-cache
+
+/light/index.html
+  Cache-Control: no-cache
+
+/light/lightcraft_web.js
+  Cache-Control: no-cache
+
+/light/worker.js
   Cache-Control: no-cache
 
 /film/
@@ -55,12 +67,16 @@
 /:app/index.html
   Cache-Control: no-cache
 
-# Hashed/chunked Wasm & JS assets across Vector, Photo, Film, PDF, Design, and all future Studio apps: cache for 1 year
+# Hashed/chunked Wasm & JS assets across all Studio apps: cache for 1 year
 /vector/*.part*
   Content-Type: application/octet-stream
   Cache-Control: public, max-age=31536000, immutable
 
 /photo/*.part*
+  Content-Type: application/octet-stream
+  Cache-Control: public, max-age=31536000, immutable
+
+/light/*.part*
   Content-Type: application/octet-stream
   Cache-Control: public, max-age=31536000, immutable
 

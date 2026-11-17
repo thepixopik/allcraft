@@ -20,6 +20,15 @@
       "required": true
     },
     {
+      "id": "light",
+      "name": "The AllCraft Light",
+      "repo": "thepixopik/lightcraft",
+      "artifact_name": "the-allcraft-light-web",
+      "branch": "main",
+      "mount_path": "light",
+      "required": false
+    },
+    {
       "id": "film",
       "name": "The AllCraft Film",
       "repo": "thepixopik/filmcraft",

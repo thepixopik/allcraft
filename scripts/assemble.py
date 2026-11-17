@@ -88,6 +88,36 @@ SPLASH_PROFILES = {
           <path d="M 74 248 Q 116 188, 146 218 T 208 176" fill="none" stroke="#38bdf8" stroke-width="3"/>
         </svg>""",
     },
+    "light": {
+        "container_id": "lightcraft_loading",
+        "bar_id": "lc_load_bar",
+        "pct_id": "lc_load_pct",
+        "code": "Lc",
+        "title": "The AllCraft Light",
+        "tagline": "RAW Photo Catalog, Culling & Color Darkroom",
+        "accent": "#22D3EE",
+        "accent_soft": "rgba(34, 211, 238, 0.24)",
+        "badge_bg": "#06232B",
+        "stages": [
+            "Initializing Linear RAW & HDR Color Pipeline…",
+            "Loading Camera DCP Profiles & Lens Database…",
+            "Preparing Tone Curves, Color Wheels & Masks…",
+            "Starting Multi-Worker Thumbnail & Catalog Engine…",
+            "Opening RAW Darkroom…",
+        ],
+        "art_svg": """<svg viewBox="0 0 260 360" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="ck1" cx="55%" cy="34%" r="68%"><stop offset="0%" stop-color="#22d3ee" stop-opacity="0.52"/><stop offset="100%" stop-color="#09161b" stop-opacity="0"/></radialGradient>
+            <linearGradient id="ck2" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#0891b2"/><stop offset="100%" stop-color="#67e8f9"/></linearGradient>
+          </defs>
+          <rect width="260" height="360" fill="#09161b"/>
+          <rect width="260" height="360" fill="url(#ck1)"/>
+          <circle cx="130" cy="142" r="56" fill="none" stroke="url(#ck2)" stroke-width="2.2"/>
+          <circle cx="130" cy="142" r="34" fill="none" stroke="rgba(103,232,249,0.45)" stroke-width="1.5"/>
+          <path d="M 38 268 Q 74 214, 108 242 T 168 198 T 224 238 L 224 268 Z" fill="rgba(34,211,238,0.22)" stroke="#22d3ee" stroke-width="2"/>
+          <path d="M 48 268 C 92 260, 148 196, 214 190" fill="none" stroke="#fff" stroke-width="2" opacity="0.85"/>
+        </svg>""",
+    },
     "film": {
         "container_id": "loading",
         "bar_id": "fc_load_bar",
