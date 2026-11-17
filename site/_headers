@@ -1,4 +1,4 @@
-# Unified Cloudflare Pages _headers for The AllCraft Studio (/, /vector/*, /photo/*, and future /* apps)
+# Unified Cloudflare Pages _headers for The AllCraft Studio (/, /vector/*, /photo/*, and future /:app/* apps)
 
 /*
   X-Content-Type-Options: nosniff
@@ -14,28 +14,37 @@
 /build-manifest.json
   Cache-Control: no-cache
 
-/*/
+/vector/
   Cache-Control: no-cache
 
-/*/index.html
+/vector/index.html
   Cache-Control: no-cache
 
-# Unhashed app boot loaders & chunk manifests must always revalidate
-/*/app/photocraft-web.js
+/photo/
   Cache-Control: no-cache
 
-/*/app/parts.txt
+/photo/index.html
   Cache-Control: no-cache
 
-# Hashed/chunked Wasm & JS assets across all current and future Studio apps: cache for 1 year
-/*/*.wasm
+/:app/
+  Cache-Control: no-cache
+
+/:app/index.html
+  Cache-Control: no-cache
+
+# Hashed/chunked Wasm & JS assets across Vector, Photo, and all future Studio apps: cache for 1 year
+/vector/*.part*
+  Content-Type: application/octet-stream
+  Cache-Control: public, max-age=31536000, immutable
+
+/photo/*.part*
+  Content-Type: application/octet-stream
+  Cache-Control: public, max-age=31536000, immutable
+
+/:app/*.part*
+  Content-Type: application/octet-stream
+  Cache-Control: public, max-age=31536000, immutable
+
+/:app/*.wasm
   Content-Type: application/wasm
-  Cache-Control: public, max-age=31536000, immutable
-
-/*/*.part*
-  Content-Type: application/octet-stream
-  Cache-Control: public, max-age=31536000, immutable
-
-/*/app/*.part-*
-  Content-Type: application/octet-stream
   Cache-Control: public, max-age=31536000, immutable
