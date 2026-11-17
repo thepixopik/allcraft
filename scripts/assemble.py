@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Assemble all Craft web app artifacts from apps.json into a unified dist/ folder and inject Photoshop-style splash UI."""
+"""Assemble all Craft web app artifacts from apps.json into dist/, generate /apps/<slug>/ detail pages, and inject Photoshop-style splash UI."""
 
 import datetime
 import hashlib
@@ -14,6 +14,8 @@ import urllib.error
 import urllib.parse
 import urllib.request
 import zipfile
+
+import generate_pages
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 APPS_CONFIG = ROOT / "apps.json"
@@ -829,6 +831,7 @@ def main() -> None:
     if DIST_DIR.exists():
         shutil.rmtree(DIST_DIR)
     shutil.copytree(SITE_DIR, DIST_DIR)
+    generate_pages.build_all(DIST_DIR)
 
     manifest_entries = []
     for app in apps:

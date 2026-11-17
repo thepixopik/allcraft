@@ -80,7 +80,7 @@
       "artifact_name": "the-allcraft-texture-web",
       "branch": "main",
       "mount_path": "texture",
-      "required": false
+      "required": true
     },
     {
       "id": "material",

@@ -434,7 +434,7 @@
       border-color: var(--invert-bg);
     }
 
-    /* Section 02: 15-App 1px Architectural Grid (15 cards + 1 Studio card = 16 = 4x4) */
+    /* Section 02: 15-App 1px Architectural Grid */
     .lineup-grid {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -473,8 +473,8 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
-      padding: 12px 24px;
+      gap: 10px;
+      padding: 11px 20px;
       border-bottom: 1px solid var(--line);
     }
     .app-num {
@@ -485,11 +485,29 @@
     }
     .app-cat {
       color: var(--faint);
+      flex: 1;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
+    .quick-launch-btn {
+      padding: 3px 8px;
+      border: 1px solid rgba(34, 197, 94, 0.45);
+      background: rgba(34, 197, 94, 0.08);
+      color: #4ade80;
+      font-size: 9.5px;
+      transition: all 0.15s ease;
+    }
+    .quick-launch-btn:hover {
+      background: #22c55e;
+      color: #0b0b0c;
+    }
 
+    .app-card-link {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+    }
     .app-hero-wrap {
       position: relative;
       aspect-ratio: 16 / 10;
@@ -506,21 +524,6 @@
     }
     .app-card:hover .app-hero-wrap img {
       transform: scale(1.035);
-    }
-    .live-ribbon {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      padding: 3px 8px;
-      background: rgba(11, 11, 12, 0.82);
-      backdrop-filter: blur(6px);
-      border: 1px solid rgba(34, 197, 94, 0.45);
-      color: #4ade80;
-      font-family: "JetBrains Mono", monospace;
-      font-size: 9.5px;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
     }
 
     .app-body {
@@ -620,7 +623,6 @@
       transform: translate(2px, -2px);
     }
 
-    /* 16th cell completing the 4x4 grid */
     .next-card {
       background: var(--bg);
       padding: 28px;
@@ -722,7 +724,6 @@
     }
     .footer-links a:hover { color: var(--ink-strong); }
 
-    /* Toast notification */
     #toast {
       position: fixed;
       bottom: 24px;
@@ -798,7 +799,7 @@
             </a>
           </div>
 
-          <p class="hero-note">Instant WebGPU + WebAssembly Studio &middot; <a href="#lineup">All 15 apps running right in your browser</a>.</p>
+          <p class="hero-note">Instant WebGPU + WebAssembly Studio &middot; <a href="#lineup">Explore detail pages or launch any app in 1 click</a>.</p>
 
           <div class="hero-meta hud-label">
             <a href="https://github.com/thepixopik/allcraft" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px">
@@ -969,7 +970,7 @@
           <h2 class="start-h2 font-display">Build it <span class="accent-word">with us</span>.</h2>
           <p class="sec-lead" style="margin-left:auto;margin-right:auto">Explore the automated 15-repo Rust &rarr; WebAssembly build pipeline and launch any Craft app directly in your browser.</p>
           <div class="cta-row" style="margin-top:36px">
-            <a href="#lineup" class="btn-primary hud-label">Launch Any App &uarr;</a>
+            <a href="#lineup" class="btn-primary hud-label">Explore All 15 Apps &uarr;</a>
             <a href="https://github.com/thepixopik/allcraft" target="_blank" rel="noopener" class="btn-secondary hud-label">Star on GitHub</a>
           </div>
         </div>
@@ -981,21 +982,21 @@
     <div class="footer-inner">
       <div>MIT OR Apache-2.0 &middot; Independent fork powered by The AllCraft Studio (not affiliated with upstream ArtCraft Team).</div>
       <div class="footer-links hud-label">
-        <a href="/photo/">Photo</a>
-        <a href="/vector/">Vector</a>
-        <a href="/film/">Film</a>
-        <a href="/light/">Light</a>
-        <a href="/pdf/">PDF</a>
-        <a href="/effect/">Effect</a>
-        <a href="/ani/">Ani</a>
-        <a href="/design/">Design</a>
-        <a href="/texture/">Texture</a>
-        <a href="/material/">Material</a>
-        <a href="/sound/">Sound</a>
-        <a href="/word/">Word</a>
-        <a href="/deck/">Deck</a>
-        <a href="/cad/">CAD</a>
-        <a href="/grid/">Grid</a>
+        <a href="/apps/photocraft/">Photo</a>
+        <a href="/apps/vectorcraft/">Vector</a>
+        <a href="/apps/filmcraft/">Film</a>
+        <a href="/apps/lightcraft/">Light</a>
+        <a href="/apps/pdfcraft/">PDF</a>
+        <a href="/apps/effectcraft/">Effect</a>
+        <a href="/apps/anicraft/">Ani</a>
+        <a href="/apps/designcraft/">Design</a>
+        <a href="/apps/texturecraft/">Texture</a>
+        <a href="/apps/materialcraft/">Material</a>
+        <a href="/apps/soundcraft/">Sound</a>
+        <a href="/apps/wordcraft/">Word</a>
+        <a href="/apps/deckcraft/">Deck</a>
+        <a href="/apps/cadcraft/">CAD</a>
+        <a href="/apps/gridcraft/">Grid</a>
       </div>
     </div>
   </footer>
@@ -1005,120 +1006,120 @@
   <script>
     const APPS = [
       {
-        num: "01", prefix: "Photo", code: "Ph", category: "Image editor", group: "creative",
-        color: "#31a8ff", href: "/photo/",
+        num: "01", slug: "photocraft", prefix: "Photo", code: "Ph", category: "Image editor", group: "creative",
+        color: "#31a8ff", mount: "/photo/",
         hero: "https://getartcraft.com/images/apps/photocraft/hero.webp",
         icon: "https://getartcraft.com/images/apps/photocraft/icon.webp",
         desc: "The open-source image editor you already know how to use.",
         platforms: ["Web", "macOS", "Windows", "Linux"]
       },
       {
-        num: "02", prefix: "Vector", code: "Vc", category: "Vector illustration", group: "creative",
-        color: "#ff7b3a", href: "/vector/",
+        num: "02", slug: "vectorcraft", prefix: "Vector", code: "Vc", category: "Vector illustration", group: "creative",
+        color: "#ff7b3a", mount: "/vector/",
         hero: "https://getartcraft.com/images/apps/vectorcraft/hero.webp",
         icon: "https://getartcraft.com/images/apps/vectorcraft/icon.webp",
         desc: "Fast, open-source vector illustration, reimagined in pure Rust.",
         platforms: ["Web", "macOS", "Windows", "Linux"]
       },
       {
-        num: "03", prefix: "Film", code: "Fm", category: "Video editor", group: "media",
-        color: "#a855f7", href: "/film/",
+        num: "03", slug: "filmcraft", prefix: "Film", code: "Fm", category: "Video editor", group: "media",
+        color: "#a855f7", mount: "/film/",
         hero: "https://getartcraft.com/images/apps/filmcraft/color.webp",
         icon: "https://getartcraft.com/images/apps/filmcraft/icon.webp",
         desc: "Professional, open-source video editing, rebuilt from scratch in Rust.",
         platforms: ["Web", "macOS", "Windows", "Linux"]
       },
       {
-        num: "04", prefix: "Light", code: "Lc", category: "Photo library & raw developer", group: "creative",
-        color: "#22d3ee", href: "/light/",
+        num: "04", slug: "lightcraft", prefix: "Light", code: "Lc", category: "Photo library & raw developer", group: "creative",
+        color: "#22d3ee", mount: "/light/",
         hero: "https://getartcraft.com/images/apps/lightcraft/hero.webp",
         icon: "https://getartcraft.com/images/apps/lightcraft/icon.webp",
         desc: "An open-source photo library and raw developer that runs on your machine.",
         platforms: ["Web", "macOS", "Windows", "Linux"]
       },
       {
-        num: "05", prefix: "Pdf", code: "Pd", category: "PDF workbench", group: "office",
-        color: "#10b981", href: "/pdf/",
+        num: "05", slug: "pdfcraft", prefix: "Pdf", code: "Pd", category: "PDF workbench", group: "office",
+        color: "#10b981", mount: "/pdf/",
         hero: "https://getartcraft.com/images/apps/pdfcraft/hero.webp",
         icon: "https://getartcraft.com/images/apps/pdfcraft/icon.webp",
         desc: "The open-source PDF workbench: read, organize, combine, split and secure.",
         platforms: ["Web", "macOS", "Windows", "Linux"]
       },
       {
-        num: "06", prefix: "Effect", code: "Ef", category: "Motion graphics & VFX", group: "media",
-        color: "#f472b6", href: "/effect/",
+        num: "06", slug: "effectcraft", prefix: "Effect", code: "Ef", category: "Motion graphics & VFX", group: "media",
+        color: "#f472b6", mount: "/effect/",
         hero: "https://getartcraft.com/images/apps/effectcraft/hero.webp",
         icon: "https://getartcraft.com/images/apps/effectcraft/icon.webp",
         desc: "Open-source motion graphics and visual effects, built in pure Rust.",
         platforms: ["Web", "macOS", "Windows", "Linux"]
       },
       {
-        num: "07", prefix: "Ani", code: "An", category: "2D vector animation", group: "media",
-        color: "#c084fc", href: "/ani/",
+        num: "07", slug: "anicraft", prefix: "Ani", code: "An", category: "2D vector animation", group: "media",
+        color: "#c084fc", mount: "/ani/",
         hero: "https://getartcraft.com/images/apps/anicraft/hero.webp",
         icon: "https://getartcraft.com/images/apps/anicraft/icon.webp",
         desc: "Open-source 2D vector animation, built in pure Rust.",
         platforms: ["Web", "macOS", "Windows", "Linux"]
       },
       {
-        num: "08", prefix: "Design", code: "Ds", category: "Page layout & publishing", group: "creative",
-        color: "#f59e0b", href: "/design/",
+        num: "08", slug: "designcraft", prefix: "Design", code: "Ds", category: "Page layout & publishing", group: "creative",
+        color: "#f59e0b", mount: "/design/",
         hero: "https://getartcraft.com/images/apps/designcraft/hero.webp",
         icon: "https://getartcraft.com/images/apps/designcraft/icon.webp",
         desc: "Open-source page layout and publishing, rebuilt in pure Rust.",
         platforms: ["Web", "macOS", "Windows", "Linux"]
       },
       {
-        num: "09", prefix: "Texture", code: "Tx", category: "3D texture painting", group: "creative",
-        color: "#fb7185", href: "/texture/",
+        num: "09", slug: "texturecraft", prefix: "Texture", code: "Tx", category: "3D texture painting", group: "creative",
+        color: "#fb7185", mount: "/texture/",
         hero: "https://getartcraft.com/images/apps/texturecraft/hero.webp",
         icon: "https://getartcraft.com/images/apps/texturecraft/icon.webp",
         desc: "Open-source 3D texture painting, rebuilt in pure Rust.",
         platforms: ["Web", "macOS", "Windows", "Linux"]
       },
       {
-        num: "10", prefix: "Material", code: "Mt", category: "Procedural materials", group: "creative",
-        color: "#e879f9", href: "/material/",
+        num: "10", slug: "materialcraft", prefix: "Material", code: "Mt", category: "Procedural materials", group: "creative",
+        color: "#e879f9", mount: "/material/",
         hero: "https://getartcraft.com/images/apps/materialcraft/hero.webp",
         icon: "https://getartcraft.com/images/apps/materialcraft/icon.webp",
         desc: "Open-source, node-based procedural materials, built in pure Rust.",
         platforms: ["Web", "macOS", "Windows", "Linux"]
       },
       {
-        num: "11", prefix: "Sound", code: "Sd", category: "Digital audio workstation", group: "media",
-        color: "#2dd4bf", href: "/sound/",
+        num: "11", slug: "soundcraft", prefix: "Sound", code: "Sd", category: "Digital audio workstation", group: "media",
+        color: "#2dd4bf", mount: "/sound/",
         hero: "https://getartcraft.com/images/apps/soundcraft/hero.webp",
         icon: "https://getartcraft.com/images/apps/soundcraft/icon.webp",
         desc: "Professional audio recording, editing and mixing in pure Rust.",
         platforms: ["Web", "macOS", "Windows", "Linux"]
       },
       {
-        num: "12", prefix: "Word", code: "Wd", category: "Word processing", group: "office",
-        color: "#818cf8", href: "/word/",
+        num: "12", slug: "wordcraft", prefix: "Word", code: "Wd", category: "Word processing", group: "office",
+        color: "#818cf8", mount: "/word/",
         hero: "https://getartcraft.com/images/apps/wordcraft/hero.webp",
         icon: "https://getartcraft.com/images/apps/wordcraft/icon.webp",
         desc: "Fast, open-source word processing, rebuilt in pure Rust.",
         platforms: ["Web", "macOS", "Windows", "Linux"]
       },
       {
-        num: "13", prefix: "Deck", code: "Dk", category: "Presentations & slide shows", group: "office",
-        color: "#fb923c", href: "/deck/",
+        num: "13", slug: "deckcraft", prefix: "Deck", code: "Dk", category: "Presentations & slide shows", group: "office",
+        color: "#fb923c", mount: "/deck/",
         hero: "https://getartcraft.com/images/apps/deckcraft/hero.webp",
         icon: "https://getartcraft.com/images/apps/deckcraft/icon.webp",
         desc: "Build and deliver dynamic slide presentations, in pure Rust.",
         platforms: ["Web", "macOS", "Windows", "Linux"]
       },
       {
-        num: "14", prefix: "CAD", code: "Cd", category: "Computer-aided design & drafting", group: "office",
-        color: "#f87171", href: "/cad/",
+        num: "14", slug: "cadcraft", prefix: "CAD", code: "Cd", category: "Computer-aided design & drafting", group: "office",
+        color: "#f87171", mount: "/cad/",
         hero: "https://getartcraft.com/images/apps/cadcraft/hero.webp",
         icon: "https://getartcraft.com/images/apps/cadcraft/icon.webp",
         desc: "Fast, open-source computer-aided design and drafting in pure Rust.",
         platforms: ["Web", "macOS", "Windows", "Linux"]
       },
       {
-        num: "15", prefix: "Grid", code: "Gd", category: "Spreadsheets & data analysis", group: "office",
-        color: "#4ade80", href: "/grid/",
+        num: "15", slug: "gridcraft", prefix: "Grid", code: "Gd", category: "Spreadsheets & data analysis", group: "office",
+        color: "#4ade80", mount: "/grid/",
         hero: "https://getartcraft.com/images/apps/gridcraft/hero.webp",
         icon: "https://getartcraft.com/images/apps/gridcraft/icon.webp",
         desc: "Fast, open-source spreadsheets and data analysis, rebuilt in pure Rust.",
@@ -1130,34 +1131,37 @@
     const cardsHtml = APPS.map((app) => {
       const fullName = `${app.prefix}Craft`;
       const titleHtml = `${app.prefix}<span class="craft-accent">Craft</span>`;
+      const detailHref = `/apps/${app.slug}/`;
       return `
-        <a class="app-card" data-group="${app.group}" style="--app:${app.color}" href="${app.href}">
+        <div class="app-card" data-group="${app.group}" style="--app:${app.color}">
           <span class="app-topline" aria-hidden="true"></span>
           <div class="app-head">
             <span class="app-num hud-label">${app.num}</span>
             <p class="app-cat hud-label" style="margin:0">${app.category}</p>
+            <a class="quick-launch-btn hud-label" href="${app.mount}" title="Open ${fullName} directly in browser">● Launch</a>
           </div>
-          <div class="app-hero-wrap">
-            <img src="${app.hero}" alt="${fullName} workspace preview" loading="lazy" decoding="async" referrerpolicy="no-referrer"
-                 onerror="this.style.display='none';this.parentElement.style.background='radial-gradient(circle at 60% 35%, ${app.color}33, var(--bg-sunken) 75%)'">
-            <span class="live-ribbon">● Live</span>
-          </div>
-          <div class="app-body">
-            <img class="app-icon" src="${app.icon}" alt="" width="256" height="256" loading="lazy" decoding="async" referrerpolicy="no-referrer"
-                 onerror="this.outerHTML='<div class=\\'app-icon-fallback\\'>${app.code}</div>'">
-            <h3 class="app-title">${titleHtml}</h3>
-            <p class="app-desc">${app.desc}</p>
-            <div class="app-pills">
-              <span class="pill accent">Live on Web</span>
-              <span class="pill accent">WebGPU + Wasm</span>
-              ${app.platforms.map((p) => `<span class="pill">${p}</span>`).join("")}
+          <a class="app-card-link" href="${detailHref}">
+            <div class="app-hero-wrap">
+              <img src="${app.hero}" alt="${fullName} workspace preview" loading="lazy" decoding="async" referrerpolicy="no-referrer"
+                   onerror="this.style.display='none';this.parentElement.style.background='radial-gradient(circle at 60% 35%, ${app.color}33, var(--bg-sunken) 75%)'">
             </div>
-            <span class="app-cta hud-label">
-              Launch ${fullName}
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
-            </span>
-          </div>
-        </a>
+            <div class="app-body">
+              <img class="app-icon" src="${app.icon}" alt="" width="256" height="256" loading="lazy" decoding="async" referrerpolicy="no-referrer"
+                   onerror="this.outerHTML='<div class=\\'app-icon-fallback\\'>${app.code}</div>'">
+              <h3 class="app-title">${titleHtml}</h3>
+              <p class="app-desc">${app.desc}</p>
+              <div class="app-pills">
+                <span class="pill accent">Live on Web</span>
+                <span class="pill accent">WebGPU + Wasm</span>
+                ${app.platforms.map((p) => `<span class="pill">${p}</span>`).join("")}
+              </div>
+              <span class="app-cta hud-label">
+                Explore ${fullName}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
+              </span>
+            </div>
+          </a>
+        </div>
       `;
     }).join("");
 
@@ -1166,7 +1170,7 @@
         <div>
           <p class="hud-label" style="margin:0;color:var(--faint)">15 / 15 Unified Suite</p>
           <h3 class="font-display" style="margin:14px 0 0;font-size:28px;line-height:1.08;color:var(--ink-strong)">Every craft, <span class="accent-word">zero cloud</span>.</h3>
-          <p style="margin:12px 0 0;font-size:14.5px;line-height:1.6;color:var(--muted)">All 15 applications stream parallel-chunked WebAssembly straight from Cloudflare Edge and execute 100% privately on your device.</p>
+          <p style="margin:12px 0 0;font-size:14.5px;line-height:1.6;color:var(--muted)">Click any card to explore its full feature showcase &amp; shortcuts, or click <b>● Launch</b> to open the editor immediately.</p>
         </div>
         <a href="https://github.com/thepixopik/allcraft" target="_blank" rel="noopener" class="btn-primary hud-label" style="height:40px;padding:0 16px;width:fit-content">View Hub Source</a>
       </div>
