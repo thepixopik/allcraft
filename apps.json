@@ -26,7 +26,7 @@
       "artifact_name": "the-allcraft-film-web",
       "branch": "main",
       "mount_path": "film",
-      "required": false
+      "required": true
     },
     {
       "id": "pdf",
@@ -35,7 +35,7 @@
       "artifact_name": "the-allcraft-pdf-web",
       "branch": "main",
       "mount_path": "pdf",
-      "required": false
+      "required": true
     },
     {
       "id": "design",

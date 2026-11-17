@@ -84,6 +84,50 @@ def pick_latest_artifact(repo: str, artifact_name: str, branch: str, token: str)
     return valid[0]
 
 
+def write_building_placeholder(target_dir: pathlib.Path, app_name: str) -> None:
+    target_dir.mkdir(parents=True, exist_ok=True)
+    html = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="refresh" content="15">
+  <title>Building {app_name} — The AllCraft Studio</title>
+  <style>
+    html, body {{ margin: 0; height: 100%; background: #161618; color: #f4f4f6; font: 15px/1.55 system-ui, sans-serif; display: flex; align-items: center; justify-content: center; text-align: center; }}
+    .box {{ max-width: 460px; padding: 30px; background: #212125; border: 1px solid #32323a; border-radius: 18px; }}
+    a {{ display: inline-block; margin-top: 18px; padding: 10px 18px; border-radius: 10px; background: #32323a; color: #fff; text-decoration: none; font-weight: 600; }}
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h2 style="margin:0 0 8px">⚡ Building {app_name}&hellip;</h2>
+    <p style="margin:0;color:#9ca3af">First Rust &rarr; WebAssembly build is running on GitHub Actions. This page auto-refreshes every 15 seconds and will open automatically once deployed.</p>
+    <a href="/">Back to Studio Launcher</a>
+  </div>
+</body>
+</html>
+"""
+    (target_dir / "index.html").write_text(html, encoding="utf-8")
+
+
+def normalize_extracted_app(target_dir: pathlib.Path) -> None:
+    """Flatten single nested folder if needed, and strip inner _headers/.htaccess files."""
+    if not (target_dir / "index.html").is_file():
+        candidates = list(target_dir.glob("*/index.html"))
+        if len(candidates) == 1:
+            nested = candidates[0].parent
+            for item in list(nested.iterdir()):
+                shutil.move(str(item), str(target_dir / item.name))
+            nested.rmdir()
+
+    # Remove per-app _headers / .htaccess so only root dist/_headers applies cleanly on Cloudflare Pages
+    for meta_file in ("_headers", ".htaccess"):
+        p = target_dir / meta_file
+        if p.is_file():
+            p.unlink()
+
+
 def main() -> None:
     token = (os.environ.get("STUDIO_PAT") or os.environ.get("GITHUB_TOKEN") or "").strip()
     if not token:
@@ -100,11 +144,13 @@ def main() -> None:
     manifest_entries = []
     for app in apps:
         app_id = app["id"]
+        app_name = app.get("name", app_id)
         repo = app["repo"]
         artifact_name = app["artifact_name"]
         branch = app.get("branch", "main")
         mount_path = app["mount_path"].strip("/")
         required = app.get("required", True)
+        target_dir = DIST_DIR / mount_path
 
         print(f"\n==> Fetching '{artifact_name}' from {repo} (branch: {branch})...")
         try:
@@ -114,7 +160,8 @@ def main() -> None:
             if required:
                 print(f"ERROR: {msg}", file=sys.stderr)
                 sys.exit(1)
-            print(f"WARN: {msg} (skipping optional app '{app_id}')")
+            print(f"WARN: {msg} (writing building placeholder for '{app_id}')")
+            write_building_placeholder(target_dir, app_name)
             continue
 
         if not art:
@@ -122,7 +169,8 @@ def main() -> None:
             if required:
                 print(f"ERROR: {msg} Run the build workflow in {repo} once first.", file=sys.stderr)
                 sys.exit(1)
-            print(f"WARN: {msg} (skipping optional app '{app_id}')")
+            print(f"WARN: {msg} (writing building placeholder for '{app_id}')")
+            write_building_placeholder(target_dir, app_name)
             continue
 
         dl_url = art["archive_download_url"]
@@ -131,16 +179,20 @@ def main() -> None:
         print(f"    Downloading artifact #{art['id']} ({size_mb:.2f} MiB, commit {sha[:7]})...")
         zip_bytes = gh_download_bytes(dl_url, token)
 
-        target_dir = DIST_DIR / mount_path
         target_dir.mkdir(parents=True, exist_ok=True)
         with zipfile.ZipFile(io.BytesIO(zip_bytes)) as zf:
             zf.extractall(target_dir)
 
-        print(f"    Extracted to dist/{mount_path}/ ({sum(1 for _ in target_dir.rglob('*') if _.is_file())} files)")
+        normalize_extracted_app(target_dir)
+        if not (target_dir / "index.html").is_file():
+            print(f"ERROR: dist/{mount_path}/index.html missing after extracting {artifact_name}!", file=sys.stderr)
+            sys.exit(1)
+
+        print(f"    Extracted to dist/{mount_path}/ ({sum(1 for _ in target_dir.rglob('*') if _.is_file())} files, index.html verified)")
         manifest_entries.append(
             {
                 "id": app_id,
-                "name": app.get("name", app_id),
+                "name": app_name,
                 "repo": repo,
                 "mount": f"/{mount_path}/",
                 "artifact_id": art["id"],
@@ -149,7 +201,6 @@ def main() -> None:
             }
         )
 
-    # Validate Cloudflare Pages 25 MiB single-file limit across the entire combined site
     oversized = []
     total_bytes = 0
     file_count = 0
