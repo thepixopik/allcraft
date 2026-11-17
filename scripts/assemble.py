@@ -152,6 +152,101 @@ SPLASH_PROFILES = {
           <rect x="182" y="124" width="32" height="122" rx="3" fill="rgba(255,255,255,0.12)"/>
         </svg>""",
     },
+    "ani": {
+        "container_id": "anicraft_loading",
+        "bar_id": "an_load_bar",
+        "pct_id": "an_load_pct",
+        "code": "An",
+        "title": "The AllCraft Ani",
+        "tagline": "2D Vector Animation, Tweens, Bones & Onion Skin",
+        "accent": "#C084FC",
+        "accent_soft": "rgba(192, 132, 252, 0.24)",
+        "badge_bg": "#210E36",
+        "stages": [
+            "Initializing 2D Vector Stage & Brush Engine…",
+            "Loading Classic Tweens, Shape Hints & Easing…",
+            "Preparing Armature Bones, IK & Onion Skin…",
+            "Loading FLA/XFL, Lottie, GIF & WebP Exporters…",
+            "Opening Animation Stage…",
+        ],
+        "art_svg": """<svg viewBox="0 0 260 360" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="an1" cx="55%" cy="34%" r="68%"><stop offset="0%" stop-color="#a855f7" stop-opacity="0.52"/><stop offset="100%" stop-color="#140d1d" stop-opacity="0"/></radialGradient>
+          </defs>
+          <rect width="260" height="360" fill="#140d1d"/>
+          <rect width="260" height="360" fill="url(#an1)"/>
+          <path d="M 42 226 Q 130 82, 218 226" fill="none" stroke="rgba(192,132,252,0.45)" stroke-width="2" stroke-dasharray="5 5"/>
+          <circle cx="56" cy="204" r="18" fill="rgba(192,132,252,0.12)" stroke="rgba(192,132,252,0.35)" stroke-width="1.5"/>
+          <circle cx="92" cy="156" r="21" fill="rgba(192,132,252,0.22)" stroke="rgba(192,132,252,0.55)" stroke-width="1.6"/>
+          <circle cx="136" cy="136" r="25" fill="rgba(192,132,252,0.38)" stroke="#d8b4fe" stroke-width="2"/>
+          <circle cx="186" cy="176" r="28" fill="#c084fc" stroke="#fff" stroke-width="2.2"/>
+          <rect x="34" y="256" width="192" height="28" rx="6" fill="rgba(255,255,255,0.06)" stroke="rgba(192,132,252,0.35)"/>
+          <circle cx="58" cy="270" r="4" fill="#fff"/><circle cx="106" cy="270" r="4" fill="#c084fc"/><circle cx="154" cy="270" r="4" fill="#c084fc"/><circle cx="202" cy="270" r="4" fill="#fff"/>
+        </svg>""",
+    },
+    "texture": {
+        "container_id": "texturecraft_loading",
+        "bar_id": "tc_load_bar",
+        "pct_id": "tc_load_pct",
+        "extra_html": '<progress id="texturecraft_progress" max="1" hidden></progress><p id="texturecraft_status" hidden></p>',
+        "code": "Tx",
+        "title": "The AllCraft Texture",
+        "tagline": "3D PBR Viewport Painting, Smart Masks & Mesh Bakers",
+        "accent": "#FB7185",
+        "accent_soft": "rgba(251, 113, 133, 0.24)",
+        "badge_bg": "#2E0B14",
+        "stages": [
+            "Initializing WebGPU 3D PBR & UV Viewport…",
+            "Loading glTF, USDZ, FBX & OBJ Mesh Importers…",
+            "Preparing AO, Curvature & Normal Map Bakers…",
+            "Loading Smart Materials, Brushes & Stencils…",
+            "Opening 3D Painting Studio…",
+        ],
+        "art_svg": """<svg viewBox="0 0 260 360" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="tx1" cx="48%" cy="38%" r="64%"><stop offset="0%" stop-color="#fb7185" stop-opacity="0.58"/><stop offset="100%" stop-color="#190c10" stop-opacity="0"/></radialGradient>
+            <radialGradient id="tx2" cx="40%" cy="35%" r="55%"><stop offset="0%" stop-color="#ffe4e6"/><stop offset="38%" stop-color="#fb7185"/><stop offset="100%" stop-color="#881337"/></radialGradient>
+          </defs>
+          <rect width="260" height="360" fill="#190c10"/>
+          <rect width="260" height="360" fill="url(#tx1)"/>
+          <circle cx="130" cy="158" r="66" fill="url(#tx2)"/>
+          <ellipse cx="130" cy="158" rx="66" ry="24" fill="none" stroke="rgba(255,255,255,0.42)" stroke-width="1.4" stroke-dasharray="4 4"/>
+          <ellipse cx="130" cy="158" rx="24" ry="66" fill="none" stroke="rgba(255,255,255,0.42)" stroke-width="1.4" stroke-dasharray="4 4"/>
+          <rect x="52" y="248" width="156" height="36" rx="7" fill="rgba(255,255,255,0.06)" stroke="rgba(251,113,133,0.4)"/>
+        </svg>""",
+    },
+    "material": {
+        "container_id": "materialcraft_loading",
+        "bar_id": "mc_load_bar",
+        "pct_id": "mc_load_pct",
+        "extra_html": '<progress id="materialcraft_progress" max="1" hidden></progress><p id="materialcraft_status" hidden></p>',
+        "code": "Mt",
+        "title": "The AllCraft Material",
+        "tagline": "Node-Based Procedural PBR Materials & 3D Preview",
+        "accent": "#E879F9",
+        "accent_soft": "rgba(232, 121, 249, 0.24)",
+        "badge_bg": "#2B0B30",
+        "stages": [
+            "Initializing Procedural Graph & Tile Engine…",
+            "Downloading SBS Node & Noise Pattern Library…",
+            "Preparing Function Graphs & Normal Synthesis…",
+            "Starting Live 2D & 3D PBR Material Renderer…",
+            "Opening Material Graph Studio…",
+        ],
+        "art_svg": """<svg viewBox="0 0 260 360" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="mt1" cx="55%" cy="35%" r="68%"><stop offset="0%" stop-color="#d946ef" stop-opacity="0.52"/><stop offset="100%" stop-color="#170b1a" stop-opacity="0"/></radialGradient>
+          </defs>
+          <rect width="260" height="360" fill="#170b1a"/>
+          <rect width="260" height="360" fill="url(#mt1)"/>
+          <path d="M 88 122 C 118 122, 118 176, 148 176" fill="none" stroke="#e879f9" stroke-width="2.5"/>
+          <path d="M 88 228 C 118 228, 118 188, 148 188" fill="none" stroke="#f0abfc" stroke-width="2.5"/>
+          <rect x="34" y="98" width="54" height="48" rx="8" fill="rgba(232,121,249,0.18)" stroke="#e879f9" stroke-width="1.6"/>
+          <rect x="34" y="204" width="54" height="48" rx="8" fill="rgba(232,121,249,0.18)" stroke="#e879f9" stroke-width="1.6"/>
+          <rect x="148" y="148" width="76" height="68" rx="10" fill="rgba(232,121,249,0.28)" stroke="#f5d0fe" stroke-width="2"/>
+          <circle cx="186" cy="182" r="20" fill="#e879f9"/>
+        </svg>""",
+    },
     "word": {
         "container_id": "wordcraft_loading",
         "bar_id": "wc_load_bar",
@@ -529,6 +624,7 @@ def inject_photoshop_splash(target_dir: pathlib.Path, app_id: str) -> None:
         if profile.get("extra_status_id")
         else ""
     )
+    extra_html = profile.get("extra_html", "")
     stages_json = json.dumps(profile["stages"])
 
     splash_css = f"""<style id="ac-ps-splash-style">
@@ -616,6 +712,7 @@ def inject_photoshop_splash(target_dir: pathlib.Path, app_id: str) -> None:
           <div id="{bar_id}" class="ac-ps-fill"></div>
         </div>
         <span id="{pct_id}" hidden></span>
+        {extra_html}
         {extra_status}
         <div class="ac-ps-foot">&copy; 2026 The AllCraft Studio &middot; Zero Cloud Uploads</div>
       </div>
@@ -687,15 +784,15 @@ def write_building_placeholder(target_dir: pathlib.Path, app_name: str) -> None:
   <meta http-equiv="refresh" content="15">
   <title>Building {app_name} — The AllCraft Studio</title>
   <style>
-    html, body {{ margin: 0; height: 100%; background: #161618; color: #f4f4f6; font: 15px/1.55 system-ui, sans-serif; display: flex; align-items: center; justify-content: center; text-align: center; }}
-    .box {{ max-width: 460px; padding: 30px; background: #212125; border: 1px solid #32323a; border-radius: 18px; }}
-    a {{ display: inline-block; margin-top: 18px; padding: 10px 18px; border-radius: 10px; background: #32323a; color: #fff; text-decoration: none; font-weight: 600; }}
+    html, body {{ margin: 0; height: 100%; background: #0b0b0c; color: #f4f4f6; font: 15px/1.55 system-ui, sans-serif; display: flex; align-items: center; justify-content: center; text-align: center; }}
+    .box {{ max-width: 460px; padding: 30px; background: #141418; border: 1px solid #282830; }}
+    a {{ display: inline-block; margin-top: 18px; padding: 10px 18px; background: #f5f5f7; color: #0b0b0c; text-decoration: none; font-weight: 700; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; }}
   </style>
 </head>
 <body>
   <div class="box">
     <h2 style="margin:0 0 8px">⚡ Building {app_name}&hellip;</h2>
-    <p style="margin:0;color:#9ca3af">First Rust &rarr; WebAssembly build is running on GitHub Actions. This page auto-refreshes every 15 seconds and will open automatically once deployed.</p>
+    <p style="margin:0;color:#9ca3af">First Rust &rarr; WebAssembly build is finishing on GitHub Actions. This page auto-refreshes every 15 seconds and will open automatically once deployed.</p>
     <a href="/">Back to Studio Launcher</a>
   </div>
 </body>

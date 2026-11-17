@@ -2,15 +2,6 @@
   "project_name": "the-allcraft",
   "apps": [
     {
-      "id": "vector",
-      "name": "The AllCraft Vector",
-      "repo": "thepixopik/vectorcraft",
-      "artifact_name": "the-allcraft-web-cloudflare",
-      "branch": "main",
-      "mount_path": "vector",
-      "required": true
-    },
-    {
       "id": "photo",
       "name": "The AllCraft Photo",
       "repo": "thepixopik/photocraft",
@@ -20,57 +11,12 @@
       "required": true
     },
     {
-      "id": "light",
-      "name": "The AllCraft Light",
-      "repo": "thepixopik/lightcraft",
-      "artifact_name": "the-allcraft-light-web",
+      "id": "vector",
+      "name": "The AllCraft Vector",
+      "repo": "thepixopik/vectorcraft",
+      "artifact_name": "the-allcraft-web-cloudflare",
       "branch": "main",
-      "mount_path": "light",
-      "required": true
-    },
-    {
-      "id": "design",
-      "name": "The AllCraft Design",
-      "repo": "thepixopik/designcraft",
-      "artifact_name": "the-allcraft-design-web",
-      "branch": "main",
-      "mount_path": "design",
-      "required": true
-    },
-    {
-      "id": "word",
-      "name": "The AllCraft Word",
-      "repo": "thepixopik/wordcraft",
-      "artifact_name": "the-allcraft-word-web",
-      "branch": "main",
-      "mount_path": "word",
-      "required": true
-    },
-    {
-      "id": "grid",
-      "name": "The AllCraft Grid",
-      "repo": "thepixopik/gridcraft",
-      "artifact_name": "the-allcraft-grid-web",
-      "branch": "main",
-      "mount_path": "grid",
-      "required": true
-    },
-    {
-      "id": "deck",
-      "name": "The AllCraft Deck",
-      "repo": "thepixopik/deckcraft",
-      "artifact_name": "the-allcraft-deck-web",
-      "branch": "main",
-      "mount_path": "deck",
-      "required": true
-    },
-    {
-      "id": "pdf",
-      "name": "The AllCraft PDF",
-      "repo": "thepixopik/pdfcraft",
-      "artifact_name": "the-allcraft-pdf-web",
-      "branch": "main",
-      "mount_path": "pdf",
+      "mount_path": "vector",
       "required": true
     },
     {
@@ -83,12 +29,66 @@
       "required": true
     },
     {
+      "id": "light",
+      "name": "The AllCraft Light",
+      "repo": "thepixopik/lightcraft",
+      "artifact_name": "the-allcraft-light-web",
+      "branch": "main",
+      "mount_path": "light",
+      "required": true
+    },
+    {
+      "id": "pdf",
+      "name": "The AllCraft PDF",
+      "repo": "thepixopik/pdfcraft",
+      "artifact_name": "the-allcraft-pdf-web",
+      "branch": "main",
+      "mount_path": "pdf",
+      "required": true
+    },
+    {
       "id": "effect",
       "name": "The AllCraft Effect",
       "repo": "thepixopik/effectcraft",
       "artifact_name": "the-allcraft-effect-web",
       "branch": "main",
       "mount_path": "effect",
+      "required": true
+    },
+    {
+      "id": "ani",
+      "name": "The AllCraft Ani",
+      "repo": "thepixopik/anicraft",
+      "artifact_name": "the-allcraft-ani-web",
+      "branch": "main",
+      "mount_path": "ani",
+      "required": true
+    },
+    {
+      "id": "design",
+      "name": "The AllCraft Design",
+      "repo": "thepixopik/designcraft",
+      "artifact_name": "the-allcraft-design-web",
+      "branch": "main",
+      "mount_path": "design",
+      "required": true
+    },
+    {
+      "id": "texture",
+      "name": "The AllCraft Texture",
+      "repo": "thepixopik/texturecraft",
+      "artifact_name": "the-allcraft-texture-web",
+      "branch": "main",
+      "mount_path": "texture",
+      "required": false
+    },
+    {
+      "id": "material",
+      "name": "The AllCraft Material",
+      "repo": "thepixopik/materialcraft",
+      "artifact_name": "the-allcraft-material-web",
+      "branch": "main",
+      "mount_path": "material",
       "required": true
     },
     {
@@ -101,12 +101,39 @@
       "required": true
     },
     {
+      "id": "word",
+      "name": "The AllCraft Word",
+      "repo": "thepixopik/wordcraft",
+      "artifact_name": "the-allcraft-word-web",
+      "branch": "main",
+      "mount_path": "word",
+      "required": true
+    },
+    {
+      "id": "deck",
+      "name": "The AllCraft Deck",
+      "repo": "thepixopik/deckcraft",
+      "artifact_name": "the-allcraft-deck-web",
+      "branch": "main",
+      "mount_path": "deck",
+      "required": true
+    },
+    {
       "id": "cad",
       "name": "The AllCraft CAD",
       "repo": "thepixopik/cadcraft",
       "artifact_name": "the-allcraft-cad-web",
       "branch": "main",
       "mount_path": "cad",
+      "required": true
+    },
+    {
+      "id": "grid",
+      "name": "The AllCraft Grid",
+      "repo": "thepixopik/gridcraft",
+      "artifact_name": "the-allcraft-grid-web",
+      "branch": "main",
+      "mount_path": "grid",
       "required": true
     }
   ]

@@ -7,7 +7,7 @@
   <script>
     (() => {
       const segs = location.pathname.split("/").filter(Boolean);
-      const apps = ["vector", "photo", "light", "design", "word", "grid", "deck", "pdf", "film", "effect", "sound", "cad"];
+      const apps = ["photo", "vector", "film", "light", "pdf", "effect", "ani", "design", "texture", "material", "sound", "word", "deck", "cad", "grid"];
       const lastApp = [...segs].reverse().find((s) => apps.includes(s));
       if (lastApp && location.pathname !== "/" + lastApp + "/") {
         location.replace("/" + lastApp + "/");
@@ -15,9 +15,9 @@
     })();
   </script>
   <style>
-    html, body { margin: 0; height: 100%; background: #161618; color: #f4f4f6; font: 15px/1.5 system-ui, sans-serif; display: flex; align-items: center; justify-content: center; text-align: center; }
-    .box { max-width: 440px; padding: 28px; background: #212125; border: 1px solid #32323a; border-radius: 16px; }
-    a { display: inline-block; margin-top: 16px; padding: 10px 18px; border-radius: 10px; background: #2b7de9; color: #fff; text-decoration: none; font-weight: 600; }
+    html, body { margin: 0; height: 100%; background: #0b0b0c; color: #f4f4f6; font: 15px/1.5 system-ui, sans-serif; display: flex; align-items: center; justify-content: center; text-align: center; }
+    .box { max-width: 440px; padding: 28px; background: #141418; border: 1px solid #282830; border-radius: 0; }
+    a { display: inline-block; margin-top: 16px; padding: 10px 18px; background: #f5f5f7; color: #0b0b0c; text-decoration: none; font-weight: 700; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; }
   </style>
 </head>
 <body>
