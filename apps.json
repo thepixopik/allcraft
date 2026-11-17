@@ -29,6 +29,15 @@
       "required": true
     },
     {
+      "id": "design",
+      "name": "The AllCraft Design",
+      "repo": "thepixopik/designcraft",
+      "artifact_name": "the-allcraft-design-web",
+      "branch": "main",
+      "mount_path": "design",
+      "required": true
+    },
+    {
       "id": "film",
       "name": "The AllCraft Film",
       "repo": "thepixopik/filmcraft",
@@ -44,6 +53,15 @@
       "artifact_name": "the-allcraft-effect-web",
       "branch": "main",
       "mount_path": "effect",
+      "required": true
+    },
+    {
+      "id": "sound",
+      "name": "The AllCraft Sound",
+      "repo": "thepixopik/soundcraft",
+      "artifact_name": "the-allcraft-sound-web",
+      "branch": "main",
+      "mount_path": "sound",
       "required": false
     },
     {
@@ -53,15 +71,6 @@
       "artifact_name": "the-allcraft-pdf-web",
       "branch": "main",
       "mount_path": "pdf",
-      "required": true
-    },
-    {
-      "id": "design",
-      "name": "The AllCraft Design",
-      "repo": "thepixopik/designcraft",
-      "artifact_name": "the-allcraft-design-web",
-      "branch": "main",
-      "mount_path": "design",
       "required": true
     }
   ]

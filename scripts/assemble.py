@@ -119,6 +119,39 @@ SPLASH_PROFILES = {
           <path d="M 48 268 C 92 260, 148 196, 214 190" fill="none" stroke="#fff" stroke-width="2" opacity="0.85"/>
         </svg>""",
     },
+    "design": {
+        "container_id": "designcraft_loading",
+        "bar_id": "dc_load_bar",
+        "pct_id": "dc_load_pct",
+        "code": "Ds",
+        "title": "The AllCraft Design",
+        "tagline": "Desktop Publishing, Master Layouts & Prepress Studio",
+        "accent": "#F59E0B",
+        "accent_soft": "rgba(245, 158, 11, 0.24)",
+        "badge_bg": "#2E1C06",
+        "stages": [
+            "Initializing Multi-Page Layout & Grid Engine…",
+            "Loading OpenType Typography & Paragraph Composer…",
+            "Preparing Master Spreads & CMYK Separations…",
+            "Loading IDML, INDD, EPUB & Print PDF Exporters…",
+            "Opening Publishing Workspace…",
+        ],
+        "art_svg": """<svg viewBox="0 0 260 360" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="lg1" cx="60%" cy="32%" r="68%"><stop offset="0%" stop-color="#f59e0b" stop-opacity="0.5"/><stop offset="100%" stop-color="#19140d" stop-opacity="0"/></radialGradient>
+          </defs>
+          <rect width="260" height="360" fill="#19140d"/>
+          <rect width="260" height="360" fill="url(#lg1)"/>
+          <rect x="34" y="88" width="94" height="176" rx="6" fill="rgba(255,255,255,0.06)" stroke="#fbbf24" stroke-width="1.4"/>
+          <rect x="132" y="88" width="94" height="176" rx="6" fill="rgba(255,255,255,0.06)" stroke="#fbbf24" stroke-width="1.4"/>
+          <rect x="46" y="102" width="70" height="64" rx="4" fill="rgba(245,158,11,0.35)"/>
+          <line x1="46" y1="182" x2="114" y2="182" stroke="rgba(255,255,255,0.45)" stroke-width="3"/>
+          <line x1="46" y1="196" x2="106" y2="196" stroke="rgba(255,255,255,0.3)" stroke-width="3"/>
+          <line x1="144" y1="106" x2="212" y2="106" stroke="#fde68a" stroke-width="4"/>
+          <rect x="144" y="124" width="32" height="122" rx="3" fill="rgba(255,255,255,0.12)"/>
+          <rect x="182" y="124" width="32" height="122" rx="3" fill="rgba(255,255,255,0.12)"/>
+        </svg>""",
+    },
     "film": {
         "container_id": "loading",
         "bar_id": "fc_load_bar",
@@ -187,6 +220,40 @@ SPLASH_PROFILES = {
           <rect x="198" y="268" width="10" height="10" transform="rotate(45 203 273)" fill="#f472b6"/>
         </svg>""",
     },
+    "sound": {
+        "container_id": "soundcraft_loading",
+        "bar_id": "sc_load_bar",
+        "pct_id": "sc_load_pct",
+        "code": "Sd",
+        "title": "The AllCraft Sound",
+        "tagline": "Multi-Track Audio DAW, MIDI, Score & Mastering",
+        "accent": "#2DD4BF",
+        "accent_soft": "rgba(45, 212, 191, 0.24)",
+        "badge_bg": "#062825",
+        "stages": [
+            "Initializing Low-Latency WebAudio & DSP Engine…",
+            "Loading Multi-Track Mixing Console & Sends…",
+            "Preparing MIDI Piano Roll, Sampler & Notation…",
+            "Loading EQ, Dynamics, Reverb & Mastering Suite…",
+            "Opening Audio Workstation…",
+        ],
+        "art_svg": """<svg viewBox="0 0 260 360" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="sg1" cx="55%" cy="35%" r="68%"><stop offset="0%" stop-color="#14b8a6" stop-opacity="0.52"/><stop offset="100%" stop-color="#091918" stop-opacity="0"/></radialGradient>
+          </defs>
+          <rect width="260" height="360" fill="#091918"/>
+          <rect width="260" height="360" fill="url(#sg1)"/>
+          <g stroke="#2dd4bf" stroke-width="5" stroke-linecap="round">
+            <line x1="42" y1="168" x2="42" y2="192"/><line x1="60" y1="142" x2="60" y2="218"/>
+            <line x1="78" y1="112" x2="78" y2="248"/><line x1="96" y1="134" x2="96" y2="226"/>
+            <line x1="114" y1="92" x2="114" y2="268"/><line x1="132" y1="124" x2="132" y2="236"/>
+            <line x1="150" y1="104" x2="150" y2="256"/><line x1="168" y1="140" x2="168" y2="220"/>
+            <line x1="186" y1="118" x2="186" y2="242"/><line x1="204" y1="152" x2="204" y2="208"/>
+            <line x1="222" y1="168" x2="222" y2="192"/>
+          </g>
+          <line x1="28" y1="180" x2="234" y2="180" stroke="rgba(255,255,255,0.28)" stroke-width="1.4"/>
+        </svg>""",
+    },
     "pdf": {
         "container_id": "pdfcraft_loading",
         "bar_id": "pdf_load_bar",
@@ -216,39 +283,6 @@ SPLASH_PROFILES = {
           <line x1="80" y1="148" x2="172" y2="148" stroke="rgba(255,255,255,0.35)" stroke-width="3" stroke-linecap="round"/>
           <line x1="44" y1="176" x2="216" y2="176" stroke="#10b981" stroke-width="2.5"/>
           <path d="M 82 232 Q 106 206, 122 228 T 174 216" fill="none" stroke="#34d399" stroke-width="2.8" stroke-linecap="round"/>
-        </svg>""",
-    },
-    "design": {
-        "container_id": "designcraft_loading",
-        "bar_id": "dc_load_bar",
-        "pct_id": "dc_load_pct",
-        "code": "Ds",
-        "title": "The AllCraft Design",
-        "tagline": "Desktop Publishing, Master Layouts & Prepress Studio",
-        "accent": "#F59E0B",
-        "accent_soft": "rgba(245, 158, 11, 0.24)",
-        "badge_bg": "#2E1C06",
-        "stages": [
-            "Initializing Multi-Page Layout & Grid Engine…",
-            "Loading OpenType Typography & Paragraph Composer…",
-            "Preparing Master Spreads & CMYK Separations…",
-            "Loading IDML, INDD, EPUB & Print PDF Exporters…",
-            "Opening Publishing Workspace…",
-        ],
-        "art_svg": """<svg viewBox="0 0 260 360" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <radialGradient id="lg1" cx="60%" cy="32%" r="68%"><stop offset="0%" stop-color="#f59e0b" stop-opacity="0.5"/><stop offset="100%" stop-color="#19140d" stop-opacity="0"/></radialGradient>
-          </defs>
-          <rect width="260" height="360" fill="#19140d"/>
-          <rect width="260" height="360" fill="url(#lg1)"/>
-          <rect x="34" y="88" width="94" height="176" rx="6" fill="rgba(255,255,255,0.06)" stroke="#fbbf24" stroke-width="1.4"/>
-          <rect x="132" y="88" width="94" height="176" rx="6" fill="rgba(255,255,255,0.06)" stroke="#fbbf24" stroke-width="1.4"/>
-          <rect x="46" y="102" width="70" height="64" rx="4" fill="rgba(245,158,11,0.35)"/>
-          <line x1="46" y1="182" x2="114" y2="182" stroke="rgba(255,255,255,0.45)" stroke-width="3"/>
-          <line x1="46" y1="196" x2="106" y2="196" stroke="rgba(255,255,255,0.3)" stroke-width="3"/>
-          <line x1="144" y1="106" x2="212" y2="106" stroke="#fde68a" stroke-width="4"/>
-          <rect x="144" y="124" width="32" height="122" rx="3" fill="rgba(255,255,255,0.12)"/>
-          <rect x="182" y="124" width="32" height="122" rx="3" fill="rgba(255,255,255,0.12)"/>
         </svg>""",
     },
 }
@@ -497,7 +531,6 @@ def inject_photoshop_splash(target_dir: pathlib.Path, app_id: str) -> None:
 
     index_path.write_text(new_html, encoding="utf-8")
 
-    # If the app ships a Service Worker (e.g. effectcraft sw.js), bump its VERSION hash so SW caches pick up the new HTML
     sw_path = target_dir / "sw.js"
     if sw_path.is_file():
         sw_txt = sw_path.read_text(encoding="utf-8")
