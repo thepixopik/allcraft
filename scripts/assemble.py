@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""Assemble all Craft web app artifacts from apps.json into a unified dist/ folder for Cloudflare Pages."""
+"""Assemble all Craft web app artifacts from apps.json into a unified dist/ folder and inject Photoshop-style splash UI."""
 
 import datetime
 import io
 import json
 import os
 import pathlib
+import re
 import shutil
 import sys
 import urllib.error
@@ -18,6 +19,174 @@ APPS_CONFIG = ROOT / "apps.json"
 SITE_DIR = ROOT / "site"
 DIST_DIR = ROOT / "dist"
 CF_MAX_FILE_BYTES = 25 * 1024 * 1024  # 25 MiB Cloudflare Pages single-asset limit
+
+SPLASH_PROFILES = {
+    "vector": {
+        "container_id": "vectorcraft_loading",
+        "bar_id": "vc_load_bar",
+        "pct_id": "vc_load_pct",
+        "code": "Vc",
+        "title": "The AllCraft Vector",
+        "tagline": "Precision Vector Illustration & Typography Studio",
+        "accent": "#E8573F",
+        "accent_soft": "rgba(232, 87, 63, 0.22)",
+        "badge_bg": "#2B1410",
+        "stages": [
+            "Initializing WebGPU Vector Engine…",
+            "Loading Pen, Bézier & Path Boolean Tools…",
+            "Reading Typography, Swatches & Gradients…",
+            "Preparing Multi-Artboard Canvas…",
+            "Compiling Native Studio Runtime…",
+        ],
+        "art_svg": """<svg viewBox="0 0 260 360" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="g1" cx="65%" cy="32%" r="65%"><stop offset="0%" stop-color="#ff7b54" stop-opacity="0.55"/><stop offset="100%" stop-color="#171214" stop-opacity="0"/></radialGradient>
+            <linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#e8573f"/><stop offset="100%" stop-color="#ffb36b"/></linearGradient>
+          </defs>
+          <rect width="260" height="360" fill="#171315"/>
+          <rect width="260" height="360" fill="url(#g1)"/>
+          <circle cx="170" cy="135" r="78" fill="none" stroke="url(#g2)" stroke-width="2.2" opacity="0.75"/>
+          <path d="M 38 270 C 68 120, 195 240, 224 88" fill="none" stroke="url(#g2)" stroke-width="3.5"/>
+          <line x1="38" y1="270" x2="68" y2="120" stroke="#ffb36b" stroke-width="1.3" stroke-dasharray="4 4" opacity="0.8"/>
+          <line x1="224" y1="88" x2="195" y2="240" stroke="#ffb36b" stroke-width="1.3" stroke-dasharray="4 4" opacity="0.8"/>
+          <rect x="33" y="265" width="10" height="10" rx="2" fill="#171315" stroke="#fff" stroke-width="2"/>
+          <rect x="219" y="83" width="10" height="10" rx="2" fill="#171315" stroke="#fff" stroke-width="2"/>
+          <circle cx="68" cy="120" r="5" fill="#ffb36b"/>
+          <circle cx="195" cy="240" r="5" fill="#ffb36b"/>
+          <polygon points="130,152 154,202 130,192 106,202" fill="#fff" opacity="0.92"/>
+        </svg>""",
+    },
+    "photo": {
+        "container_id": "photocraft_loading",
+        "bar_id": "pc_load_bar",
+        "pct_id": "pc_load_pct",
+        "code": "Ph",
+        "title": "The AllCraft Photo",
+        "tagline": "Non-Destructive Imaging, RAW & Layer Compositing",
+        "accent": "#31A8FF",
+        "accent_soft": "rgba(49, 168, 255, 0.24)",
+        "badge_bg": "#081E36",
+        "stages": [
+            "Initializing WebGPU & 32-Bit Color Engine…",
+            "Reading Brushes, Gradients & Tool Presets…",
+            "Loading Camera RAW & Smart Filter Pipeline…",
+            "Preparing Non-Destructive Layer Compositor…",
+            "Building Workspace Panels & Shortcuts…",
+        ],
+        "art_svg": """<svg viewBox="0 0 260 360" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="pg1" cx="35%" cy="28%" r="70%"><stop offset="0%" stop-color="#31a8ff" stop-opacity="0.62"/><stop offset="55%" stop-color="#1d4ed8" stop-opacity="0.24"/><stop offset="100%" stop-color="#0b1320" stop-opacity="0"/></radialGradient>
+            <radialGradient id="pg2" cx="78%" cy="74%" r="55%"><stop offset="0%" stop-color="#38bdf8" stop-opacity="0.45"/><stop offset="100%" stop-color="#0b1320" stop-opacity="0"/></radialGradient>
+            <linearGradient id="pg3" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#2563eb"/><stop offset="100%" stop-color="#7dd3fc"/></linearGradient>
+          </defs>
+          <rect width="260" height="360" fill="#0b1320"/>
+          <rect width="260" height="360" fill="url(#pg1)"/>
+          <rect width="260" height="360" fill="url(#pg2)"/>
+          <rect x="46" y="72" width="142" height="178" rx="18" fill="rgba(255,255,255,0.05)" stroke="rgba(125,211,252,0.35)" stroke-width="1.5" transform="rotate(-8 117 161)"/>
+          <rect x="68" y="96" width="142" height="178" rx="18" fill="rgba(14,30,56,0.72)" stroke="url(#pg3)" stroke-width="1.8" transform="rotate(5 139 185)"/>
+          <circle cx="122" cy="152" r="22" fill="none" stroke="#7dd3fc" stroke-width="2" opacity="0.9"/>
+          <path d="M 74 248 Q 116 188, 146 218 T 208 176" fill="none" stroke="#38bdf8" stroke-width="3"/>
+        </svg>""",
+    },
+    "film": {
+        "container_id": "loading",
+        "bar_id": "fc_load_bar",
+        "pct_id": "fc_load_pct",
+        "extra_status_id": "status",
+        "code": "Fm",
+        "title": "The AllCraft Film",
+        "tagline": "Multi-Track Non-Linear Video, Color & Audio Suite",
+        "accent": "#A855F7",
+        "accent_soft": "rgba(168, 85, 247, 0.24)",
+        "badge_bg": "#211036",
+        "stages": [
+            "Initializing Hardware WebCodecs & GPU Scopes…",
+            "Loading Lumetri Color Grading & LUT Pipeline…",
+            "Preparing Audio Track Mixer & DSP Effects…",
+            "Building Multi-Track Timeline & Transitions…",
+            "Launching Real-Time Playback Engine…",
+        ],
+        "art_svg": """<svg viewBox="0 0 260 360" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="fg1" cx="65%" cy="30%" r="70%"><stop offset="0%" stop-color="#c084fc" stop-opacity="0.55"/><stop offset="100%" stop-color="#140f1f" stop-opacity="0"/></radialGradient>
+            <linearGradient id="fg2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#9333ea"/><stop offset="100%" stop-color="#ec4899"/></linearGradient>
+          </defs>
+          <rect width="260" height="360" fill="#140f1f"/>
+          <rect width="260" height="360" fill="url(#fg1)"/>
+          <rect x="28" y="108" width="128" height="22" rx="6" fill="url(#fg2)" opacity="0.9"/>
+          <rect x="86" y="140" width="144" height="22" rx="6" fill="#7c3aed" opacity="0.75"/>
+          <rect x="42" y="172" width="160" height="22" rx="6" fill="#a855f7" opacity="0.55"/>
+          <rect x="28" y="216" width="202" height="36" rx="6" fill="rgba(255,255,255,0.05)" stroke="rgba(192,132,252,0.3)"/>
+          <path d="M 38 234 L 54 222 L 66 244 L 82 220 L 96 242 L 112 226 L 128 244 L 146 221 L 164 240 L 182 226 L 204 238 L 218 232" fill="none" stroke="#e879f9" stroke-width="2"/>
+          <line x1="134" y1="76" x2="134" y2="278" stroke="#fff" stroke-width="2"/>
+          <polygon points="127,76 141,76 134,86" fill="#fff"/>
+        </svg>""",
+    },
+    "pdf": {
+        "container_id": "pdfcraft_loading",
+        "bar_id": "pdf_load_bar",
+        "pct_id": "pdf_load_pct",
+        "code": "Pd",
+        "title": "The AllCraft PDF",
+        "tagline": "Document Editing, On-Device OCR, Forms & Signing",
+        "accent": "#10B981",
+        "accent_soft": "rgba(16, 185, 129, 0.24)",
+        "badge_bg": "#08291E",
+        "stages": [
+            "Initializing Vector Page Renderer & Font Engine…",
+            "Loading Form Fields, Redaction & Digital Signer…",
+            "Preparing On-Device Neural OCR Worker…",
+            "Loading Page Organizer & Preflight Rules…",
+            "Opening PDF Workbench…",
+        ],
+        "art_svg": """<svg viewBox="0 0 260 360" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="dg1" cx="55%" cy="35%" r="68%"><stop offset="0%" stop-color="#10b981" stop-opacity="0.5"/><stop offset="100%" stop-color="#0d1916" stop-opacity="0"/></radialGradient>
+          </defs>
+          <rect width="260" height="360" fill="#0d1916"/>
+          <rect width="260" height="360" fill="url(#dg1)"/>
+          <rect x="58" y="76" width="144" height="196" rx="12" fill="rgba(255,255,255,0.06)" stroke="#34d399" stroke-width="1.6"/>
+          <line x1="80" y1="112" x2="162" y2="112" stroke="#a7f3d0" stroke-width="4" stroke-linecap="round"/>
+          <line x1="80" y1="132" x2="180" y2="132" stroke="rgba(255,255,255,0.35)" stroke-width="3" stroke-linecap="round"/>
+          <line x1="80" y1="148" x2="172" y2="148" stroke="rgba(255,255,255,0.35)" stroke-width="3" stroke-linecap="round"/>
+          <line x1="44" y1="176" x2="216" y2="176" stroke="#10b981" stroke-width="2.5"/>
+          <path d="M 82 232 Q 106 206, 122 228 T 174 216" fill="none" stroke="#34d399" stroke-width="2.8" stroke-linecap="round"/>
+        </svg>""",
+    },
+    "design": {
+        "container_id": "designcraft_loading",
+        "bar_id": "dc_load_bar",
+        "pct_id": "dc_load_pct",
+        "code": "Ds",
+        "title": "The AllCraft Design",
+        "tagline": "Desktop Publishing, Master Layouts & Prepress Studio",
+        "accent": "#F59E0B",
+        "accent_soft": "rgba(245, 158, 11, 0.24)",
+        "badge_bg": "#2E1C06",
+        "stages": [
+            "Initializing Multi-Page Layout & Grid Engine…",
+            "Loading OpenType Typography & Paragraph Composer…",
+            "Preparing Master Spreads & CMYK Separations…",
+            "Loading IDML, INDD, EPUB & Print PDF Exporters…",
+            "Opening Publishing Workspace…",
+        ],
+        "art_svg": """<svg viewBox="0 0 260 360" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="lg1" cx="60%" cy="32%" r="68%"><stop offset="0%" stop-color="#f59e0b" stop-opacity="0.5"/><stop offset="100%" stop-color="#19140d" stop-opacity="0"/></radialGradient>
+          </defs>
+          <rect width="260" height="360" fill="#19140d"/>
+          <rect width="260" height="360" fill="url(#lg1)"/>
+          <rect x="34" y="88" width="94" height="176" rx="6" fill="rgba(255,255,255,0.06)" stroke="#fbbf24" stroke-width="1.4"/>
+          <rect x="132" y="88" width="94" height="176" rx="6" fill="rgba(255,255,255,0.06)" stroke="#fbbf24" stroke-width="1.4"/>
+          <rect x="46" y="102" width="70" height="64" rx="4" fill="rgba(245,158,11,0.35)"/>
+          <line x1="46" y1="182" x2="114" y2="182" stroke="rgba(255,255,255,0.45)" stroke-width="3"/>
+          <line x1="46" y1="196" x2="106" y2="196" stroke="rgba(255,255,255,0.3)" stroke-width="3"/>
+          <line x1="144" y1="106" x2="212" y2="106" stroke="#fde68a" stroke-width="4"/>
+          <rect x="144" y="124" width="32" height="122" rx="3" fill="rgba(255,255,255,0.12)"/>
+          <rect x="182" y="124" width="32" height="122" rx="3" fill="rgba(255,255,255,0.12)"/>
+        </svg>""",
+    },
+}
 
 
 class StripCrossOriginAuthRedirectHandler(urllib.request.HTTPRedirectHandler):
@@ -84,6 +253,187 @@ def pick_latest_artifact(repo: str, artifact_name: str, branch: str, token: str)
     return valid[0]
 
 
+def replace_div_by_id(html: str, div_id: str, replacement: str) -> tuple[str, bool]:
+    """Find `<div ... id=div_id ...>` (quoted or unquoted), balance nested `<div>` tags, and replace it."""
+    pattern = re.compile(
+        r"<div\b[^>]*\bid=(?:\"|\')?" + re.escape(div_id) + r"(?:\"|\')?(?=[\s>/])[^>]*>",
+        re.IGNORECASE,
+    )
+    m = pattern.search(html)
+    if not m:
+        return html, False
+
+    start = m.start()
+    tag_re = re.compile(r"</?div\b[^>]*>", re.IGNORECASE)
+    depth = 0
+    for tm in tag_re.finditer(html, start):
+        tok = tm.group(0)
+        if tok.startswith("</"):
+            depth -= 1
+            if depth == 0:
+                end = tm.end()
+                return html[:start] + replacement + html[end:], True
+        elif not tok.endswith("/>"):
+            depth += 1
+    return html, False
+
+
+def inject_photoshop_splash(target_dir: pathlib.Path, app_id: str) -> None:
+    """Replace the plain MB loading bar with a desktop Photoshop-style splash window."""
+    profile = SPLASH_PROFILES.get(app_id)
+    index_path = target_dir / "index.html"
+    if not profile or not index_path.is_file():
+        return
+
+    html = index_path.read_text(encoding="utf-8")
+    cid = profile["container_id"]
+    bar_id = profile["bar_id"]
+    pct_id = profile["pct_id"]
+    extra_status = (
+        f'<div id="{profile["extra_status_id"]}" class="ac-err-msg"></div>'
+        if profile.get("extra_status_id")
+        else ""
+    )
+    stages_json = json.dumps(profile["stages"])
+
+    splash_css = f"""<style id="ac-ps-splash-style">
+#{cid} {{
+  position: fixed !important; inset: 0 !important; z-index: 9999 !important;
+  display: flex !important; align-items: center !important; justify-content: center !important;
+  padding: 20px !important; background: radial-gradient(circle at 50% 35%, #23252b 0%, #141519 100%) !important;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  pointer-events: auto !important; user-select: none !important;
+}}
+.ac-ps-card {{
+  position: relative; width: min(650px, 100%); min-height: 360px;
+  display: grid; grid-template-columns: 1.28fr 0.92fr;
+  background: #1c1d22; border-radius: 18px; overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.10);
+  box-shadow: 0 32px 90px rgba(0,0,0,0.72), 0 0 0 1px rgba(0,0,0,0.5);
+  animation: acSplashIn 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}}
+@keyframes acSplashIn {{
+  from {{ opacity: 0; transform: scale(0.97) translateY(6px); }}
+  to {{ opacity: 1; transform: scale(1) translateY(0); }}
+}}
+.ac-ps-left {{
+  padding: 32px 30px 28px; display: flex; flex-direction: column; justify-content: space-between; text-align: left;
+}}
+.ac-ps-brand-row {{ display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }}
+.ac-ps-monogram {{
+  width: 54px; height: 54px; border-radius: 13px; background: {profile["badge_bg"]};
+  border: 2px solid {profile["accent"]}; box-shadow: 0 8px 24px {profile["accent_soft"]};
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px; font-weight: 800; letter-spacing: -0.03em; color: {profile["accent"]};
+}}
+.ac-ps-suite {{
+  font-size: 10.5px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #8b92a5; margin-bottom: 3px;
+}}
+.ac-ps-title {{ margin: 0; font-size: 23px; font-weight: 800; letter-spacing: -0.02em; color: #f8fafc; line-height: 1.15; }}
+.ac-ps-tagline {{ margin: 0 0 18px; font-size: 13.5px; line-height: 1.5; color: #9ca3af; }}
+.ac-ps-pills {{ display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 24px; }}
+.ac-ps-pill {{
+  font-size: 11px; font-weight: 600; padding: 4px 9px; border-radius: 6px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.07); color: #cbd5e1;
+}}
+.ac-ps-status-wrap {{ margin-top: auto; }}
+.ac-ps-status-row {{ display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 9px; }}
+.ac-ps-stage {{ font-size: 12.5px; font-weight: 500; color: #d1d5db; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }}
+.ac-ps-pct {{ font-size: 12px; font-weight: 700; color: {profile["accent"]}; font-variant-numeric: tabular-nums; flex-shrink: 0; }}
+.ac-ps-track {{ width: 100%; height: 4px; background: rgba(255,255,255,0.08); border-radius: 999px; overflow: hidden; }}
+.ac-ps-fill {{
+  width: 3%; height: 100%; background: {profile["accent"]}; border-radius: 999px;
+  box-shadow: 0 0 12px {profile["accent"]}; transition: width 0.16s ease-out;
+}}
+.ac-ps-foot {{ margin-top: 14px; font-size: 10.5px; color: #64748b; letter-spacing: 0.02em; }}
+.ac-ps-right {{ position: relative; background: #121318; border-left: 1px solid rgba(255,255,255,0.06); overflow: hidden; }}
+.ac-err-msg:not(:empty) {{ margin-top: 10px; font-size: 12px; color: #ff8a7a; white-space: pre-wrap; max-height: 90px; overflow: auto; }}
+@media (max-width: 600px) {{
+  .ac-ps-card {{ grid-template-columns: 1fr; min-height: auto; }}
+  .ac-ps-right {{ display: none; }}
+}}
+</style>"""
+
+    splash_div = f"""<div id="{cid}">
+  <div class="ac-ps-card">
+    <div class="ac-ps-left">
+      <div>
+        <div class="ac-ps-brand-row">
+          <div class="ac-ps-monogram">{profile["code"]}</div>
+          <div>
+            <div class="ac-ps-suite">The AllCraft Studio &bull; 2026</div>
+            <h1 class="ac-ps-title">{profile["title"]}</h1>
+          </div>
+        </div>
+        <p class="ac-ps-tagline">{profile["tagline"]}</p>
+        <div class="ac-ps-pills">
+          <span class="ac-ps-pill">WebGPU Accelerated</span>
+          <span class="ac-ps-pill">100% On-Device</span>
+          <span class="ac-ps-pill">Rust + Wasm</span>
+        </div>
+      </div>
+      <div class="ac-ps-status-wrap">
+        <div class="ac-ps-status-row">
+          <span id="ac_stage_text" class="ac-ps-stage">{profile["stages"][0]}</span>
+          <span id="ac_pct_clean" class="ac-ps-pct">Starting…</span>
+        </div>
+        <div class="ac-ps-track">
+          <div id="{bar_id}" class="ac-ps-fill"></div>
+        </div>
+        <span id="{pct_id}" hidden></span>
+        {extra_status}
+        <div class="ac-ps-foot">&copy; 2026 The AllCraft Studio &middot; Zero Cloud Uploads</div>
+      </div>
+    </div>
+    <div class="ac-ps-right">{profile["art_svg"]}</div>
+  </div>
+</div>"""
+
+    observer_js = f"""<script>
+(() => {{
+  const stages = {stages_json};
+  const bind = () => {{
+    const rawEl = document.getElementById("{pct_id}");
+    const stageEl = document.getElementById("ac_stage_text");
+    const cleanEl = document.getElementById("ac_pct_clean");
+    if (!rawEl || !stageEl || !cleanEl) return;
+    const sync = () => {{
+      const txt = rawEl.textContent || "";
+      const m = txt.match(/(\\d+)\\s*%/);
+      if (!m) return;
+      const pct = Math.min(100, Math.max(0, parseInt(m[1], 10)));
+      cleanEl.textContent = pct + "%";
+      if (pct >= 100) {{
+        stageEl.textContent = "Opening Workspace…";
+      }} else {{
+        const idx = Math.min(stages.length - 1, Math.floor((pct / 100) * stages.length));
+        stageEl.textContent = stages[idx];
+      }}
+    }};
+    new MutationObserver(sync).observe(rawEl, {{ childList: true, characterData: true, subtree: true }});
+  }};
+  if (document.readyState === "loading") {{
+    document.addEventListener("DOMContentLoaded", bind, {{ once: true }});
+  }} else {{
+    bind();
+  }}
+}})();
+</script>"""
+
+    new_html, ok = replace_div_by_id(html, cid, splash_div)
+    if not ok:
+        print(f"    WARN: Could not find #{cid} in {app_id}/index.html; splash skipped")
+        return
+
+    if "</head>" in new_html:
+        new_html = new_html.replace("</head>", splash_css + observer_js + "</head>", 1)
+    else:
+        new_html = splash_css + observer_js + new_html
+
+    index_path.write_text(new_html, encoding="utf-8")
+    print(f"    Injected Photoshop-style splash screen ({profile['code']}) into dist/{app_id}/index.html")
+
+
 def write_building_placeholder(target_dir: pathlib.Path, app_name: str) -> None:
     target_dir.mkdir(parents=True, exist_ok=True)
     html = f"""<!DOCTYPE html>
@@ -121,7 +471,6 @@ def normalize_extracted_app(target_dir: pathlib.Path) -> None:
                 shutil.move(str(item), str(target_dir / item.name))
             nested.rmdir()
 
-    # Remove per-app _headers / .htaccess so only root dist/_headers applies cleanly on Cloudflare Pages
     for meta_file in ("_headers", ".htaccess"):
         p = target_dir / meta_file
         if p.is_file():
@@ -187,6 +536,8 @@ def main() -> None:
         if not (target_dir / "index.html").is_file():
             print(f"ERROR: dist/{mount_path}/index.html missing after extracting {artifact_name}!", file=sys.stderr)
             sys.exit(1)
+
+        inject_photoshop_splash(target_dir, app_id)
 
         print(f"    Extracted to dist/{mount_path}/ ({sum(1 for _ in target_dir.rglob('*') if _.is_file())} files, index.html verified)")
         manifest_entries.append(
