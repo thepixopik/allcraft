@@ -221,6 +221,42 @@ SPLASH_PROFILES = {
           <rect x="74" y="234" width="68" height="24" rx="5" fill="rgba(99,102,241,0.28)" stroke="#818cf8" stroke-width="1"/>
         </svg>""",
     },
+    "grid": {
+        "container_id": "gridcraft_loading",
+        "bar_id": "gc_load_bar",
+        "pct_id": "gc_load_pct",
+        "code": "Gd",
+        "title": "The AllCraft Grid",
+        "tagline": "Spreadsheets, 400+ Formulas, PivotTables & Analytics",
+        "accent": "#4ADE80",
+        "accent_soft": "rgba(74, 222, 128, 0.24)",
+        "badge_bg": "#082914",
+        "stages": [
+            "Initializing Vectorized Calculation Engine…",
+            "Loading 400+ Excel Formulas & XLSX/ODS Parsers…",
+            "Preparing PivotTables, Charts & Conditional Rules…",
+            "Loading Sandboxed Python & Macro Runtime…",
+            "Opening Workbook Grid…",
+        ],
+        "art_svg": """<svg viewBox="0 0 260 360" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="gg1" cx="55%" cy="34%" r="68%"><stop offset="0%" stop-color="#22c55e" stop-opacity="0.52"/><stop offset="100%" stop-color="#0a1910" stop-opacity="0"/></radialGradient>
+          </defs>
+          <rect width="260" height="360" fill="#0a1910"/>
+          <rect width="260" height="360" fill="url(#gg1)"/>
+          <rect x="38" y="78" width="184" height="128" rx="10" fill="rgba(255,255,255,0.05)" stroke="#4ade80" stroke-width="1.6"/>
+          <line x1="38" y1="110" x2="222" y2="110" stroke="rgba(74,222,128,0.45)" stroke-width="1.4"/>
+          <line x1="38" y1="142" x2="222" y2="142" stroke="rgba(255,255,255,0.12)" stroke-width="1.2"/>
+          <line x1="38" y1="174" x2="222" y2="174" stroke="rgba(255,255,255,0.12)" stroke-width="1.2"/>
+          <line x1="98" y1="78" x2="98" y2="206" stroke="rgba(255,255,255,0.14)" stroke-width="1.2"/>
+          <line x1="160" y1="78" x2="160" y2="206" stroke="rgba(255,255,255,0.14)" stroke-width="1.2"/>
+          <rect x="98" y="110" width="62" height="32" fill="rgba(34,197,94,0.26)" stroke="#4ade80" stroke-width="2"/>
+          <rect x="54" y="248" width="24" height="36" rx="4" fill="#16a34a"/>
+          <rect x="92" y="232" width="24" height="52" rx="4" fill="#22c55e"/>
+          <rect x="130" y="218" width="24" height="66" rx="4" fill="#4ade80"/>
+          <rect x="168" y="202" width="24" height="82" rx="4" fill="#86efac"/>
+        </svg>""",
+    },
     "pdf": {
         "container_id": "pdfcraft_loading",
         "bar_id": "pdf_load_bar",

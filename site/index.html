@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#161618">
-  <title>The AllCraft Studio — 10-App Creative, Document &amp; CAD Cloud</title>
+  <title>The AllCraft Studio — 11-App Creative, Office &amp; CAD Cloud</title>
   <script>
     if (location.pathname !== "/" && location.pathname !== "/index.html") {
       history.replaceState(null, "", "/");
@@ -22,21 +22,22 @@
       --photo: #2b7de9;
       --light: #06b6d4;
       --design: #f59e0b;
+      --cad: #ef4444;
       --word: #6366f1;
+      --grid: #22c55e;
       --pdf: #10b981;
       --film: #9b5de5;
       --effect: #ec4899;
       --sound: #14b8a6;
-      --cad: #ef4444;
     }
     * { box-sizing: border-box; }
     html, body {
       margin: 0; padding: 0; min-height: 100%;
-      background: radial-gradient(circle at 12% 0%, rgba(232,87,63,0.09), transparent 26%),
-                  radial-gradient(circle at 32% 0%, rgba(43,125,233,0.09), transparent 26%),
-                  radial-gradient(circle at 52% 0%, rgba(99,102,241,0.10), transparent 26%),
-                  radial-gradient(circle at 72% 0%, rgba(236,72,153,0.09), transparent 26%),
-                  radial-gradient(circle at 92% 0%, rgba(239,68,68,0.09), transparent 26%),
+      background: radial-gradient(circle at 10% 0%, rgba(232,87,63,0.09), transparent 26%),
+                  radial-gradient(circle at 30% 0%, rgba(43,125,233,0.09), transparent 26%),
+                  radial-gradient(circle at 50% 0%, rgba(34,197,94,0.09), transparent 26%),
+                  radial-gradient(circle at 70% 0%, rgba(236,72,153,0.09), transparent 26%),
+                  radial-gradient(circle at 90% 0%, rgba(20,184,166,0.09), transparent 26%),
                   var(--bg);
       color: var(--text);
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -75,7 +76,7 @@
     }
     .sub {
       margin: 0 auto 38px;
-      max-width: 780px;
+      max-width: 800px;
       text-align: center;
       font-size: 15.5px;
       line-height: 1.6;
@@ -106,12 +107,13 @@
     .card.photo:hover { border-color: rgba(43,125,233,0.65); box-shadow: 0 16px 36px rgba(43,125,233,0.14); }
     .card.light:hover { border-color: rgba(6,182,212,0.65); box-shadow: 0 16px 36px rgba(6,182,212,0.15); }
     .card.design:hover { border-color: rgba(245,158,11,0.65); box-shadow: 0 16px 36px rgba(245,158,11,0.15); }
+    .card.cad:hover { border-color: rgba(239,68,68,0.65); box-shadow: 0 16px 36px rgba(239,68,68,0.16); }
     .card.word:hover { border-color: rgba(99,102,241,0.65); box-shadow: 0 16px 36px rgba(99,102,241,0.16); }
+    .card.grid-app:hover { border-color: rgba(34,197,94,0.65); box-shadow: 0 16px 36px rgba(34,197,94,0.16); }
     .card.pdf:hover { border-color: rgba(16,185,129,0.65); box-shadow: 0 16px 36px rgba(16,185,129,0.15); }
     .card.film:hover { border-color: rgba(155,93,229,0.65); box-shadow: 0 16px 36px rgba(155,93,229,0.16); }
     .card.effect:hover { border-color: rgba(236,72,153,0.65); box-shadow: 0 16px 36px rgba(236,72,153,0.16); }
     .card.sound:hover { border-color: rgba(20,184,166,0.65); box-shadow: 0 16px 36px rgba(20,184,166,0.16); }
-    .card.cad:hover { border-color: rgba(239,68,68,0.65); box-shadow: 0 16px 36px rgba(239,68,68,0.16); }
     .icon {
       width: 48px;
       height: 48px;
@@ -125,12 +127,13 @@
     .photo .icon { background: rgba(43,125,233,0.16); color: var(--photo); }
     .light .icon { background: rgba(6,182,212,0.16); color: var(--light); }
     .design .icon { background: rgba(245,158,11,0.16); color: var(--design); }
+    .cad .icon { background: rgba(239,68,68,0.16); color: #f87171; }
     .word .icon { background: rgba(99,102,241,0.18); color: #818cf8; }
+    .grid-app .icon { background: rgba(34,197,94,0.16); color: #4ade80; }
     .pdf .icon { background: rgba(16,185,129,0.16); color: var(--pdf); }
     .film .icon { background: rgba(155,93,229,0.16); color: var(--film); }
     .effect .icon { background: rgba(236,72,153,0.16); color: var(--effect); }
     .sound .icon { background: rgba(20,184,166,0.16); color: var(--sound); }
-    .cad .icon { background: rgba(239,68,68,0.16); color: #f87171; }
     .card h2 {
       margin: 0 0 8px;
       font-size: 20px;
@@ -171,12 +174,13 @@
     .photo .cta { background: var(--photo); }
     .light .cta { background: #0891b2; }
     .design .cta { background: #d97706; }
+    .cad .cta { background: #dc2626; }
     .word .cta { background: #4f46e5; }
+    .grid-app .cta { background: #16a34a; }
     .pdf .cta { background: var(--pdf); }
     .film .cta { background: var(--film); }
     .effect .cta { background: #db2777; }
     .sound .cta { background: #0d9488; }
-    .cad .cta { background: #dc2626; }
     footer {
       margin-top: 42px;
       text-align: center;
@@ -189,9 +193,9 @@
 </head>
 <body>
   <main class="wrap">
-    <div class="badge">⚡ WebGPU &middot; Rust + WebAssembly &middot; 10-App Local-First Creative, Document &amp; CAD Cloud</div>
+    <div class="badge">⚡ WebGPU &middot; Rust + WebAssembly &middot; 11-App Local-First Creative, Office &amp; CAD Cloud</div>
     <h1>The AllCraft Studio</h1>
-    <p class="sub">Complete 10-app Creative, Office &amp; Engineering Cloud right in your browser: Vector, Photo, RAW Darkroom, Publishing, Word, PDF, Video, Motion VFX, Audio DAW &amp; 2D/3D CAD. Zero cloud uploads — 100% private on your device.</p>
+    <p class="sub">Complete 11-app Creative, Office &amp; Engineering Cloud right in your browser: Vector, Photo, RAW Darkroom, Publishing, CAD, Word, Spreadsheets, PDF, Video, Motion VFX &amp; Audio DAW. Zero cloud uploads — 100% private on your device.</p>
 
     <div class="grid">
       <a class="card vector" href="/vector/">
@@ -307,6 +311,26 @@
         <span class="cta">Open Word Processor &rarr;</span>
       </a>
 
+      <a class="card grid-app" href="/grid/">
+        <div class="icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+            <line x1="3" y1="9" x2="21" y2="9"></line>
+            <line x1="3" y1="15" x2="21" y2="15"></line>
+            <line x1="9" y1="3" x2="9" y2="21"></line>
+            <line x1="15" y1="3" x2="15" y2="21"></line>
+          </svg>
+        </div>
+        <h2>The AllCraft Grid</h2>
+        <p>High-speed spreadsheet &amp; analytics suite: XLSX, XLS, ODS &amp; CSV, 400+ Excel formulas, PivotTables, charts, conditional formatting &amp; Python/macros.</p>
+        <div class="tags">
+          <span class="tag">XLSX &amp; CSV</span>
+          <span class="tag">PivotTables</span>
+          <span class="tag">Charts &amp; Formulas</span>
+        </div>
+        <span class="cta">Open Spreadsheet &rarr;</span>
+      </a>
+
       <a class="card pdf" href="/pdf/">
         <div class="icon">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -394,6 +418,7 @@
       <a href="https://github.com/thepixopik/designcraft" target="_blank" rel="noopener">Design</a> &middot;
       <a href="https://github.com/thepixopik/cadcraft" target="_blank" rel="noopener">CAD</a> &middot;
       <a href="https://github.com/thepixopik/wordcraft" target="_blank" rel="noopener">Word</a> &middot;
+      <a href="https://github.com/thepixopik/gridcraft" target="_blank" rel="noopener">Grid</a> &middot;
       <a href="https://github.com/thepixopik/pdfcraft" target="_blank" rel="noopener">PDF</a> &middot;
       <a href="https://github.com/thepixopik/filmcraft" target="_blank" rel="noopener">Film</a> &middot;
       <a href="https://github.com/thepixopik/effectcraft" target="_blank" rel="noopener">Effect</a> &middot;

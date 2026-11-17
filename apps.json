@@ -38,6 +38,15 @@
       "required": true
     },
     {
+      "id": "cad",
+      "name": "The AllCraft CAD",
+      "repo": "thepixopik/cadcraft",
+      "artifact_name": "the-allcraft-cad-web",
+      "branch": "main",
+      "mount_path": "cad",
+      "required": true
+    },
+    {
       "id": "word",
       "name": "The AllCraft Word",
       "repo": "thepixopik/wordcraft",
@@ -45,6 +54,15 @@
       "branch": "main",
       "mount_path": "word",
       "required": true
+    },
+    {
+      "id": "grid",
+      "name": "The AllCraft Grid",
+      "repo": "thepixopik/gridcraft",
+      "artifact_name": "the-allcraft-grid-web",
+      "branch": "main",
+      "mount_path": "grid",
+      "required": false
     },
     {
       "id": "pdf",
@@ -81,15 +99,6 @@
       "branch": "main",
       "mount_path": "sound",
       "required": true
-    },
-    {
-      "id": "cad",
-      "name": "The AllCraft CAD",
-      "repo": "thepixopik/cadcraft",
-      "artifact_name": "the-allcraft-cad-web",
-      "branch": "main",
-      "mount_path": "cad",
-      "required": false
     }
   ]
 }

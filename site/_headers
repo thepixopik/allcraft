@@ -1,4 +1,4 @@
-# Unified Cloudflare Pages _headers for The AllCraft Studio (10-App Creative, Document & CAD Cloud)
+# Unified Cloudflare Pages _headers for The AllCraft Studio (11-App Creative, Office & CAD Cloud)
 
 /*
   X-Content-Type-Options: nosniff
@@ -54,6 +54,12 @@
   Cache-Control: no-cache
 
 /word/index.html
+  Cache-Control: no-cache
+
+/grid/
+  Cache-Control: no-cache
+
+/grid/index.html
   Cache-Control: no-cache
 
 /pdf/
@@ -130,6 +136,10 @@
   Cache-Control: public, max-age=31536000, immutable
 
 /word/*.part*
+  Content-Type: application/octet-stream
+  Cache-Control: public, max-age=31536000, immutable
+
+/grid/*.part*
   Content-Type: application/octet-stream
   Cache-Control: public, max-age=31536000, immutable
 
