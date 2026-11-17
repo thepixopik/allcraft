@@ -1,4 +1,4 @@
-# Unified Cloudflare Pages _headers for The AllCraft Studio (11-App Creative, Office & CAD Cloud)
+# Unified Cloudflare Pages _headers for The AllCraft Studio (12-App Creative, Office & CAD Cloud)
 
 /*
   X-Content-Type-Options: nosniff
@@ -44,12 +44,6 @@
 /design/index.html
   Cache-Control: no-cache
 
-/cad/
-  Cache-Control: no-cache
-
-/cad/index.html
-  Cache-Control: no-cache
-
 /word/
   Cache-Control: no-cache
 
@@ -60,6 +54,12 @@
   Cache-Control: no-cache
 
 /grid/index.html
+  Cache-Control: no-cache
+
+/deck/
+  Cache-Control: no-cache
+
+/deck/index.html
   Cache-Control: no-cache
 
 /pdf/
@@ -108,6 +108,12 @@
 /sound/index.html
   Cache-Control: no-cache
 
+/cad/
+  Cache-Control: no-cache
+
+/cad/index.html
+  Cache-Control: no-cache
+
 /:app/
   Cache-Control: no-cache
 
@@ -131,15 +137,15 @@
   Content-Type: application/octet-stream
   Cache-Control: public, max-age=31536000, immutable
 
-/cad/*.part*
-  Content-Type: application/octet-stream
-  Cache-Control: public, max-age=31536000, immutable
-
 /word/*.part*
   Content-Type: application/octet-stream
   Cache-Control: public, max-age=31536000, immutable
 
 /grid/*.part*
+  Content-Type: application/octet-stream
+  Cache-Control: public, max-age=31536000, immutable
+
+/deck/*.part*
   Content-Type: application/octet-stream
   Cache-Control: public, max-age=31536000, immutable
 
@@ -156,6 +162,10 @@
   Cache-Control: public, max-age=31536000, immutable
 
 /sound/*.part*
+  Content-Type: application/octet-stream
+  Cache-Control: public, max-age=31536000, immutable
+
+/cad/*.part*
   Content-Type: application/octet-stream
   Cache-Control: public, max-age=31536000, immutable
 

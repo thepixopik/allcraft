@@ -7,7 +7,7 @@
   <script>
     (() => {
       const segs = location.pathname.split("/").filter(Boolean);
-      const apps = ["vector", "photo", "light", "design", "cad", "word", "grid", "pdf", "film", "effect", "sound"];
+      const apps = ["vector", "photo", "light", "design", "word", "grid", "deck", "pdf", "film", "effect", "sound", "cad"];
       const lastApp = [...segs].reverse().find((s) => apps.includes(s));
       if (lastApp && location.pathname !== "/" + lastApp + "/") {
         location.replace("/" + lastApp + "/");

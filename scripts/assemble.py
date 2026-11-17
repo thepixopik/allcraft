@@ -152,43 +152,6 @@ SPLASH_PROFILES = {
           <rect x="182" y="124" width="32" height="122" rx="3" fill="rgba(255,255,255,0.12)"/>
         </svg>""",
     },
-    "cad": {
-        "container_id": "cadcraft_loading",
-        "bar_id": "cd_load_bar",
-        "pct_id": "cd_load_pct",
-        "code": "Cd",
-        "title": "The AllCraft CAD",
-        "tagline": "2D/3D Technical Drafting, DWG/DXF & Parametric CAD",
-        "accent": "#F87171",
-        "accent_soft": "rgba(248, 113, 113, 0.24)",
-        "badge_bg": "#2D0C0C",
-        "stages": [
-            "Initializing Precision 2D/3D CAD Viewport…",
-            "Loading Native DWG, DXF & SHX Vector Fonts…",
-            "Preparing Object Snaps & Parametric Solver…",
-            "Loading Blocks, Layers, LISP & Plotter Engine…",
-            "Opening CAD Workstation…",
-        ],
-        "art_svg": """<svg viewBox="0 0 260 360" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <radialGradient id="cg1" cx="55%" cy="35%" r="68%"><stop offset="0%" stop-color="#ef4444" stop-opacity="0.48"/><stop offset="100%" stop-color="#170f11" stop-opacity="0"/></radialGradient>
-          </defs>
-          <rect width="260" height="360" fill="#170f11"/>
-          <rect width="260" height="360" fill="url(#cg1)"/>
-          <g stroke="rgba(255,255,255,0.06)" stroke-width="1">
-            <line x1="0" y1="90" x2="260" y2="90"/><line x1="0" y1="150" x2="260" y2="150"/>
-            <line x1="0" y1="210" x2="260" y2="210"/><line x1="0" y1="270" x2="260" y2="270"/>
-            <line x1="65" y1="0" x2="65" y2="360"/><line x1="130" y1="0" x2="130" y2="360"/><line x1="195" y1="0" x2="195" y2="360"/>
-          </g>
-          <polygon points="130,84 202,126 202,210 130,252 58,210 58,126" fill="rgba(239,68,68,0.08)" stroke="#f87171" stroke-width="2"/>
-          <polyline points="58,126 130,168 202,126" fill="none" stroke="#fca5a5" stroke-width="1.6"/>
-          <line x1="130" y1="168" x2="130" y2="252" stroke="#fca5a5" stroke-width="1.6"/>
-          <circle cx="130" cy="168" r="24" fill="none" stroke="#38bdf8" stroke-width="1.6" stroke-dasharray="4 3"/>
-          <line x1="58" y1="276" x2="202" y2="276" stroke="#f87171" stroke-width="1.5"/>
-          <line x1="58" y1="270" x2="58" y2="282" stroke="#f87171" stroke-width="1.5"/>
-          <line x1="202" y1="270" x2="202" y2="282" stroke="#f87171" stroke-width="1.5"/>
-        </svg>""",
-    },
     "word": {
         "container_id": "wordcraft_loading",
         "bar_id": "wc_load_bar",
@@ -255,6 +218,37 @@ SPLASH_PROFILES = {
           <rect x="92" y="232" width="24" height="52" rx="4" fill="#22c55e"/>
           <rect x="130" y="218" width="24" height="66" rx="4" fill="#4ade80"/>
           <rect x="168" y="202" width="24" height="82" rx="4" fill="#86efac"/>
+        </svg>""",
+    },
+    "deck": {
+        "container_id": "deckcraft_loading",
+        "bar_id": "dk_load_bar",
+        "pct_id": "dk_load_pct",
+        "code": "Dk",
+        "title": "The AllCraft Deck",
+        "tagline": "Presentations, Slide Masters, Animations & Live Show",
+        "accent": "#FB923C",
+        "accent_soft": "rgba(251, 146, 60, 0.24)",
+        "badge_bg": "#2E1305",
+        "stages": [
+            "Initializing GPU Slide & Transition Renderer…",
+            "Loading PPTX, POTX & ODP Theme Engine…",
+            "Preparing Keyframe Animations & Morph Solver…",
+            "Loading SmartArt, Charts & Presenter View…",
+            "Opening Presentation Studio…",
+        ],
+        "art_svg": """<svg viewBox="0 0 260 360" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="dk1" cx="55%" cy="34%" r="68%"><stop offset="0%" stop-color="#f97316" stop-opacity="0.54"/><stop offset="100%" stop-color="#19110c" stop-opacity="0"/></radialGradient>
+          </defs>
+          <rect width="260" height="360" fill="#19110c"/>
+          <rect width="260" height="360" fill="url(#dk1)"/>
+          <rect x="44" y="84" width="164" height="104" rx="12" fill="rgba(255,255,255,0.05)" stroke="rgba(251,146,60,0.4)" stroke-width="1.4" transform="rotate(-4 126 136)"/>
+          <rect x="48" y="102" width="168" height="108" rx="12" fill="rgba(36,20,10,0.86)" stroke="#fb923c" stroke-width="1.8"/>
+          <polygon points="118,136 154,156 118,176" fill="#fed7aa"/>
+          <rect x="48" y="232" width="50" height="34" rx="6" fill="rgba(249,115,22,0.28)" stroke="#fb923c" stroke-width="1.4"/>
+          <rect x="107" y="232" width="50" height="34" rx="6" fill="rgba(255,255,255,0.07)" stroke="rgba(255,255,255,0.18)" stroke-width="1.2"/>
+          <rect x="166" y="232" width="50" height="34" rx="6" fill="rgba(255,255,255,0.07)" stroke="rgba(255,255,255,0.18)" stroke-width="1.2"/>
         </svg>""",
     },
     "pdf": {
@@ -388,6 +382,43 @@ SPLASH_PROFILES = {
             <line x1="222" y1="168" x2="222" y2="192"/>
           </g>
           <line x1="28" y1="180" x2="234" y2="180" stroke="rgba(255,255,255,0.28)" stroke-width="1.4"/>
+        </svg>""",
+    },
+    "cad": {
+        "container_id": "cadcraft_loading",
+        "bar_id": "cd_load_bar",
+        "pct_id": "cd_load_pct",
+        "code": "Cd",
+        "title": "The AllCraft CAD",
+        "tagline": "2D/3D Technical Drafting, DWG/DXF & Parametric CAD",
+        "accent": "#F87171",
+        "accent_soft": "rgba(248, 113, 113, 0.24)",
+        "badge_bg": "#2D0C0C",
+        "stages": [
+            "Initializing Precision 2D/3D CAD Viewport…",
+            "Loading Native DWG, DXF & SHX Vector Fonts…",
+            "Preparing Object Snaps & Parametric Solver…",
+            "Loading Blocks, Layers, LISP & Plotter Engine…",
+            "Opening CAD Workstation…",
+        ],
+        "art_svg": """<svg viewBox="0 0 260 360" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="cg1" cx="55%" cy="35%" r="68%"><stop offset="0%" stop-color="#ef4444" stop-opacity="0.48"/><stop offset="100%" stop-color="#170f11" stop-opacity="0"/></radialGradient>
+          </defs>
+          <rect width="260" height="360" fill="#170f11"/>
+          <rect width="260" height="360" fill="url(#cg1)"/>
+          <g stroke="rgba(255,255,255,0.06)" stroke-width="1">
+            <line x1="0" y1="90" x2="260" y2="90"/><line x1="0" y1="150" x2="260" y2="150"/>
+            <line x1="0" y1="210" x2="260" y2="210"/><line x1="0" y1="270" x2="260" y2="270"/>
+            <line x1="65" y1="0" x2="65" y2="360"/><line x1="130" y1="0" x2="130" y2="360"/><line x1="195" y1="0" x2="195" y2="360"/>
+          </g>
+          <polygon points="130,84 202,126 202,210 130,252 58,210 58,126" fill="rgba(239,68,68,0.08)" stroke="#f87171" stroke-width="2"/>
+          <polyline points="58,126 130,168 202,126" fill="none" stroke="#fca5a5" stroke-width="1.6"/>
+          <line x1="130" y1="168" x2="130" y2="252" stroke="#fca5a5" stroke-width="1.6"/>
+          <circle cx="130" cy="168" r="24" fill="none" stroke="#38bdf8" stroke-width="1.6" stroke-dasharray="4 3"/>
+          <line x1="58" y1="276" x2="202" y2="276" stroke="#f87171" stroke-width="1.5"/>
+          <line x1="58" y1="270" x2="58" y2="282" stroke="#f87171" stroke-width="1.5"/>
+          <line x1="202" y1="270" x2="202" y2="282" stroke="#f87171" stroke-width="1.5"/>
         </svg>""",
     },
 }
