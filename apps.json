@@ -44,7 +44,7 @@
       "artifact_name": "the-allcraft-word-web",
       "branch": "main",
       "mount_path": "word",
-      "required": false
+      "required": true
     },
     {
       "id": "pdf",
@@ -81,6 +81,15 @@
       "branch": "main",
       "mount_path": "sound",
       "required": true
+    },
+    {
+      "id": "cad",
+      "name": "The AllCraft CAD",
+      "repo": "thepixopik/cadcraft",
+      "artifact_name": "the-allcraft-cad-web",
+      "branch": "main",
+      "mount_path": "cad",
+      "required": false
     }
   ]
 }

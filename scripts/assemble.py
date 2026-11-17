@@ -152,6 +152,43 @@ SPLASH_PROFILES = {
           <rect x="182" y="124" width="32" height="122" rx="3" fill="rgba(255,255,255,0.12)"/>
         </svg>""",
     },
+    "cad": {
+        "container_id": "cadcraft_loading",
+        "bar_id": "cd_load_bar",
+        "pct_id": "cd_load_pct",
+        "code": "Cd",
+        "title": "The AllCraft CAD",
+        "tagline": "2D/3D Technical Drafting, DWG/DXF & Parametric CAD",
+        "accent": "#F87171",
+        "accent_soft": "rgba(248, 113, 113, 0.24)",
+        "badge_bg": "#2D0C0C",
+        "stages": [
+            "Initializing Precision 2D/3D CAD Viewport…",
+            "Loading Native DWG, DXF & SHX Vector Fonts…",
+            "Preparing Object Snaps & Parametric Solver…",
+            "Loading Blocks, Layers, LISP & Plotter Engine…",
+            "Opening CAD Workstation…",
+        ],
+        "art_svg": """<svg viewBox="0 0 260 360" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="cg1" cx="55%" cy="35%" r="68%"><stop offset="0%" stop-color="#ef4444" stop-opacity="0.48"/><stop offset="100%" stop-color="#170f11" stop-opacity="0"/></radialGradient>
+          </defs>
+          <rect width="260" height="360" fill="#170f11"/>
+          <rect width="260" height="360" fill="url(#cg1)"/>
+          <g stroke="rgba(255,255,255,0.06)" stroke-width="1">
+            <line x1="0" y1="90" x2="260" y2="90"/><line x1="0" y1="150" x2="260" y2="150"/>
+            <line x1="0" y1="210" x2="260" y2="210"/><line x1="0" y1="270" x2="260" y2="270"/>
+            <line x1="65" y1="0" x2="65" y2="360"/><line x1="130" y1="0" x2="130" y2="360"/><line x1="195" y1="0" x2="195" y2="360"/>
+          </g>
+          <polygon points="130,84 202,126 202,210 130,252 58,210 58,126" fill="rgba(239,68,68,0.08)" stroke="#f87171" stroke-width="2"/>
+          <polyline points="58,126 130,168 202,126" fill="none" stroke="#fca5a5" stroke-width="1.6"/>
+          <line x1="130" y1="168" x2="130" y2="252" stroke="#fca5a5" stroke-width="1.6"/>
+          <circle cx="130" cy="168" r="24" fill="none" stroke="#38bdf8" stroke-width="1.6" stroke-dasharray="4 3"/>
+          <line x1="58" y1="276" x2="202" y2="276" stroke="#f87171" stroke-width="1.5"/>
+          <line x1="58" y1="270" x2="58" y2="282" stroke="#f87171" stroke-width="1.5"/>
+          <line x1="202" y1="270" x2="202" y2="282" stroke="#f87171" stroke-width="1.5"/>
+        </svg>""",
+    },
     "word": {
         "container_id": "wordcraft_loading",
         "bar_id": "wc_load_bar",
