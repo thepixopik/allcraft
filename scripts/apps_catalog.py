@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""Rich metadata for all 15 AllCraft Studio applications used to render /apps/<slug>/ detail pages."""
+"""Rich SEO + product metadata for all 15 AllCraft Studio applications on https://allcraft.app."""
+
+SITE_ORIGIN = "https://allcraft.app"
 
 APPS_CATALOG = [
     {
@@ -8,6 +10,10 @@ APPS_CATALOG = [
         "prefix": "Photo",
         "code": "Ph",
         "category": "Image editor",
+        "app_category_schema": "DesignApplication",
+        "replaces": "Adobe Photoshop",
+        "seo_title": "PhotoCraft — Free Open-Source Photoshop Alternative Online | AllCraft",
+        "seo_keywords": "photocraft, free photoshop alternative, online photoshop editor, open source image editor, psd editor online, photopea alternative, allcraft photo, artcraft photocraft web",
         "group": "creative",
         "color": "#31a8ff",
         "mount": "/photo/",
@@ -18,8 +24,8 @@ APPS_CATALOG = [
         "headline_before": "The open-source image editor you ",
         "headline_accent": "already know",
         "headline_after": ".",
-        "short_desc": "The open-source image editor you already know how to use.",
-        "lead": "Non-destructive layer stacks, adjustment layers, masks, healing & clone tools, Liquify mesh warp, Camera RAW development, and native PSD round-trip — built from scratch in pure Rust and running live in your browser.",
+        "short_desc": "Free open-source Adobe Photoshop alternative in your browser with native PSD & RAW support.",
+        "lead": "A fast, free, open-source Adobe Photoshop alternative running right in your browser. Edit layered PSDs, adjustment layers, masks, healing & clone tools, Liquify warp, and 16-bit Camera RAW — built in pure Rust with zero cloud uploads.",
         "formats": "PSD · PSB · DNG / RAW · PNG · JPEG · WebP · TIFF · OpenEXR",
         "engine": "32-bit Linear Float Tile Compositor (WebGPU + SIMD)",
         "shortcuts": ["B — Brush Tool", "V — Move & Transform", "J — Spot Healing", "Ctrl+M — Curves", "Ctrl+J — Duplicate Layer"],
@@ -32,6 +38,11 @@ APPS_CATALOG = [
             ("Crisp Typography & Shapes", "Point and area type layers with OpenType kerning, layer styles (outer glow, bevel, drop shadow, stroke), and vector masks."),
             ("Scriptable & MCP-Ready", "Automate batch image conversions, layer edits, and headless exports over CLI, JSON-RPC, or Model Context Protocol.")
         ],
+        "faqs": [
+            ("Is PhotoCraft a free alternative to Adobe Photoshop?", "Yes. PhotoCraft is 100% free and open-source (MIT / Apache-2.0) with no subscription, no sign-up, and no watermarks. You can run it directly in your browser at allcraft.app/photo/."),
+            ("Can PhotoCraft open and save layered .PSD files?", "Yes. PhotoCraft reads and writes multi-layer Adobe Photoshop PSD files locally in your browser RAM, preserving raster layers, masks, blend modes, and editable text."),
+            ("Are my photos uploaded to any cloud server?", "Never. PhotoCraft runs entirely on your own device via WebAssembly and WebGPU. Your images never leave your machine.")
+        ],
     },
     {
         "num": "02",
@@ -39,6 +50,10 @@ APPS_CATALOG = [
         "prefix": "Vector",
         "code": "Vc",
         "category": "Vector illustration",
+        "app_category_schema": "DesignApplication",
+        "replaces": "Adobe Illustrator",
+        "seo_title": "VectorCraft — Free Open-Source Adobe Illustrator Alternative Online | AllCraft",
+        "seo_keywords": "vectorcraft, free illustrator alternative, online vector editor, svg editor online, open source illustrator, inkscape alternative browser, allcraft vector, artcraft vectorcraft",
         "group": "creative",
         "color": "#ff7b3a",
         "mount": "/vector/",
@@ -49,8 +64,8 @@ APPS_CATALOG = [
         "headline_before": "Precision vector illustration, ",
         "headline_accent": "reimagined",
         "headline_after": " in pure Rust.",
-        "short_desc": "Fast, open-source vector illustration, reimagined in pure Rust.",
-        "lead": "Pen and curvature Bézier tools, non-destructive Shape Builder & Boolean pathfinders, multi-stroke Appearance stacks, multi-artboard layouts, and crisp SVG/PDF/AI workflows at 60 fps.",
+        "short_desc": "Free open-source Adobe Illustrator alternative for SVG, PDF & multi-artboard vector design.",
+        "lead": "A precision, open-source Adobe Illustrator alternative built in pure Rust and WebAssembly. Draw with Pen & Curvature Bézier tools, non-destructive Shape Builder & Boolean pathfinders, multi-stroke Appearance stacks, and infinite artboards at 60 fps.",
         "formats": "SVG · PDF · AI · EPS · PNG · WebP",
         "engine": "GPU Analytic Anti-Aliased Vector Renderer (wgpu)",
         "shortcuts": ["P — Pen Tool", "A — Direct Selection", "Shift+M — Shape Builder", "Shift+O — Artboard Tool", "Ctrl+G — Group"],
@@ -63,6 +78,11 @@ APPS_CATALOG = [
             ("Gradients, Patterns & Swatches", "Linear, radial, and freeform mesh gradients with global spot/process color swatches that update everywhere."),
             ("Clean SVG, PDF & Print Output", "Export standards-compliant, minimal SVG code for the web or vector PDF/EPS files ready for print.")
         ],
+        "faqs": [
+            ("Is VectorCraft a free Adobe Illustrator alternative?", "Yes. VectorCraft gives you familiar Illustrator shortcuts (P for Pen, A for Direct Selection, Shift+M for Shape Builder), multi-artboards, and SVG/PDF/AI workflows completely free in your browser."),
+            ("Does VectorCraft support SVG, AI, and print-ready PDF?", "Yes. You can import and export clean SVG vectors, vector PDF documents, and Illustrator-compatible paths with zero quality loss."),
+            ("Does VectorCraft work offline after the first visit?", "Yes. Once opened at allcraft.app/vector/, its WebAssembly binary caches locally in your browser so repeat launches open in under 0.25 seconds.")
+        ],
     },
     {
         "num": "03",
@@ -70,6 +90,10 @@ APPS_CATALOG = [
         "prefix": "Film",
         "code": "Fm",
         "category": "Video editor",
+        "app_category_schema": "MultimediaApplication",
+        "replaces": "Adobe Premiere Pro",
+        "seo_title": "FilmCraft — Free Open-Source Premiere Pro Video Editor Alternative | AllCraft",
+        "seo_keywords": "filmcraft, free premiere pro alternative, online video editor no watermark, open source video editor browser, webcodecs video editor, allcraft film, artcraft filmcraft",
         "group": "media",
         "color": "#a855f7",
         "mount": "/film/",
@@ -80,8 +104,8 @@ APPS_CATALOG = [
         "headline_before": "Professional non-linear video editing, ",
         "headline_accent": "rebuilt",
         "headline_after": " in Rust.",
-        "short_desc": "Professional, open-source video editing, rebuilt from scratch in Rust.",
-        "lead": "Ripple, roll, slip and slide trimming, Lumetri-class color wheels & scopes, multi-track audio mixing, keyframed effects, captions, and hardware WebCodecs rendering right in your browser.",
+        "short_desc": "Free open-source Adobe Premiere Pro alternative with multi-track timeline, scopes & no watermark.",
+        "lead": "A professional, watermark-free Adobe Premiere Pro alternative running on your GPU via Rust and WebCodecs. Edit multi-track timelines with ripple/roll/slip trimming, Lumetri-class color wheels & scopes, audio mixing, and SRT captions.",
         "formats": "MP4 (H.264 / HEVC / AV1) · MOV · WebM · WAV · SRT / VTT · EDL / FCPXML",
         "engine": "GPU Shader Pipeline + Browser WebCodecs Hardware Decode/Encode",
         "shortcuts": ["C — Razor Blade", "V — Selection", "J / K / L — Shuttle Transport", "I / O — Mark In & Out", "Space — Play/Pause"],
@@ -94,6 +118,11 @@ APPS_CATALOG = [
             ("Hardware WebCodecs Export", "Zero-upload browser decoding and encoding powered directly by your GPU's hardware media engine."),
             ("EDL & XML Timeline Interchange", "Round-trip timelines cleanly with grading, VFX, and DAW studios using open project interchange.")
         ],
+        "faqs": [
+            ("Does FilmCraft add a watermark to exported videos?", "Never. FilmCraft is 100% free and open-source under MIT / Apache-2.0 — export clean 1080p/4K MP4 and WebM videos with zero watermarks."),
+            ("Do I have to upload multi-gigabyte video footage to the cloud?", "No. FilmCraft reads and renders your footage locally using your browser's hardware WebCodecs engine, so huge video files never upload anywhere."),
+            ("Does FilmCraft use Premiere Pro shortcuts?", "Yes. Razor (C), Selection (V), J/K/L shuttle, and In/Out markers (I/O) work out of the box.")
+        ],
     },
     {
         "num": "04",
@@ -101,6 +130,10 @@ APPS_CATALOG = [
         "prefix": "Light",
         "code": "Lc",
         "category": "Photo library & raw developer",
+        "app_category_schema": "PhotographyApplication",
+        "replaces": "Adobe Lightroom Classic",
+        "seo_title": "LightCraft — Free Open-Source Adobe Lightroom & RAW Editor Online | AllCraft",
+        "seo_keywords": "lightcraft, free lightroom alternative, raw photo editor online, open source lightroom, dng cr3 arw nef editor, darktable alternative browser, allcraft light, artcraft lightcraft",
         "group": "creative",
         "color": "#22d3ee",
         "mount": "/light/",
@@ -111,9 +144,9 @@ APPS_CATALOG = [
         "headline_before": "A photo catalog and RAW darkroom on ",
         "headline_accent": "your machine",
         "headline_after": ".",
-        "short_desc": "An open-source photo library and raw developer that runs on your machine.",
-        "lead": "Cull thousands of shots with star ratings and flags, develop 16-bit Camera RAW files in linear scene-referred color, grade with 3-way color wheels and local masks, and batch-export presets.",
-        "formats": "DNG · CR2 / CR3 · NEF · ARW · RAF · ORF ·RW2 · JPEG · TIFF · XMP Sidecars",
+        "short_desc": "Free open-source Adobe Lightroom alternative for photo culling & 16-bit Camera RAW grading.",
+        "lead": "An open-source Adobe Lightroom Classic alternative that runs directly on your machine and in your browser. Cull thousands of shots with star ratings and flags, develop Canon/Nikon/Sony/Fuji RAW sensors in 32-bit scene-referred color, and batch-export presets.",
+        "formats": "DNG · CR2 / CR3 · NEF · ARW · RAF · ORF · RW2 · JPEG · TIFF · XMP Sidecars",
         "engine": "32-bit Scene-Referred RAW Demosaic & Color Pipeline + Web Workers",
         "shortcuts": ["G — Library Grid", "D — Develop Module", "P / X — Pick / Reject Flag", "1–5 — Star Rating", "R — Crop & Straighten"],
         "cli_example": "lightcraft develop shoot/*.ARW --preset kodak-portra.xmp --out exports/",
@@ -125,6 +158,10 @@ APPS_CATALOG = [
             ("Optics, Geometry & Perspective", "One-click chromatic aberration removal, vignette compensation, lens distortion profiles, and upright leveling."),
             ("Non-Destructive XMP Recipes", "Every slider stays 100% reversible; copy/paste develop settings or export XMP presets across shoots.")
         ],
+        "faqs": [
+            ("Which camera RAW formats does LightCraft support?", "LightCraft develops DNG, Canon CR2/CR3, Nikon NEF, Sony ARW, Fujifilm RAF, Olympus ORF, and Panasonic RW2 files non-destructively."),
+            ("How is LightCraft different from Lightroom Cloud?", "LightCraft requires zero subscription, zero Adobe login, and zero paid cloud storage — your RAW catalog stays 100% private on your disk.")
+        ],
     },
     {
         "num": "05",
@@ -132,6 +169,10 @@ APPS_CATALOG = [
         "prefix": "Pdf",
         "code": "Pd",
         "category": "PDF workbench",
+        "app_category_schema": "BusinessApplication",
+        "replaces": "Adobe Acrobat Pro",
+        "seo_title": "PdfCraft — Free Open-Source Adobe Acrobat Pro PDF Editor & OCR Online | AllCraft",
+        "seo_keywords": "pdfcraft, free adobe acrobat pro alternative, private pdf editor online, edit pdf locally browser, offline pdf ocr, merge split redact pdf free, allcraft pdf, artcraft pdfcraft",
         "group": "office",
         "color": "#10b981",
         "mount": "/pdf/",
@@ -142,9 +183,9 @@ APPS_CATALOG = [
         "headline_before": "Read, edit, OCR, sign and secure PDFs ",
         "headline_accent": "privately",
         "headline_after": ".",
-        "short_desc": "The open-source PDF workbench: read, organize, combine, split and secure.",
-        "lead": "Reflow and edit PDF text & images, merge/split/reorder pages, run neural Scan & OCR completely offline in a Web Worker, fill interactive AcroForms, sign documents, and permanently redact sensitive data.",
-        "formats": "PDF 1.0–2.0 · PDF/A ·XFDF · PNG / JPEG / TIFF Scans · DOCX / Text Export",
+        "short_desc": "Free open-source Adobe Acrobat Pro alternative: edit text, merge, split, OCR, sign & redact locally.",
+        "lead": "A 100% private, open-source Adobe Acrobat Pro alternative in pure Rust. Edit PDF text & images directly, merge/split/reorder pages, run neural OCR inside an offline Web Worker, fill & sign forms, and permanently redact sensitive documents.",
+        "formats": "PDF 1.0–2.0 · PDF/A · XFDF · PNG / JPEG / TIFF Scans · DOCX / Text Export",
         "engine": "Pure Rust PDF Parser/Renderer + On-Device Neural OCR Web Worker",
         "shortcuts": ["Ctrl+F — Full-Text Search", "H — Highlight Text", "T — Edit Text Box", "Ctrl+Shift+R — Redact", "Ctrl+S — Save PDF"],
         "cli_example": "pdfcraft ocr scanned-contract.pdf searchable-contract.pdf",
@@ -156,6 +197,10 @@ APPS_CATALOG = [
             ("Threaded Comments & Markup", "Highlight, underline, strikethrough, stamp, measure distances, and reply to review notes."),
             ("True Sanitization & Redaction", "Permanently scrub underlying glyph streams, hidden metadata, and private clauses — not just black rectangles.")
         ],
+        "faqs": [
+            ("Is PdfCraft safe for confidential legal, tax, or medical PDFs?", "Yes. Unlike online PDF websites that upload your documents to remote servers, PdfCraft processes every page — including neural OCR — locally inside your browser memory."),
+            ("Does PdfCraft truly redact sensitive text?", "Yes. PdfCraft removes the underlying PDF text/vector operators and metadata from the file stream rather than merely drawing a black box on top.")
+        ],
     },
     {
         "num": "06",
@@ -163,6 +208,10 @@ APPS_CATALOG = [
         "prefix": "Effect",
         "code": "Ef",
         "category": "Motion graphics & VFX",
+        "app_category_schema": "MultimediaApplication",
+        "replaces": "Adobe After Effects",
+        "seo_title": "EffectCraft — Free Open-Source Adobe After Effects & Lottie VFX Studio | AllCraft",
+        "seo_keywords": "effectcraft, free after effects alternative, motion graphics online, open source vfx compositor, lottie animation editor, aep viewer online, allcraft effect, artcraft effectcraft",
         "group": "media",
         "color": "#f472b6",
         "mount": "/effect/",
@@ -173,8 +222,8 @@ APPS_CATALOG = [
         "headline_before": "Motion graphics and visual effects, ",
         "headline_accent": "unleashed",
         "headline_after": " in Rust.",
-        "short_desc": "Open-source motion graphics and visual effects, built in pure Rust.",
-        "lead": "Multi-layer 2D/3D compositions, Bézier value & speed graph editors, JavaScript expressions, 3D cameras & lights, planar/point tracking, Roto Brush & chroma keying, plus AEP & Lottie support.",
+        "short_desc": "Free open-source Adobe After Effects alternative for 2D/3D motion graphics, VFX & Lottie.",
+        "lead": "An open-source Adobe After Effects alternative compiled to multi-threaded WebGPU + WebAssembly. Animate 2D/3D compositions with speed graphs, JavaScript expressions, 3D cameras & lights, Roto & chroma keying, plus AEP import and Lottie export.",
         "formats": "AEP · Lottie JSON · MP4 / MOV / WebM · PNG / EXR Sequences · SVG · glTF 3D",
         "engine": "32-bit Float Multi-Worker WebGPU Compositor (COOP/COEP Shared Threads)",
         "shortcuts": ["U — Reveal Keyframes", "P / S / R / T — Pos / Scale / Rot / Opacity", "F9 — Easy Ease", "Space — RAM Preview", "G — Pen / Mask"],
@@ -187,6 +236,10 @@ APPS_CATALOG = [
             ("Keying, Roto & GPU VFX", "Clean green-screen keyer, animated feathered masks, glow, displacement, chromatic aberration, and particle systems."),
             ("AEP & Lottie Web Export", "Import Adobe After Effects projects and export lightweight vector Lottie animations or high-bitrate video.")
         ],
+        "faqs": [
+            ("Can EffectCraft import Adobe After Effects (.aep) projects and export Lottie?", "Yes. EffectCraft reads AEP compositions and exports both crisp web Lottie JSON animations and hardware-encoded MP4/WebM video."),
+            ("Do standard After Effects shortcuts (P, S, R, T, U, F9) work?", "Yes. EffectCraft mirrors industry-standard transform and keyframe graph shortcuts so motion designers feel at home immediately.")
+        ],
     },
     {
         "num": "07",
@@ -194,6 +247,10 @@ APPS_CATALOG = [
         "prefix": "Ani",
         "code": "An",
         "category": "2D vector animation",
+        "app_category_schema": "MultimediaApplication",
+        "replaces": "Adobe Animate",
+        "seo_title": "AniCraft — Free Open-Source Adobe Animate / Flash 2D Animation Studio | AllCraft",
+        "seo_keywords": "anicraft, free adobe animate alternative, online 2d animation maker, flash fla editor online, vector tween animation browser, open source animate, allcraft ani, artcraft anicraft",
         "group": "media",
         "color": "#c084fc",
         "mount": "/ani/",
@@ -204,8 +261,8 @@ APPS_CATALOG = [
         "headline_before": "Expressive 2D vector animation, ",
         "headline_accent": "frame by frame",
         "headline_after": ".",
-        "short_desc": "Open-source 2D vector animation, built in pure Rust.",
-        "lead": "Pressure-sensitive vector brushes, symbol libraries, classic & shape tweens with custom easing curves, inverse-kinematics bone rigs, onion skinning, virtual camera pans, and FLA/Lottie/GIF/WebP publishing.",
+        "short_desc": "Free open-source Adobe Animate alternative with vector brushes, bone rigs, tweens & FLA/Lottie support.",
+        "lead": "An open-source Adobe Animate (Flash) alternative built in pure Rust. Draw with pressure-sensitive fluid vector brushes, rig characters with IK bones, tween symbols, inspect color-coded onion skins, and publish FLA, Lottie, GIF, WebP, or MP4.",
         "formats": "FLA / XFL · SWF · Lottie JSON · Animated SVG · GIF · APNG · WebP · MP4",
         "engine": "Pure Rust Vector Tessellation, Morph & IK Armature Engine",
         "shortcuts": ["F5 / F6 / F7 — Frame / Keyframe / Blank", "B — Fluid Brush", "Q — Free Transform", "Alt+O — Onion Skin", "Enter — Play Stage"],
@@ -218,6 +275,10 @@ APPS_CATALOG = [
             ("Color-Coded Onion Skin & Camera", "Inspect past and future frames with tinted outlines and animate stage pan, zoom, rotation, and layer depth parallax."),
             ("Open FLA/XFL & Web Publishing", "Round-trip Adobe Animate FLA/XFL archives and publish crisp Lottie, Animated SVG, GIF, APNG, WebP, or sprite sheets.")
         ],
+        "faqs": [
+            ("Can AniCraft open legacy Flash / Adobe Animate .FLA files?", "Yes. AniCraft supports FLA/XFL archives, symbols, timelines, and tweens right in your browser."),
+            ("What formats can AniCraft export for web & games?", "Export Lottie JSON, Animated SVG, sprite sheets, GIF, APNG, WebP, or MP4 video.")
+        ],
     },
     {
         "num": "08",
@@ -225,6 +286,10 @@ APPS_CATALOG = [
         "prefix": "Design",
         "code": "Ds",
         "category": "Page layout & publishing",
+        "app_category_schema": "DesignApplication",
+        "replaces": "Adobe InDesign",
+        "seo_title": "DesignCraft — Free Open-Source Adobe InDesign & Desktop Publishing Alternative | AllCraft",
+        "seo_keywords": "designcraft, free indesign alternative, desktop publishing online, open idml online free, cmyk print layout software, scribus affinity publisher alternative, allcraft design, artcraft designcraft",
         "group": "creative",
         "color": "#f59e0b",
         "mount": "/design/",
@@ -235,8 +300,8 @@ APPS_CATALOG = [
         "headline_before": "Multi-page layout and publishing, ",
         "headline_accent": "crafted",
         "headline_after": " for print & digital.",
-        "short_desc": "Open-source page layout and publishing, rebuilt in pure Rust.",
-        "lead": "Master spreads, multi-column baseline grids, threaded story frames, multi-line paragraph composition, optical margin alignment, contour text wrap, IDML/INDD import, EPUB, and CMYK PDF/X prepress.",
+        "short_desc": "Free open-source Adobe InDesign alternative for books, magazines, IDML, EPUB & CMYK PDF/X.",
+        "lead": "An open-source Adobe InDesign alternative built in pure Rust. Design books, magazines, and zines with master spreads, baseline grids, threaded story frames, multi-line paragraph composition, IDML/INDD import, EPUB 3, and CMYK PDF/X prepress.",
         "formats": "IDML · INDD · PDF/X-1a & PDF/X-4 · EPUB 3 · SVG · DOCX Story Import",
         "engine": "HarfBuzz-Class OpenType Shaper & Knuth-Plass Multi-Line Paragraph Composer",
         "shortcuts": ["W — Toggle Preview / Guides", "T — Type Frame", "F — Rectangle Frame", "Ctrl+D — Place Asset", "Alt+Shift+Click — Override Master"],
@@ -249,6 +314,10 @@ APPS_CATALOG = [
             ("Live Preflight & CMYK Prepress", "Catch missing fonts, low-DPI links, and overset text in real time; export PDF/X with crop marks and bleed."),
             ("IDML Interchange & Reflowable EPUB", "Open Adobe InDesign IDML packages cleanly and publish both print spreads and clean EPUB 3 eBooks.")
         ],
+        "faqs": [
+            ("Can DesignCraft open Adobe InDesign IDML and INDD files?", "Yes. DesignCraft imports InDesign IDML packages preserving master spreads, threaded stories, styles, and color swatches."),
+            ("Does DesignCraft export print-ready CMYK PDFs with bleed and crop marks?", "Yes. Live preflight validates links and fonts before exporting press-ready PDF/X files with bleed and printer marks.")
+        ],
     },
     {
         "num": "09",
@@ -256,6 +325,10 @@ APPS_CATALOG = [
         "prefix": "Texture",
         "code": "Tx",
         "category": "3D texture painting",
+        "app_category_schema": "DesignApplication",
+        "replaces": "Adobe Substance 3D Painter",
+        "seo_title": "TextureCraft — Free Open-Source Substance 3D Painter Alternative Online | AllCraft",
+        "seo_keywords": "texturecraft, free substance painter alternative, 3d pbr texture painting online, gltf painter browser, open source substance 3d painter, armorpaint alternative, allcraft texture, artcraft texturecraft",
         "group": "creative",
         "color": "#fb7185",
         "mount": "/texture/",
@@ -266,8 +339,8 @@ APPS_CATALOG = [
         "headline_before": "Paint 3D PBR materials directly across ",
         "headline_accent": "every surface",
         "headline_after": ".",
-        "short_desc": "Open-source 3D texture painting, rebuilt in pure Rust.",
-        "lead": "Split 3D PBR + 2D UV painting, multi-channel brush strokes (Base Color, Roughness, Metallic, Normal, Height, Emissive), AO/Curvature/Thickness mesh map bakers, smart masks, and engine-ready texture set export.",
+        "short_desc": "Free open-source Substance 3D Painter alternative with 3D PBR viewport, smart masks & mesh bakers.",
+        "lead": "An open-source Adobe Substance 3D Painter alternative running on WebGPU + WebAssembly. Paint Base Color, Roughness, Metallic, Normal, and Height simultaneously across 3D meshes and 2D UVs, bake AO/Curvature maps, and export packed game-engine textures.",
         "formats": "glTF / GLB · USDZ · FBX · OBJ · PNG / TGA / EXR Texture Maps · MCMAT Smart Materials",
         "engine": "Real-Time WebGPU IBL PBR Viewport + Ray-Cast Mesh Map Baker",
         "shortcuts": ["F1 / F2 / F3 — Split / 3D / 2D UV View", "1 — Paint Brush", "4 — Polygon Fill", "X — Invert Mask", "Shift+Right-Drag — Rotate HDRI"],
@@ -280,6 +353,10 @@ APPS_CATALOG = [
             ("Live IBL Studio & Path-Traced Preview", "Inspect surfaces under studio HDRIs, ACES tone mapping, wireframe overlays, and solo PBR channel views."),
             ("One-Click Engine Export Presets", "Pack ORM/channel-packed texture sets for Unreal Engine, Unity, Godot, Blender, and glTF 2.0.")
         ],
+        "faqs": [
+            ("Is TextureCraft a free alternative to Substance 3D Painter?", "Yes. TextureCraft provides multi-channel PBR layer painting, AO/Curvature baking, smart edge-wear masks, and Unreal/Unity/Blender export presets 100% free."),
+            ("Does TextureCraft work even if WebGPU is disabled?", "Yes. TextureCraft automatically falls back to WebGL2 compatibility mode when WebGPU isn't enabled, and runs at full GPU speed on WebGPU-enabled Chrome, Edge, or Safari.")
+        ],
     },
     {
         "num": "10",
@@ -287,6 +364,10 @@ APPS_CATALOG = [
         "prefix": "Material",
         "code": "Mt",
         "category": "Procedural materials",
+        "app_category_schema": "DesignApplication",
+        "replaces": "Adobe Substance 3D Designer",
+        "seo_title": "MaterialCraft — Free Open-Source Substance 3D Designer Procedural PBR Studio | AllCraft",
+        "seo_keywords": "materialcraft, free substance designer alternative, procedural pbr material generator online, node based texture creator, sbs editor open source, material maker alternative, allcraft material, artcraft materialcraft",
         "group": "creative",
         "color": "#e879f9",
         "mount": "/material/",
@@ -297,8 +378,8 @@ APPS_CATALOG = [
         "headline_before": "Infinite tileable PBR materials from ",
         "headline_accent": "pure nodes",
         "headline_after": ".",
-        "short_desc": "Open-source, node-based procedural materials, built in pure Rust.",
-        "lead": "Author 100% seamless, resolution-independent PBR materials with procedural noises, tile samplers, warps, height-to-normal synthesis, exposed parameter functions, SBS compatibility, and instant 2D/3D previews.",
+        "short_desc": "Free open-source Substance 3D Designer alternative for node-based procedural PBR textures.",
+        "lead": "An open-source Adobe Substance 3D Designer alternative in pure Rust. Build 100% seamless, resolution-independent 4K PBR materials from procedural noise, tile, warp, and height-to-normal nodes with `.sbs` package support and live 3D displacement.",
         "formats": "SBS XML · MCMAT · PNG (8/16-bit) · TIFF · OpenEXR",
         "engine": "Tile-Seamless Procedural DAG Cooker + WebGPU Tessellated 3D Preview",
         "shortcuts": ["Space / Tab — Quick Node Search", "F — Frame Selection / Graph", "Double-Click — Send Node to 2D View", "Shift+D — Bypass Node", "Shift+Drag — Rotate Light"],
@@ -311,6 +392,10 @@ APPS_CATALOG = [
             ("SBS Package Compatibility", "Open and inspect Substance Designer `.sbs` XML graphs and built-in procedural subgraphs."),
             ("Direct Bridge to TextureCraft", "Export `.mcmat` procedural materials or PNG/16-bit/EXR PBR map sets ready for 3D painting and game engines.")
         ],
+        "faqs": [
+            ("Can MaterialCraft open Substance Designer .sbs files?", "Yes. MaterialCraft reads procedural `.sbs` XML node graphs and cooks seamless 8-bit, 16-bit, and OpenEXR PBR texture maps."),
+            ("Do materials created in MaterialCraft work in TextureCraft, Blender, and Unreal?", "Yes. Export `.mcmat` smart materials directly into TextureCraft or standard BaseColor/Normal/Roughness/Metallic/Height maps for any 3D engine.")
+        ],
     },
     {
         "num": "11",
@@ -318,6 +403,10 @@ APPS_CATALOG = [
         "prefix": "Sound",
         "code": "Sd",
         "category": "Digital audio workstation",
+        "app_category_schema": "MultimediaApplication",
+        "replaces": "Adobe Audition & Pro Tools",
+        "seo_title": "SoundCraft — Free Open-Source Online DAW, Audio Editor & MIDI Studio | AllCraft",
+        "seo_keywords": "soundcraft, free adobe audition alternative, online daw browser, open source audio editor, midi piano roll online, audacity pro tools alternative web, allcraft sound, artcraft soundcraft",
         "group": "media",
         "color": "#2dd4bf",
         "mount": "/sound/",
@@ -328,8 +417,8 @@ APPS_CATALOG = [
         "headline_before": "Record, arrange, mix and master in ",
         "headline_accent": "pure Rust",
         "headline_after": ".",
-        "short_desc": "Professional audio recording, editing and mixing in pure Rust.",
-        "lead": "Sample-accurate multi-track waveform editing, non-destructive clip fades & time-stretching, polyphonic MIDI piano roll & music notation score, full mixing console with sends/buses, and studio DSP effects.",
+        "short_desc": "Free open-source Adobe Audition & DAW alternative with multi-track waveforms, MIDI & mastering.",
+        "lead": "An open-source Adobe Audition and multi-track DAW alternative built in pure Rust. Edit sample-accurate waveforms, compose on a polyphonic MIDI piano roll & notation score, mix across aux buses, and master with studio EQ, compression, reverb, and LUFS metering.",
         "formats": "WAV (16/24/32f) · FLAC · AIFF · MP3 · OGG · MIDI (.mid) · MusicXML · AAF",
         "engine": "Lock-Free Real-Time Audio Graph (WebAudio / CoreAudio / WASAPI / ALSA)",
         "shortcuts": ["Space — Play / Stop", "R — Arm / Record", "Ctrl+E — Split Clip at Playhead", "Ctrl+= — Toggle Edit / Mix Window", "M — Add Marker"],
@@ -342,6 +431,10 @@ APPS_CATALOG = [
             ("Tempo Map, Time Signatures & Markers", "Lock audio and MIDI to multi-tempo ramps, odd time signatures, arrangement markers, and click tracks."),
             ("Lossless Stems & Loudness Mastering", "Bounce full mixes or individual track stems to 24-bit/32-bit float WAV, FLAC, OGG, or MP3.")
         ],
+        "faqs": [
+            ("Can SoundCraft record and edit multi-track audio and MIDI in a browser?", "Yes. SoundCraft uses a low-latency WebAudio graph to record, edit waveforms, sequence MIDI, and bounce lossless WAV/FLAC mixes locally."),
+            ("Does SoundCraft include built-in EQ, compression, and reverb?", "Yes. Every channel and bus supports parametric EQ, dynamics, reverb, delay, saturation, and LUFS loudness mastering.")
+        ],
     },
     {
         "num": "12",
@@ -349,6 +442,10 @@ APPS_CATALOG = [
         "prefix": "Word",
         "code": "Wd",
         "category": "Word processing",
+        "app_category_schema": "BusinessApplication",
+        "replaces": "Microsoft Word",
+        "seo_title": "WordCraft — Free Open-Source Microsoft Word & DOCX Editor Online | AllCraft",
+        "seo_keywords": "wordcraft, free microsoft word alternative online, docx editor browser no login, open source word processor, latex equations word processor, allcraft word, artcraft wordcraft",
         "group": "office",
         "color": "#818cf8",
         "mount": "/word/",
@@ -359,8 +456,8 @@ APPS_CATALOG = [
         "headline_before": "Fast, distraction-free word processing, ",
         "headline_accent": "done right",
         "headline_after": ".",
-        "short_desc": "Fast, open-source word processing, rebuilt in pure Rust.",
-        "lead": "True print-layout pagination, high-fidelity DOCX/ODT/RTF/Markdown round-trip, live Styles gallery, Track Changes & margin comments, native LaTeX math equations, BibTeX/Zotero citations, tables, and mail merge.",
+        "short_desc": "Free open-source Microsoft Word alternative with native DOCX, Track Changes & LaTeX equations.",
+        "lead": "A fast, private, open-source Microsoft Word alternative in pure Rust. Edit `.docx`, `.odt`, `.rtf`, and Markdown documents with true print-layout pagination, Styles gallery, Track Changes, margin comments, native LaTeX equations, and BibTeX citations.",
         "formats": "DOCX · DOCM · ODT · RTF · Markdown · LaTeX · HTML · PDF/UA",
         "engine": "Deterministic Page-Layout & OpenXML Fidelity Engine",
         "shortcuts": ["Ctrl+B / I / U — Bold / Italic / Underline", "Ctrl+Shift+E — Track Changes", "Alt+= — Insert Equation", "Ctrl+F — Navigation & Find", "Ctrl+Enter — Page Break"],
@@ -373,6 +470,10 @@ APPS_CATALOG = [
             ("Rich Tables, Figures & Columns", "Span multi-page repeating table headers, multi-column sections, watermarks, and captioned vector figures."),
             ("Markdown, Mail Merge & Tagged PDF", "Write in clean Markdown or Print View and export accessible, bookmarked PDFs in milliseconds.")
         ],
+        "faqs": [
+            ("Can I edit Microsoft Word .docx files in WordCraft without signing in?", "Yes. Open, edit, track changes, and save `.docx` and PDF files directly in your browser at allcraft.app/word/ with zero account required."),
+            ("Does WordCraft support academic LaTeX math and BibTeX citations?", "Yes. Insert inline or display math equations (`Alt+=`) and format bibliographies natively.")
+        ],
     },
     {
         "num": "13",
@@ -380,6 +481,10 @@ APPS_CATALOG = [
         "prefix": "Deck",
         "code": "Dk",
         "category": "Presentations & slide shows",
+        "app_category_schema": "BusinessApplication",
+        "replaces": "Microsoft PowerPoint & Keynote",
+        "seo_title": "DeckCraft — Free Open-Source PowerPoint & PPTX Presentation Editor Online | AllCraft",
+        "seo_keywords": "deckcraft, free powerpoint alternative online, pptx editor browser, open source presentation software, keynote alternative web, morph slide transitions, allcraft deck, artcraft deckcraft",
         "group": "office",
         "color": "#fb923c",
         "mount": "/deck/",
@@ -390,8 +495,8 @@ APPS_CATALOG = [
         "headline_before": "Build and deliver dynamic slide decks at ",
         "headline_accent": "60 fps",
         "headline_after": ".",
-        "short_desc": "Build and deliver dynamic slide presentations, in pure Rust.",
-        "lead": "PPTX/POTX/ODP fidelity, customizable Slide Masters & theme palettes, SmartArt process diagrams, data charts, Morph & keyframe animations, speaker notes, laser pointer, and dual-screen Presenter View.",
+        "short_desc": "Free open-source PowerPoint & Keynote alternative with PPTX fidelity, Morph & Presenter View.",
+        "lead": "An open-source Microsoft PowerPoint and Apple Keynote alternative running at 60 fps in pure Rust. Open and build `.pptx` slide decks with Slide Masters, SmartArt diagrams, data charts, cinematic Morph transitions, speaker notes, and Presenter View.",
         "formats": "PPTX · POTX · PPSX · ODP · PDF Handouts · PNG / SVG Slide Export",
         "engine": "GPU-Accelerated Slide & Morph Transition Engine",
         "shortcuts": ["F5 — Play from Start", "Shift+F5 — Play Current Slide", "Ctrl+M — New Slide", "Ctrl+D — Duplicate", "L — Laser Pointer (in Show)"],
@@ -404,6 +509,10 @@ APPS_CATALOG = [
             ("Dual-Window Presenter View", "Deliver talks with next-slide preview, scrollable speaker notes, elapsed timer, blackout keys, and live ink/laser pointer."),
             ("Crisp PDF Handouts & Image Decks", "Export vector PDF decks, 3-up note handouts, or high-DPI PNG/SVG slide assets.")
         ],
+        "faqs": [
+            ("Can DeckCraft open and save PowerPoint .pptx presentations?", "Yes. DeckCraft reads and writes `.pptx` and `.odp` presentations locally in your browser with themes, layouts, charts, and speaker notes intact."),
+            ("Does DeckCraft include Morph transitions and Presenter View?", "Yes. Smooth object-matching Morph animations and dual-screen Presenter View with timer and laser pointer are built in.")
+        ],
     },
     {
         "num": "14",
@@ -411,6 +520,10 @@ APPS_CATALOG = [
         "prefix": "CAD",
         "code": "Cd",
         "category": "Computer-aided design & drafting",
+        "app_category_schema": "DesignApplication",
+        "replaces": "Autodesk AutoCAD",
+        "seo_title": "CADCraft — Free Open-Source AutoCAD Alternative & DWG/DXF Editor Online | AllCraft",
+        "seo_keywords": "cadcraft, free autocad alternative, online dwg editor free, dxf viewer editor browser, open source 2d 3d cad, librecad qcad alternative, allcraft cad, artcraft cadcraft",
         "group": "office",
         "color": "#f87171",
         "mount": "/cad/",
@@ -421,8 +534,8 @@ APPS_CATALOG = [
         "headline_before": "Precision 2D/3D CAD and drafting, ",
         "headline_accent": "engineered",
         "headline_after": " in Rust.",
-        "short_desc": "Fast, open-source computer-aided design and drafting in pure Rust.",
-        "lead": "Native DWG & DXF support, classic command-line aliases (L, PL, C, TR, EX, OF), Object Snaps & Polar Tracking, geometric/dimensional parametric constraints, dynamic blocks, Xrefs, AutoLISP, and CTB/STB sheet plotting.",
+        "short_desc": "Free open-source AutoCAD alternative with native DWG/DXF editing, command line & OSNAP.",
+        "lead": "A fast, open-source Autodesk AutoCAD alternative in pure Rust and WebAssembly. Open and draft native DWG & DXF drawings with classic command-line aliases (`L`, `PL`, `TR`, `OFFSET`), OSNAP, parametric constraints, dynamic blocks, AutoLISP, and CTB PDF plotting.",
         "formats": "DWG (R14–2024) · DXF · SHX Fonts · PAT Hatches · CTB / STB · PDF / SVG Plot",
         "engine": "64-bit Double-Precision Spatial Index & GPU CAD Viewport",
         "shortcuts": ["L / PL / C / A — Line / Polyline / Circle / Arc", "TR / EX / OF — Trim / Extend / Offset", "F3 — OSNAP", "F8 — ORTHO", "LA — Layer Manager"],
@@ -435,6 +548,10 @@ APPS_CATALOG = [
             ("Built-In AutoLISP & QuickCalc", "Run `.lsp` automation scripts, inspect entity handles, compare drawing revisions, and audit/purge files."),
             ("Paper Space Viewports & CTB Plotting", "Compose scaled title-block sheets in Paper Space and plot crisp vector PDFs with CTB/STB lineweight tables.")
         ],
+        "faqs": [
+            ("Can CADCraft open and edit .DWG and .DXF files directly in the browser?", "Yes. CADCraft reads and writes native DWG (R14 through 2024) and DXF drawings right in your browser at allcraft.app/cad/ with zero cloud uploads."),
+            ("Do classic AutoCAD command aliases (L, PL, TR, EX, OFFSET) work?", "Yes. The bottom command line supports standard AutoCAD command aliases, coordinate entry, OSNAP (F3), and ORTHO (F8).")
+        ],
     },
     {
         "num": "15",
@@ -442,6 +559,10 @@ APPS_CATALOG = [
         "prefix": "Grid",
         "code": "Gd",
         "category": "Spreadsheets & data analysis",
+        "app_category_schema": "BusinessApplication",
+        "replaces": "Microsoft Excel",
+        "seo_title": "GridCraft — Free Open-Source Microsoft Excel & XLSX Spreadsheet Online | AllCraft",
+        "seo_keywords": "gridcraft, free excel alternative online, xlsx spreadsheet editor no login, open source spreadsheet, xlookup pivot tables online free, allcraft grid, artcraft gridcraft",
         "group": "office",
         "color": "#4ade80",
         "mount": "/grid/",
@@ -452,8 +573,8 @@ APPS_CATALOG = [
         "headline_before": "Million-row spreadsheets and analytics at ",
         "headline_accent": "native speed",
         "headline_after": ".",
-        "short_desc": "Fast, open-source spreadsheets and data analysis, rebuilt in pure Rust.",
-        "lead": "400+ vectorized Excel-compatible functions (XLOOKUP, LET, LAMBDA, dynamic arrays), interactive PivotTables, charts & sparklines, conditional formatting, data validation, encrypted XLSX support, and sandboxed Python/macros.",
+        "short_desc": "Free open-source Microsoft Excel alternative with 400+ formulas, XLOOKUP, PivotTables & XLSX.",
+        "lead": "A blazing-fast, open-source Microsoft Excel alternative built in pure Rust. Analyze spreadsheets locally with 400+ functions (`XLOOKUP`, `LET`, `LAMBDA`, dynamic arrays), interactive PivotTables, charts & sparklines, conditional formatting, and full XLSX/CSV fidelity.",
         "formats": "XLSX · XLSM · XLS · ODS · CSV / TSV · Parquet · PDF Print",
         "engine": "Dependency-Graph Incremental Recalc Engine + Virtualized 60fps Grid",
         "shortcuts": ["F2 — Edit Cell / Formula", "F4 — Toggle $ Absolute Ref", "Alt+= — AutoSum", "Ctrl+Shift+L — AutoFilter", "Ctrl+T — Format as Table"],
@@ -465,6 +586,10 @@ APPS_CATALOG = [
             ("Full XLSX, XLSM, XLS & CSV Fidelity", "Preserve named ranges, frozen panes, merged cells, comments, number formats, print areas, and password-encrypted workbooks."),
             ("Auditing, Goal Seek & Data Tools", "Trace precedents/dependents, catch circular references, run Text-to-Columns, remove duplicates, and validate inputs."),
             ("Sandboxed Python & Macro Automation", "Automate complex transformations safely in an isolated sandbox or inspect models from the `gridcraft` CLI & MCP server.")
+        ],
+        "faqs": [
+            ("Does GridCraft support modern Excel formulas like XLOOKUP, FILTER, and LAMBDA?", "Yes. GridCraft evaluates over 400 Excel-compatible formulas including dynamic array spill functions, LET, and LAMBDA at native Rust speed."),
+            ("Are my financial spreadsheets kept private?", "100%. Every `.xlsx` and `.csv` workbook is calculated locally inside your own browser RAM with zero server uploads.")
         ],
     },
 ]

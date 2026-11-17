@@ -1,5 +1,40 @@
+# Canonical domain redirect: consolidate link equity from pages.dev onto allcraft.app
+https://the-allcraft.pages.dev/* https://allcraft.app/:splat 301!
+
 # Redirect legacy /apps/<slug> URLs cleanly to direct root /<slug>/
 /apps/:slug /:slug/ 301
 /apps/:slug/ /:slug/ 301
 /apps /#lineup 301
 /apps/ /#lineup 301
+
+# High-intent search alias redirects
+/photoshop-alternative /photocraft/ 301
+/photoshop-alternative/ /photocraft/ 301
+/illustrator-alternative /vectorcraft/ 301
+/illustrator-alternative/ /vectorcraft/ 301
+/premiere-alternative /filmcraft/ 301
+/premiere-alternative/ /filmcraft/ 301
+/lightroom-alternative /lightcraft/ 301
+/lightroom-alternative/ /lightcraft/ 301
+/acrobat-alternative /pdfcraft/ 301
+/acrobat-alternative/ /pdfcraft/ 301
+/after-effects-alternative /effectcraft/ 301
+/after-effects-alternative/ /effectcraft/ 301
+/animate-alternative /anicraft/ 301
+/animate-alternative/ /anicraft/ 301
+/indesign-alternative /designcraft/ 301
+/indesign-alternative/ /designcraft/ 301
+/substance-painter-alternative /texturecraft/ 301
+/substance-painter-alternative/ /texturecraft/ 301
+/substance-designer-alternative /materialcraft/ 301
+/substance-designer-alternative/ /materialcraft/ 301
+/audition-alternative /soundcraft/ 301
+/audition-alternative/ /soundcraft/ 301
+/word-alternative /wordcraft/ 301
+/word-alternative/ /wordcraft/ 301
+/powerpoint-alternative /deckcraft/ 301
+/powerpoint-alternative/ /deckcraft/ 301
+/autocad-alternative /cadcraft/ 301
+/autocad-alternative/ /cadcraft/ 301
+/excel-alternative /gridcraft/ 301
+/excel-alternative/ /gridcraft/ 301

@@ -1,13 +1,101 @@
 #!/usr/bin/env python3
-"""Generate Swiss architectural HUD detail pages (/<slug>/index.html) for all 15 AllCraft Studio apps."""
+"""Generate SEO-optimized Swiss architectural HUD detail pages, comparison hubs (/adobe-alternative/, /artcraft-web/), and /sitemap.xml for https://allcraft.app."""
 
+import datetime
 import html
+import json
 import pathlib
-from apps_catalog import APPS_CATALOG
+from apps_catalog import APPS_CATALOG, SITE_ORIGIN
 
 
 def _esc(s: str) -> str:
     return html.escape(str(s), quote=True)
+
+
+SHARED_THEME_CSS = """
+    :root, html[data-theme="dark"] {
+      --bg: #0b0b0c;
+      --bg-glass: rgba(11, 11, 12, 0.78);
+      --bg-sunken: #111114;
+      --bg-hover: #151519;
+      --line: #232329;
+      --line-strong: #3c3c46;
+      --ink-strong: #f5f5f7;
+      --ink: #e4e4e9;
+      --muted: #9a9aa6;
+      --faint: #666672;
+      --invert-bg: #f5f5f7;
+      --invert-fg: #0b0b0c;
+    }
+    html[data-theme="light"] {
+      --bg: #f2f1ee;
+      --bg-glass: rgba(242, 241, 238, 0.84);
+      --bg-sunken: #e7e5e0;
+      --bg-hover: #eceae5;
+      --line: #d6d3cc;
+      --line-strong: #9e9a90;
+      --ink-strong: #111113;
+      --ink: #1e1e22;
+      --muted: #57554f;
+      --faint: #85827a;
+      --invert-bg: #111113;
+      --invert-fg: #f2f1ee;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0; background: var(--bg); color: var(--ink);
+      font-family: "Inter", system-ui, -apple-system, sans-serif;
+      -webkit-font-smoothing: antialiased; overflow-x: hidden;
+    }
+    a { color: inherit; text-decoration: none; }
+    .font-display { font-family: "Archivo", system-ui, sans-serif; font-weight: 500; letter-spacing: -0.035em; }
+    .hud-label {
+      font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; line-height: 1.3;
+    }
+"""
+
+
+def _build_app_json_ld(app: dict) -> str:
+    slug = app["slug"]
+    full_name = f"{app['prefix']}Craft"
+    canonical = f"{SITE_ORIGIN}/{slug}/"
+    faq_entities = [
+        {
+            "@type": "Question",
+            "name": q,
+            "acceptedAnswer": {"@type": "Answer", "text": a},
+        }
+        for q, a in app.get("faqs", [])
+    ]
+    graph = [
+        {
+            "@type": "WebApplication",
+            "name": f"{full_name} (AllCraft Studio)",
+            "alternateName": [f"The AllCraft {app['prefix']}", f"Free {app['replaces']} Alternative"],
+            "url": f"{SITE_ORIGIN}{app['mount']}",
+            "mainEntityOfPage": canonical,
+            "image": app["hero"],
+            "description": app["lead"],
+            "applicationCategory": app["app_category_schema"],
+            "operatingSystem": "Web Browser, macOS, Windows, Linux, FreeBSD",
+            "browserRequirements": "Requires HTML5 and WebAssembly (WebGPU/WebGL2 supported)",
+            "license": "https://opensource.org/licenses/MIT",
+            "isAccessibleForFree": True,
+            "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
+        },
+        {
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+                {"@type": "ListItem", "position": 1, "name": "AllCraft Studio", "item": f"{SITE_ORIGIN}/"},
+                {"@type": "ListItem", "position": 2, "name": full_name, "item": canonical},
+            ],
+        },
+    ]
+    if faq_entities:
+        graph.append({"@type": "FAQPage", "mainEntity": faq_entities})
+    return json.dumps({"@context": "https://schema.org", "@graph": graph}, ensure_ascii=False)
 
 
 def render_app_page(app: dict, all_apps: list[dict]) -> str:
@@ -17,11 +105,14 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
     num = app["num"]
     code = app["code"]
     cat = app["category"]
+    replaces = app["replaces"]
     color = app["color"]
     mount = app["mount"]
     repo = app["repo"]
     hero = app["hero"]
     icon = app["icon"]
+    canonical = f"{SITE_ORIGIN}/{slug}/"
+    json_ld = _build_app_json_ld(app)
 
     highlights_html = []
     for idx, (h_title, h_desc) in enumerate(app["highlights"], start=1):
@@ -42,6 +133,15 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
         for sc in app["shortcuts"]
     )
 
+    faqs_html = "".join(
+        f"""
+        <details class="faq-item" {"open" if i == 0 else ""}>
+          <summary class="font-display">{_esc(q)}</summary>
+          <p>{_esc(a)}</p>
+        </details>"""
+        for i, (q, a) in enumerate(app.get("faqs", []))
+    )
+
     others = [a for a in all_apps if a["slug"] != slug]
     family_cards = []
     for o in others:
@@ -57,7 +157,7 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
           </div>
           <a class="fam-link" href="/{o['slug']}/">
             <div class="fam-hero">
-              <img src="{o['hero']}" alt="{o_name}" loading="lazy" decoding="async" referrerpolicy="no-referrer"
+              <img src="{o['hero']}" alt="{o_name} — Free {_esc(o['replaces'])} alternative" loading="lazy" decoding="async" referrerpolicy="no-referrer"
                    onerror="this.style.display='none'">
             </div>
             <div class="fam-body">
@@ -75,11 +175,14 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
         """
         <div class="fam-summary">
           <div>
-            <p class="hud-label" style="margin:0;color:var(--faint)">15 / 15 Unified Cloud</p>
-            <h3 class="font-display" style="margin:12px 0 0;font-size:30px;color:var(--ink-strong)">Explore the <span style="color:var(--app)">entire suite</span>.</h3>
-            <p style="margin:10px 0 0;max-width:460px;font-size:14.5px;line-height:1.6;color:var(--muted)">Every Craft application shares the same zero-cloud privacy model, keyboard-first ergonomics, and instant CacheStorage WebAssembly runtime.</p>
+            <p class="hud-label" style="margin:0;color:var(--faint)">15 / 15 Open-Source Suite</p>
+            <h3 class="font-display" style="margin:12px 0 0;font-size:30px;color:var(--ink-strong)">Compare all 15 <span style="color:var(--app)">Adobe &amp; Office</span> alternatives.</h3>
+            <p style="margin:10px 0 0;max-width:460px;font-size:14.5px;line-height:1.6;color:var(--muted)">See the side-by-side Creative Cloud, Office &amp; AutoCAD replacement matrix on a single page.</p>
           </div>
-          <a href="/#lineup" class="btn-primary hud-label" style="height:42px;padding:0 18px;width:fit-content">&larr; Back to All 15 Apps</a>
+          <div style="display:flex;flex-wrap:wrap;gap:10px">
+            <a href="/adobe-alternative/" class="btn-primary hud-label" style="height:40px;padding:0 16px">Full Comparison Matrix &rarr;</a>
+            <a href="/#lineup" class="btn-secondary hud-label" style="height:40px;padding:0 16px">All 15 Apps</a>
+          </div>
         </div>"""
     )
 
@@ -87,16 +190,35 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
         f'<a href="/{a["slug"]}/">{_esc(a["prefix"])}Craft</a>' for a in all_apps
     )
 
+    encoded_url = f"https%3A%2F%2Fallcraft.app%2F{slug}%2F"
+
     return f"""<!DOCTYPE html>
 <html lang="en" data-theme="dark" data-preload-app="{mount}" style="--app:{color}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="referrer" content="no-referrer">
   <meta name="theme-color" content="#0b0b0c" id="meta-theme-color">
-  <title>{full_name} — {_esc(cat)} | The AllCraft Studio</title>
+  <title>{_esc(app['seo_title'])}</title>
   <meta name="description" content="{_esc(app['lead'])}">
-  <link rel="canonical" href="https://the-allcraft.pages.dev/{slug}/">
+  <meta name="keywords" content="{_esc(app['seo_keywords'])}">
+  <link rel="canonical" href="{canonical}">
+
+  <!-- OpenGraph / Social Preview -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="AllCraft Studio">
+  <meta property="og:title" content="{_esc(app['seo_title'])}">
+  <meta property="og:description" content="{_esc(app['lead'])}">
+  <meta property="og:url" content="{canonical}">
+  <meta property="og:image" content="{hero}">
+
+  <!-- Twitter / X Large Image Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{_esc(app['seo_title'])}">
+  <meta name="twitter:description" content="{_esc(app['short_desc'])}">
+  <meta name="twitter:image" content="{hero}">
+
+  <script type="application/ld+json">{json_ld}</script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,500..900&family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
@@ -110,52 +232,7 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
     }})();
   </script>
   <style>
-    :root, html[data-theme="dark"] {{
-      --bg: #0b0b0c;
-      --bg-glass: rgba(11, 11, 12, 0.78);
-      --bg-sunken: #111114;
-      --bg-hover: #151519;
-      --line: #232329;
-      --line-strong: #3c3c46;
-      --ink-strong: #f5f5f7;
-      --ink: #e4e4e9;
-      --muted: #9a9aa6;
-      --faint: #666672;
-      --invert-bg: #f5f5f7;
-      --invert-fg: #0b0b0c;
-    }}
-    html[data-theme="light"] {{
-      --bg: #f2f1ee;
-      --bg-glass: rgba(242, 241, 238, 0.84);
-      --bg-sunken: #e7e5e0;
-      --bg-hover: #eceae5;
-      --line: #d6d3cc;
-      --line-strong: #9e9a90;
-      --ink-strong: #111113;
-      --ink: #1e1e22;
-      --muted: #57554f;
-      --faint: #85827a;
-      --invert-bg: #111113;
-      --invert-fg: #f2f1ee;
-    }}
-    * {{ box-sizing: border-box; }}
-    html {{ scroll-behavior: smooth; }}
-    body {{
-      margin: 0;
-      background: var(--bg);
-      color: var(--ink);
-      font-family: "Inter", system-ui, -apple-system, sans-serif;
-      -webkit-font-smoothing: antialiased;
-      overflow-x: hidden;
-    }}
-    a {{ color: inherit; text-decoration: none; }}
-    .font-display {{ font-family: "Archivo", system-ui, sans-serif; font-weight: 500; letter-spacing: -0.035em; }}
-    .hud-label {{
-      font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-      font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; line-height: 1.3;
-    }}
-
-    /* Top Sticky HUD Bar */
+    {SHARED_THEME_CSS}
     .topbar {{
       position: sticky; top: 0; z-index: 50; height: 48px;
       border-bottom: 1px solid var(--line); background: var(--bg-glass);
@@ -172,15 +249,14 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
       font-family: "Archivo", sans-serif; font-weight: 800; font-stretch: 125%;
       font-size: 14px; letter-spacing: 0.06em; color: var(--ink-strong);
     }}
-    .topnav {{ display: flex; align-items: center; gap: 20px; }}
+    .topnav {{ display: flex; align-items: center; gap: 18px; }}
     .topnav a {{ color: var(--muted); transition: color 0.15s ease; }}
     .topnav a:hover {{ color: var(--ink-strong); }}
     .top-actions {{ display: flex; align-items: center; gap: 8px; }}
     .icon-btn {{
       height: 32px; padding: 0 11px; border: 1px solid var(--line);
       background: var(--bg); color: var(--muted); cursor: pointer;
-      display: inline-flex; align-items: center; gap: 6px;
-      transition: all 0.15s ease;
+      display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s ease;
     }}
     .icon-btn:hover {{ color: var(--ink-strong); border-color: var(--line-strong); }}
     .launch-top-btn {{
@@ -188,10 +264,8 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
       font-weight: 800; display: inline-flex; align-items: center; gap: 6px;
     }}
     .launch-top-btn:hover {{ opacity: 0.88; }}
-    @media (max-width: 920px) {{ .topnav {{ display: none; }} }}
-    @media (max-width: 560px) {{ .crumb-hide {{ display: none; }} }}
+    @media (max-width: 960px) {{ .topnav {{ display: none; }} }}
 
-    /* Architectural Frame & Ticks */
     .section-wrap {{ position: relative; border-top: 1px solid var(--line); }}
     .section-wrap:first-of-type {{ border-top: none; }}
     .frame {{
@@ -214,14 +288,10 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
     }}
     @media (max-width: 768px) {{ .eyebrow {{ padding: 11px 20px; }} }}
 
-    /* Hero Content */
     .hero-pad {{ padding: 56px 40px 48px; }}
     @media (max-width: 768px) {{ .hero-pad {{ padding: 36px 20px; }} }}
     .app-identity {{ display: flex; align-items: center; gap: 18px; margin-bottom: 24px; flex-wrap: wrap; }}
-    .hero-icon {{
-      width: 80px; height: 80px; object-fit: contain;
-      filter: drop-shadow(0 10px 22px rgba(0,0,0,0.4));
-    }}
+    .hero-icon {{ width: 80px; height: 80px; object-fit: contain; filter: drop-shadow(0 10px 22px rgba(0,0,0,0.4)); }}
     .hero-icon-fb {{
       width: 76px; height: 76px; border-radius: 18px; background: #141418;
       border: 2px solid var(--app); color: var(--app);
@@ -235,14 +305,8 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
       letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted);
     }}
     .pill.accent {{ color: var(--app); border-color: color-mix(in srgb, var(--app) 40%, var(--line)); }}
-    .hero-h1 {{
-      margin: 0; max-width: 920px;
-      font-size: clamp(38px, 5.8vw, 68px); line-height: 1.0; color: var(--ink-strong);
-    }}
-    .hero-lead {{
-      margin: 22px 0 0; max-width: 720px;
-      font-size: 18.5px; line-height: 1.62; color: var(--muted);
-    }}
+    .hero-h1 {{ margin: 0; max-width: 920px; font-size: clamp(38px, 5.8vw, 68px); line-height: 1.0; color: var(--ink-strong); }}
+    .hero-lead {{ margin: 22px 0 0; max-width: 740px; font-size: 18px; line-height: 1.62; color: var(--muted); }}
     .cta-row {{ margin-top: 32px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }}
     .btn-primary {{
       height: 48px; padding: 0 26px; background: var(--invert-bg); color: var(--invert-fg);
@@ -264,9 +328,7 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
     }}
     .btn-secondary:hover {{ background: var(--invert-bg); color: var(--invert-fg); border-color: var(--invert-bg); }}
 
-    .meta-strip {{
-      margin-top: 24px; display: flex; flex-wrap: wrap; gap: 8px 20px; color: var(--faint);
-    }}
+    .meta-strip {{ margin-top: 24px; display: flex; flex-wrap: wrap; gap: 8px 20px; color: var(--faint); }}
     .share-strip {{
       margin-top: 24px; display: inline-grid; grid-auto-flow: column; gap: 1px;
       border: 1px solid var(--line); background: var(--line);
@@ -276,28 +338,23 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
     }}
     .share-cell {{
       height: 36px; padding: 0 13px; background: var(--bg); color: var(--muted); border: none;
-      display: inline-flex; align-items: center; justify-content: center; cursor: pointer;
-      transition: all 0.15s ease;
+      display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.15s ease;
     }}
     .share-cell.label {{ color: var(--faint); cursor: default; }}
     button.share-cell:hover, a.share-cell:hover {{ background: var(--invert-bg); color: var(--invert-fg); }}
 
-    /* Full-Bleed Framed Workspace Showcase */
     .showcase-box {{ border-top: 1px solid var(--line); background: var(--bg-sunken); }}
     .showcase-bar {{
       display: flex; align-items: center; justify-content: space-between; gap: 12px;
       padding: 10px 24px; border-bottom: 1px solid var(--line); background: var(--bg);
     }}
-    .showcase-media {{
-      position: relative; aspect-ratio: 16 / 10; overflow: hidden; background: #09090b;
-    }}
+    .showcase-media {{ position: relative; aspect-ratio: 16 / 10; overflow: hidden; background: #09090b; }}
     .showcase-media img {{ width: 100%; height: 100%; object-fit: cover; display: block; }}
 
-    /* 02 / Highlights 3x2 Grid */
     .sec-pad {{ padding: 64px 40px 48px; }}
     @media (max-width: 768px) {{ .sec-pad {{ padding: 44px 20px 36px; }} }}
     .sec-h2 {{ margin: 0; font-size: clamp(34px, 4.8vw, 56px); line-height: 1.03; color: var(--ink-strong); }}
-    .sec-sub {{ margin: 16px 0 0; max-width: 620px; font-size: 17px; line-height: 1.6; color: var(--muted); }}
+    .sec-sub {{ margin: 16px 0 0; max-width: 660px; font-size: 17px; line-height: 1.6; color: var(--muted); }}
     .hl-grid {{
       display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px;
       border-top: 1px solid var(--line); background: var(--line); list-style: none; margin: 0; padding: 0;
@@ -309,20 +366,14 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
     .hl-cell h3 {{ margin: 22px 0 10px; font-size: 23px; color: var(--ink-strong); }}
     .hl-cell p {{ margin: 0; font-size: 14.5px; line-height: 1.62; color: var(--muted); }}
 
-    /* 03 / Screenshots & Workflow Split Grid */
     .shots-subgrid {{
       display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px;
       border-top: 1px solid var(--line); background: var(--line);
     }}
     @media (max-width: 860px) {{ .shots-subgrid {{ grid-template-columns: 1fr; }} }}
     .shot-panel {{ background: var(--bg); display: flex; flex-direction: column; }}
-    .shot-crop {{
-      aspect-ratio: 16 / 9; overflow: hidden; border-bottom: 1px solid var(--line); background: var(--bg-sunken);
-    }}
-    .shot-crop img {{
-      width: 100%; height: 100%; object-fit: cover; display: block;
-      transform: scale(1.28);
-    }}
+    .shot-crop {{ aspect-ratio: 16 / 9; overflow: hidden; border-bottom: 1px solid var(--line); background: var(--bg-sunken); }}
+    .shot-crop img {{ width: 100%; height: 100%; object-fit: cover; display: block; transform: scale(1.28); }}
     .shot-crop.left-zoom img {{ transform-origin: 15% 22%; }}
     .shot-crop.right-zoom img {{ transform-origin: 85% 68%; }}
     .shot-info {{ padding: 24px 28px 28px; }}
@@ -331,11 +382,24 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
       display: flex; align-items: center; justify-content: space-between; gap: 12px;
       padding: 8px 12px; border: 1px solid var(--line); background: var(--bg-sunken); font-size: 13px;
     }}
-    .kv-row code {{
-      font-family: "JetBrains Mono", monospace; font-size: 11.5px; color: var(--app);
-    }}
+    .kv-row code {{ font-family: "JetBrains Mono", monospace; font-size: 11.5px; color: var(--app); }}
 
-    /* 04 / Get App Section */
+    /* Comparison Table & FAQ */
+    .cmp-table {{ width: 100%; border-collapse: collapse; border-top: 1px solid var(--line); }}
+    .cmp-table th, .cmp-table td {{
+      padding: 15px 24px; border-bottom: 1px solid var(--line); text-align: left; font-size: 14.5px;
+    }}
+    .cmp-table th {{ background: var(--bg-sunken); color: var(--ink-strong); }}
+    .cmp-table td:nth-child(2) {{ color: var(--app); font-weight: 600; }}
+    @media (max-width: 680px) {{ .cmp-table th, .cmp-table td {{ padding: 12px 14px; font-size: 13px; }} }}
+    .faq-wrap {{ border-top: 1px solid var(--line); }}
+    .faq-item {{ border-bottom: 1px solid var(--line); padding: 22px 40px; background: var(--bg); }}
+    @media (max-width: 768px) {{ .faq-item {{ padding: 18px 20px; }} }}
+    .faq-item summary {{ cursor: pointer; font-size: 19px; color: var(--ink-strong); list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 12px; }}
+    .faq-item summary::after {{ content: "+"; font-family: "JetBrains Mono", monospace; color: var(--app); font-size: 18px; }}
+    .faq-item[open] summary::after {{ content: "−"; }}
+    .faq-item p {{ margin: 12px 0 0; max-width: 820px; font-size: 15px; line-height: 1.65; color: var(--muted); }}
+
     .opt-banner {{
       border-top: 1px solid var(--line); background: var(--bg-sunken); padding: 40px;
       display: flex; align-items: center; justify-content: space-between; gap: 28px; flex-wrap: wrap;
@@ -358,19 +422,10 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
     @media (max-width: 900px) {{ .source-grid {{ grid-template-columns: 1fr; }} }}
     .spec-box, .term-box {{ background: var(--bg); padding: 34px 36px; }}
     @media (max-width: 768px) {{ .spec-box, .term-box {{ padding: 24px 20px; }} }}
-    .term-win {{
-      margin-top: 18px; border: 1px solid var(--line-strong); background: #09090b; color: #e4e4e7;
-    }}
-    .term-bar {{
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 8px 14px; border-bottom: 1px solid #232329; background: #121216;
-    }}
-    .term-pre {{
-      margin: 0; padding: 18px; overflow-x: auto;
-      font-family: "JetBrains Mono", monospace; font-size: 12.5px; line-height: 1.7; color: #d4d4d8;
-    }}
+    .term-win {{ margin-top: 18px; border: 1px solid var(--line-strong); background: #09090b; color: #e4e4e7; }}
+    .term-bar {{ display: flex; align-items: center; justify-content: space-between; padding: 8px 14px; border-bottom: 1px solid #232329; background: #121216; }}
+    .term-pre {{ margin: 0; padding: 18px; overflow-x: auto; font-family: "JetBrains Mono", monospace; font-size: 12.5px; line-height: 1.7; color: #d4d4d8; }}
 
-    /* 05 / The Family Grid */
     .fam-grid {{
       display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px;
       border-top: 1px solid var(--line); background: var(--line);
@@ -384,14 +439,10 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
       transform: scaleX(0); transform-origin: left; transition: transform 0.28s ease; z-index: 5;
     }}
     .fam-card:hover .fam-topline {{ transform: scaleX(1); }}
-    .fam-head {{
-      display: flex; align-items: center; gap: 8px; padding: 10px 18px; border-bottom: 1px solid var(--line);
-    }}
+    .fam-head {{ display: flex; align-items: center; gap: 8px; padding: 10px 18px; border-bottom: 1px solid var(--line); }}
     .fam-num {{ padding: 3px 7px; background: var(--app); color: #0b0b0c; font-weight: 800; }}
     .fam-cat {{ color: var(--faint); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }}
-    .fam-launch {{
-      padding: 3px 7px; border: 1px solid rgba(34,197,94,0.4); color: #4ade80; font-size: 9.5px;
-    }}
+    .fam-launch {{ padding: 3px 7px; border: 1px solid rgba(34,197,94,0.4); color: #4ade80; font-size: 9.5px; }}
     .fam-launch:hover {{ background: #22c55e; color: #0b0b0c; }}
     .fam-link {{ display: flex; flex-direction: column; flex: 1; }}
     .fam-hero {{ aspect-ratio: 16 / 10; overflow: hidden; border-bottom: 1px solid var(--line); background: var(--bg-sunken); }}
@@ -414,10 +465,7 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
     }}
     @media (max-width: 640px) {{ .fam-summary {{ grid-column: span 1; }} }}
 
-    /* Bottom CTA & Multi-Column Architectural Footer */
-    .start-box {{
-      padding: 88px 28px; text-align: center; display: flex; flex-direction: column; align-items: center;
-    }}
+    .start-box {{ padding: 88px 28px; text-align: center; display: flex; flex-direction: column; align-items: center; }}
     .site-footer {{ border-top: 1px solid var(--line); }}
     .footer-grid {{
       max-width: 1280px; margin: 0 auto; padding: 40px;
@@ -429,17 +477,13 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
     .footer-apps a {{ color: var(--muted); font-size: 13px; }}
     .footer-apps a:hover {{ color: var(--ink-strong); }}
 
-    /* Floating Bottom-Right Quick-Jump HUD Index */
     .quick-hud {{
       position: fixed; right: 18px; bottom: 18px; z-index: 45;
       display: flex; flex-direction: column; gap: 1px;
       border: 1px solid var(--line-strong); background: var(--line);
       box-shadow: 0 14px 34px rgba(0,0,0,0.45);
     }}
-    .quick-hud a {{
-      padding: 6px 10px; background: var(--bg-glass); backdrop-filter: blur(10px);
-      color: var(--faint); font-size: 9.5px; transition: all 0.15s ease;
-    }}
+    .quick-hud a {{ padding: 6px 10px; background: var(--bg-glass); backdrop-filter: blur(10px); color: var(--faint); font-size: 9.5px; transition: all 0.15s ease; }}
     .quick-hud a:hover {{ color: var(--ink-strong); background: var(--bg-hover); }}
     @media (max-width: 1100px) {{ .quick-hud {{ display: none; }} }}
 
@@ -454,7 +498,6 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
 </head>
 <body>
 
-  <!-- Sticky Architectural Top Bar -->
   <header class="topbar">
     <div class="topbar-inner">
       <div class="crumbs hud-label">
@@ -471,9 +514,10 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
       <nav class="topnav hud-label">
         <a href="#overview">01 / Overview</a>
         <a href="#highlights">02 / Highlights</a>
-        <a href="#screenshots">03 / Screenshots</a>
+        <a href="#compare">03 / vs {_esc(replaces.split(' ')[-1])}</a>
         <a href="#get-it">04 / Get It</a>
-        <a href="#family">05 / Family</a>
+        <a href="#faq">05 / FAQ</a>
+        <a href="#family">06 / Family</a>
       </nav>
 
       <div class="top-actions">
@@ -484,14 +528,14 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
   </header>
 
   <main>
-    <!-- 01 / OVERVIEW & HERO -->
+    <!-- 01 / OVERVIEW -->
     <section id="overview" class="section-wrap">
       <div class="frame">
         <span class="tick tick-tl" aria-hidden="true"></span>
         <span class="tick tick-tr" aria-hidden="true"></span>
 
         <div class="eyebrow">
-          <p class="hud-label" style="margin:0;color:var(--muted)"><span style="color:var(--faint)">01</span> <span style="color:var(--faint);margin:0 6px">/</span> {full_name}</p>
+          <p class="hud-label" style="margin:0;color:var(--muted)"><span style="color:var(--faint)">01</span> <span style="color:var(--faint);margin:0 6px">/</span> {full_name} &middot; Free {_esc(replaces)} Alternative</p>
           <p class="hud-label" style="margin:0;color:var(--faint)">{num} of 15 &middot; {_esc(cat)}</p>
         </div>
 
@@ -505,7 +549,7 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
               </div>
               <div class="id-badges">
                 <span class="pill accent">● Live in Browser</span>
-                <span class="pill accent">Instant CacheStorage</span>
+                <span class="pill accent">Free {_esc(replaces)} Alternative</span>
                 <span class="pill">MIT / Apache-2.0</span>
               </div>
             </div>
@@ -516,23 +560,23 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
 
           <div class="cta-row">
             <a href="{mount}" class="btn-accent hud-label">&#9654; Launch {full_name} in Browser</a>
-            <a href="https://github.com/{repo}" target="_blank" rel="noopener" class="btn-secondary hud-label">View Source on GitHub &nearr;</a>
-            <a href="/#lineup" class="btn-secondary hud-label">&larr; All 15 Apps</a>
+            <a href="/adobe-alternative/" class="btn-secondary hud-label">Compare All 15 Alternatives</a>
+            <a href="https://github.com/{repo}" target="_blank" rel="noopener" class="btn-secondary hud-label">GitHub Source &nearr;</a>
           </div>
 
           <div class="meta-strip hud-label">
-            <span>Web (Zero Install)</span>
-            <span>macOS &middot; Windows &middot; Linux &middot; FreeBSD</span>
-            <span>100% Local Files &middot; No Subscription</span>
+            <span>$0 Forever &middot; No Sign-Up</span>
+            <span>Web &middot; macOS &middot; Windows &middot; Linux</span>
+            <span>100% Local Files &middot; Zero Cloud Uploads</span>
           </div>
 
           <div class="share-strip">
             <span class="share-cell label hud-label">Share</span>
             <button type="button" class="share-cell hud-label" id="copy-link-btn">Copy link</button>
-            <a class="share-cell hud-label" target="_blank" rel="noopener" href="https://x.com/intent/post?text={full_name}%20on%20The%20AllCraft%20Studio&url=https%3A%2F%2Fthe-allcraft.pages.dev%2F{slug}%2F">X</a>
-            <a class="share-cell hud-label" target="_blank" rel="noopener" href="https://www.reddit.com/submit?url=https%3A%2F%2Fthe-allcraft.pages.dev%2F{slug}%2F&title={full_name}%20%E2%80%94%20Open-Source%20Rust%20%2B%20WebAssembly">Reddit</a>
-            <a class="share-cell hud-label" target="_blank" rel="noopener" href="https://bsky.app/intent/compose?text={full_name}%20https%3A%2F%2Fthe-allcraft.pages.dev%2F{slug}%2F">Bluesky</a>
-            <a class="share-cell hud-label" target="_blank" rel="noopener" href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fthe-allcraft.pages.dev%2F{slug}%2F">LinkedIn</a>
+            <a class="share-cell hud-label" target="_blank" rel="noopener" href="https://x.com/intent/post?text={full_name}%20%E2%80%94%20Free%20Open-Source%20{urllib_safe(replaces)}%20Alternative%20in%20Browser&url={encoded_url}">X</a>
+            <a class="share-cell hud-label" target="_blank" rel="noopener" href="https://www.reddit.com/submit?url={encoded_url}&title={full_name}%20%E2%80%94%20Free%20Open-Source%20{urllib_safe(replaces)}%20Alternative">Reddit</a>
+            <a class="share-cell hud-label" target="_blank" rel="noopener" href="https://bsky.app/intent/compose?text={full_name}%20https%3A%2F%2Fallcraft.app%2F{slug}%2F">Bluesky</a>
+            <a class="share-cell hud-label" target="_blank" rel="noopener" href="https://www.linkedin.com/sharing/share-offsite/?url={encoded_url}">LinkedIn</a>
           </div>
         </div>
 
@@ -540,10 +584,10 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
           <div class="showcase-bar hud-label">
             <span style="color:var(--app)">00 / Live Studio Workspace</span>
             <span style="color:var(--muted)">{_esc(app['hero_caption'])}</span>
-            <span style="color:var(--faint)">Pure Rust + Wasm</span>
+            <span style="color:var(--faint)">allcraft.app{mount}</span>
           </div>
           <div class="showcase-media">
-            <img src="{hero}" alt="{full_name} workspace" referrerpolicy="no-referrer">
+            <img src="{hero}" alt="{full_name} — Free open-source {_esc(replaces)} alternative workspace" referrerpolicy="no-referrer">
           </div>
         </div>
       </div>
@@ -561,8 +605,8 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
         </div>
 
         <div class="sec-pad">
-          <h2 class="sec-h2 font-display">What&rsquo;s <span style="color:var(--app)">inside</span>.</h2>
-          <p class="sec-sub">Every core tool in {full_name} is written in clean-room Rust for instant responsiveness on desktop and WebAssembly.</p>
+          <h2 class="sec-h2 font-display">What&rsquo;s <span style="color:var(--app)">inside</span> {full_name}.</h2>
+          <p class="sec-sub">Every core tool is written in clean-room Rust for native responsiveness on desktop and WebAssembly.</p>
         </div>
 
         <ol class="hl-grid">{"".join(highlights_html)}
@@ -570,16 +614,58 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
       </div>
     </section>
 
-    <!-- 03 / SCREENSHOTS & WORKFLOW -->
-    <section id="screenshots" class="section-wrap">
+    <!-- 03 / SCREENSHOTS & COMPARISON -->
+    <section id="compare" class="section-wrap">
       <div class="frame">
         <span class="tick tick-tl" aria-hidden="true"></span>
         <span class="tick tick-tr" aria-hidden="true"></span>
 
         <div class="eyebrow">
-          <p class="hud-label" style="margin:0;color:var(--muted)"><span style="color:var(--faint)">03</span> <span style="color:var(--faint);margin:0 6px">/</span> Screenshots &amp; Workflow</p>
-          <p class="hud-label" style="margin:0;color:var(--faint)">Interface details &amp; shortcuts</p>
+          <p class="hud-label" style="margin:0;color:var(--muted)"><span style="color:var(--faint)">03</span> <span style="color:var(--faint);margin:0 6px">/</span> Why Switch to {full_name}</p>
+          <p class="hud-label" style="margin:0;color:var(--faint)">{full_name} vs {_esc(replaces)}</p>
         </div>
+
+        <div class="sec-pad">
+          <h2 class="sec-h2 font-display">A capable, <span style="color:var(--app)">zero-subscription</span> {_esc(replaces)} alternative.</h2>
+          <p class="sec-sub">Keep your existing file formats and keyboard muscle memory while ditching recurring cloud fees and forced file uploads.</p>
+        </div>
+
+        <table class="cmp-table">
+          <thead>
+            <tr>
+              <th class="hud-label">Feature</th>
+              <th class="hud-label">{full_name} (AllCraft)</th>
+              <th class="hud-label">Proprietary {_esc(replaces)}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Price &amp; Licensing</strong></td>
+              <td>$0 Forever (MIT / Apache-2.0 Open Source)</td>
+              <td>$22.99 – $59.99 / month subscription</td>
+            </tr>
+            <tr>
+              <td><strong>Browser Instant Launch</strong></td>
+              <td>Yes — opens at allcraft.app{mount} with zero login</td>
+              <td>Requires account, installer, or cloud lock-in</td>
+            </tr>
+            <tr>
+              <td><strong>Supported File Formats</strong></td>
+              <td>{_esc(app['formats'])}</td>
+              <td>Proprietary ecosystem first</td>
+            </tr>
+            <tr>
+              <td><strong>File Privacy &amp; AI Scraping</strong></td>
+              <td>100% Local RAM — zero cloud uploads, zero telemetry</td>
+              <td>Cloud sync &amp; account telemetry</td>
+            </tr>
+            <tr>
+              <td><strong>CLI &amp; AI Agent Automation</strong></td>
+              <td>Built-in CLI, JSON-RPC &amp; MCP server</td>
+              <td>Limited / proprietary scripting</td>
+            </tr>
+          </tbody>
+        </table>
 
         <div class="shots-subgrid">
           <div class="shot-panel">
@@ -592,7 +678,7 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
             </div>
             <div class="shot-info">
               <h3 class="font-display" style="margin:0;font-size:22px;color:var(--ink-strong)">Muscle-memory shortcuts</h3>
-              <p style="margin:8px 0 0;font-size:14px;color:var(--muted)">Familiar professional keybindings work right inside your browser tab (with browser shortcut capture).</p>
+              <p style="margin:8px 0 0;font-size:14px;color:var(--muted)">Familiar professional keybindings work right inside your browser tab.</p>
               <div class="kv-list">{shortcuts_html}</div>
             </div>
           </div>
@@ -607,7 +693,7 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
             </div>
             <div class="shot-info">
               <h3 class="font-display" style="margin:0;font-size:22px;color:var(--ink-strong)">Open formats &amp; Agent-ready CLI</h3>
-              <p style="margin:8px 0 0;font-size:14px;color:var(--muted)">Work directly on standard industry files locally, or drive {full_name} headlessly from scripts and AI agents.</p>
+              <p style="margin:8px 0 0;font-size:14px;color:var(--muted)">Work directly on standard industry files locally, or drive {full_name} headlessly.</p>
               <div class="kv-list">
                 <div class="kv-row"><span>File Formats</span><code>{_esc(app['formats'])}</code></div>
                 <div class="kv-row"><span>Core Engine</span><code>{_esc(app['engine'])}</code></div>
@@ -643,7 +729,7 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
           <div class="plat-cell">
             <span class="hud-label" style="color:var(--app)">WebAssembly</span>
             <h4 class="font-display">Browser Studio</h4>
-            <p>Chrome, Edge, Firefox &amp; Safari with WebGPU / WebGL2 acceleration at <code>{mount}</code>.</p>
+            <p>Chrome, Edge, Firefox &amp; Safari with WebGPU / WebGL2 acceleration at <code>allcraft.app{mount}</code>.</p>
           </div>
           <div class="plat-cell">
             <span class="hud-label" style="color:var(--faint)">macOS</span>
@@ -667,8 +753,8 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
             <p class="hud-label" style="margin:0;color:var(--faint)">Technical Specifications</p>
             <h3 class="font-display" style="margin:12px 0 18px;font-size:28px;color:var(--ink-strong)">Open source down to the metal.</h3>
             <div class="kv-list">
-              <div class="kv-row"><span>Detail URL</span><code>the-allcraft.pages.dev/{slug}/</code></div>
-              <div class="kv-row"><span>Editor URL</span><code>the-allcraft.pages.dev{mount}</code></div>
+              <div class="kv-row"><span>Canonical URL</span><code>allcraft.app/{slug}/</code></div>
+              <div class="kv-row"><span>Web Editor</span><code>allcraft.app{mount}</code></div>
               <div class="kv-row"><span>Repository</span><code>github.com/{repo}</code></div>
               <div class="kv-row"><span>License</span><code>MIT OR Apache-2.0</code></div>
             </div>
@@ -692,20 +778,36 @@ cargo run --release</pre>
       </div>
     </section>
 
-    <!-- 05 / THE FAMILY -->
+    <!-- 05 / FAQ -->
+    <section id="faq" class="section-wrap">
+      <div class="frame">
+        <span class="tick tick-tl" aria-hidden="true"></span>
+        <span class="tick tick-tr" aria-hidden="true"></span>
+
+        <div class="eyebrow">
+          <p class="hud-label" style="margin:0;color:var(--muted)"><span style="color:var(--faint)">05</span> <span style="color:var(--faint);margin:0 6px">/</span> Frequently Asked Questions</p>
+          <p class="hud-label" style="margin:0;color:var(--faint)">{full_name} Q&amp;A</p>
+        </div>
+
+        <div class="faq-wrap">{faqs_html}
+        </div>
+      </div>
+    </section>
+
+    <!-- 06 / THE FAMILY -->
     <section id="family" class="section-wrap">
       <div class="frame">
         <span class="tick tick-tl" aria-hidden="true"></span>
         <span class="tick tick-tr" aria-hidden="true"></span>
 
         <div class="eyebrow">
-          <p class="hud-label" style="margin:0;color:var(--muted)"><span style="color:var(--faint)">05</span> <span style="color:var(--faint);margin:0 6px">/</span> The family</p>
+          <p class="hud-label" style="margin:0;color:var(--muted)"><span style="color:var(--faint)">06</span> <span style="color:var(--faint);margin:0 6px">/</span> The family</p>
           <p class="hud-label" style="margin:0;color:var(--faint)">Explore the other 14 crafts</p>
         </div>
 
         <div class="sec-pad">
           <h2 class="sec-h2 font-display">More from <span style="color:var(--app)">the family</span>.</h2>
-          <p class="sec-sub">Every app in The AllCraft Studio is built to the same standards and runs right in your browser.</p>
+          <p class="sec-sub">Every app in AllCraft Studio is built to the same standards and runs right in your browser.</p>
         </div>
 
         <div class="fam-grid">{"".join(family_cards)}
@@ -713,7 +815,6 @@ cargo run --release</pre>
       </div>
     </section>
 
-    <!-- BOTTOM CTA -->
     <section id="get-started" class="section-wrap">
       <div class="frame">
         <span class="tick tick-tl" aria-hidden="true"></span>
@@ -724,7 +825,7 @@ cargo run --release</pre>
           <h2 class="font-display" style="margin:18px 0 0;font-size:clamp(40px,6vw,68px);line-height:0.98;color:var(--ink-strong)">Start crafting with <span style="color:var(--app)">{full_name}</span>.</h2>
           <div class="cta-row" style="margin-top:32px;justify-content:center">
             <a href="{mount}" class="btn-accent hud-label">&#9654; Launch {full_name} Now</a>
-            <a href="/" class="btn-secondary hud-label">Back to Studio Home</a>
+            <a href="/" class="btn-secondary hud-label">Back to allcraft.app</a>
           </div>
         </div>
       </div>
@@ -735,30 +836,31 @@ cargo run --release</pre>
     <div class="footer-grid">
       <div>
         <div class="brand-link" style="margin-bottom:10px">ALLCRAFT STUDIO</div>
-        <p style="margin:0;font-size:13px;line-height:1.6;color:var(--faint)">15 open-source pure Rust + WebAssembly creative, 3D, media, office and CAD tools. Dual-licensed under MIT OR Apache-2.0. Independent fork not affiliated with upstream ArtCraft Team.</p>
+        <p style="margin:0;font-size:13px;line-height:1.6;color:var(--faint)">15 open-source pure Rust + WebAssembly creative, 3D, media, office and CAD tools on allcraft.app. Dual-licensed under MIT OR Apache-2.0. Independent web cloud fork not affiliated with upstream ArtCraft Team.</p>
       </div>
       <div>
-        <div class="hud-label" style="color:var(--ink-strong)">All 15 Detail Pages</div>
+        <div class="hud-label" style="color:var(--ink-strong)">All 15 Tools</div>
         <div class="footer-apps">{footer_app_links}</div>
       </div>
       <div>
-        <div class="hud-label" style="color:var(--ink-strong)">Quick Links</div>
+        <div class="hud-label" style="color:var(--ink-strong)">Comparison &amp; Guides</div>
         <div class="footer-apps" style="flex-direction:column;gap:8px">
+          <a href="/adobe-alternative/">Free Adobe Creative Cloud Alternatives</a>
+          <a href="/artcraft-web/">Craft / ArtCraft WebAssembly Cloud Guide</a>
           <a href="{mount}">Launch {full_name} Web ({mount})</a>
           <a href="https://github.com/{repo}" target="_blank" rel="noopener">{repo} on GitHub</a>
-          <a href="https://github.com/thepixopik/allcraft" target="_blank" rel="noopener">AllCraft Hub Pipeline</a>
         </div>
       </div>
     </div>
   </footer>
 
-  <!-- Floating Quick-Jump Index -->
   <nav class="quick-hud hud-label" aria-label="Quick section jump">
     <a href="#overview">01 Overview</a>
     <a href="#highlights">02 Highlights</a>
-    <a href="#screenshots">03 Screenshots</a>
+    <a href="#compare">03 Compare</a>
     <a href="#get-it">04 Get It</a>
-    <a href="#family">05 The Family</a>
+    <a href="#faq">05 FAQ</a>
+    <a href="#family">06 Family</a>
     <a href="{mount}" style="color:var(--app)">&#9654; Launch App</a>
   </nav>
 
@@ -771,14 +873,12 @@ cargo run --release</pre>
       t.classList.add("show");
       setTimeout(() => t.classList.remove("show"), 2000);
     }};
-
     const syncTheme = () => {{
       const cur = document.documentElement.getAttribute("data-theme") || "dark";
       document.getElementById("theme-label").textContent = cur === "dark" ? "Light" : "Dark";
       document.getElementById("meta-theme-color").setAttribute("content", cur === "dark" ? "#0b0b0c" : "#f2f1ee");
     }};
     syncTheme();
-
     document.getElementById("theme-toggle").addEventListener("click", () => {{
       const cur = document.documentElement.getAttribute("data-theme") || "dark";
       const next = cur === "dark" ? "light" : "dark";
@@ -786,25 +886,235 @@ cargo run --release</pre>
       localStorage.setItem("allcraft_theme", next);
       syncTheme();
     }});
-
     document.getElementById("copy-link-btn").addEventListener("click", async () => {{
-      try {{
-        await navigator.clipboard.writeText(location.href);
-        showToast("Page link copied");
-      }} catch (_) {{}}
+      try {{ await navigator.clipboard.writeText(location.href); showToast("Page link copied"); }} catch (_) {{}}
     }});
-
     document.getElementById("copy-cmd-btn").addEventListener("click", async () => {{
-      try {{
-        const txt = document.getElementById("clone-cmd").textContent;
-        await navigator.clipboard.writeText(txt);
-        showToast("Clone commands copied");
-      }} catch (_) {{}}
+      try {{ await navigator.clipboard.writeText(document.getElementById("clone-cmd").textContent); showToast("Clone commands copied"); }} catch (_) {{}}
     }});
   </script>
 </body>
 </html>
 """
+
+
+def urllib_safe(s: str) -> str:
+    return s.replace(" ", "%20").replace("&", "%26")
+
+
+def render_comparison_hub_page(
+    slug: str,
+    title: str,
+    description: str,
+    keywords: str,
+    eyebrow_tag: str,
+    h1_html: str,
+    lead: str,
+    faqs: list[tuple[str, str]],
+    all_apps: list[dict],
+) -> str:
+    canonical = f"{SITE_ORIGIN}/{slug}/"
+    rows_html = []
+    for a in all_apps:
+        full_name = f"{a['prefix']}Craft"
+        rows_html.append(
+            f"""
+            <tr>
+              <td><strong style="color:var(--ink-strong)">{_esc(a['replaces'])}</strong><br><span style="font-size:12.5px;color:var(--faint)">{_esc(a['category'])}</span></td>
+              <td><a href="/{a['slug']}/" style="font-weight:700;color:{a['color']}">{full_name} &nearr;</a><br><span style="font-size:12.5px;color:var(--muted)">{_esc(a['formats'])}</span></td>
+              <td class="hud-label" style="color:#4ade80">$0 Free (MIT/Apache-2.0)</td>
+              <td><a href="{a['mount']}" class="row-launch hud-label" style="border-color:{a['color']};color:{a['color']}">&#9654; Launch {a['mount']}</a></td>
+            </tr>"""
+        )
+
+    faq_ld = [
+        {"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": ans}}
+        for q, ans in faqs
+    ]
+    ld_json = json.dumps(
+        {
+            "@context": "https://schema.org",
+            "@graph": [
+                {
+                    "@type": "WebPage",
+                    "name": title,
+                    "url": canonical,
+                    "description": description,
+                },
+                {"@type": "FAQPage", "mainEntity": faq_ld},
+            ],
+        },
+        ensure_ascii=False,
+    )
+
+    faqs_html = "".join(
+        f"""
+        <details class="faq-item" {"open" if i == 0 else ""}>
+          <summary class="font-display">{_esc(q)}</summary>
+          <p>{_esc(ans)}</p>
+        </details>"""
+        for i, (q, ans) in enumerate(faqs)
+    )
+
+    footer_links = "".join(f'<a href="/{a["slug"]}/">{_esc(a["prefix"])}Craft</a>' for a in all_apps)
+
+    return f"""<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{_esc(title)}</title>
+  <meta name="description" content="{_esc(description)}">
+  <meta name="keywords" content="{_esc(keywords)}">
+  <link rel="canonical" href="{canonical}">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="AllCraft Studio">
+  <meta property="og:title" content="{_esc(title)}">
+  <meta property="og:description" content="{_esc(description)}">
+  <meta property="og:url" content="{canonical}">
+  <meta property="og:image" content="https://getartcraft.com/images/apps/photocraft/hero.webp">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{_esc(title)}">
+  <meta name="twitter:description" content="{_esc(description)}">
+  <script type="application/ld+json">{ld_json}</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,500..900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <script src="/hover-preload.js" defer></script>
+  <script>
+    (() => {{
+      const saved = localStorage.getItem("allcraft_theme");
+      if (saved === "light" || saved === "dark") document.documentElement.setAttribute("data-theme", saved);
+    }})();
+  </script>
+  <style>
+    {SHARED_THEME_CSS}
+    .topbar {{ position: sticky; top: 0; z-index: 50; height: 48px; border-bottom: 1px solid var(--line); background: var(--bg-glass); backdrop-filter: blur(12px); }}
+    .topbar-inner {{ max-width: 1280px; height: 100%; margin: 0 auto; padding: 0 24px; border-left: 1px solid var(--line); border-right: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; }}
+    .brand-link {{ display: inline-flex; align-items: center; gap: 8px; font-family: "Archivo", sans-serif; font-weight: 800; font-stretch: 125%; font-size: 14px; letter-spacing: 0.06em; color: var(--ink-strong); }}
+    .icon-btn {{ height: 32px; padding: 0 12px; border: 1px solid var(--line); background: var(--bg); color: var(--muted); cursor: pointer; display: inline-flex; align-items: center; }}
+    .frame {{ max-width: 1280px; margin: 0 auto; border-left: 1px solid var(--line); border-right: 1px solid var(--line); }}
+    .section-wrap {{ border-top: 1px solid var(--line); }}
+    .eyebrow {{ padding: 12px 40px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; gap: 12px; }}
+    .hero-pad {{ padding: 64px 40px 48px; }}
+    @media (max-width: 768px) {{ .eyebrow, .hero-pad {{ padding-left: 20px; padding-right: 20px; }} }}
+    h1 {{ margin: 0; max-width: 940px; font-size: clamp(36px, 5.5vw, 64px); line-height: 1.02; color: var(--ink-strong); }}
+    .lead {{ margin: 20px 0 0; max-width: 760px; font-size: 18px; line-height: 1.62; color: var(--muted); }}
+    .matrix-wrap {{ overflow-x: auto; }}
+    table {{ width: 100%; border-collapse: collapse; border-top: 1px solid var(--line); }}
+    th, td {{ padding: 16px 24px; border-bottom: 1px solid var(--line); text-align: left; font-size: 14.5px; vertical-align: middle; }}
+    th {{ background: var(--bg-sunken); color: var(--ink-strong); }}
+    .row-launch {{ display: inline-block; padding: 6px 11px; border: 1px solid; transition: opacity 0.15s ease; white-space: nowrap; }}
+    .row-launch:hover {{ opacity: 0.8; }}
+    .faq-item {{ border-bottom: 1px solid var(--line); padding: 22px 40px; }}
+    @media (max-width: 768px) {{ .faq-item {{ padding: 18px 20px; }} }}
+    .faq-item summary {{ cursor: pointer; font-size: 19px; color: var(--ink-strong); list-style: none; }}
+    .faq-item p {{ margin: 12px 0 0; max-width: 820px; font-size: 15px; line-height: 1.65; color: var(--muted); }}
+    .footer-inner {{ max-width: 1280px; margin: 0 auto; padding: 32px 40px; border-left: 1px solid var(--line); border-right: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 12px 18px; font-size: 13px; color: var(--muted); }}
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/" class="brand-link">ALLCRAFT STUDIO</a>
+      <div style="display:flex;gap:8px">
+        <a href="/#lineup" class="icon-btn hud-label">All 15 Apps</a>
+        <button type="button" id="theme-toggle" class="icon-btn hud-label"><span id="theme-label">Light</span></button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="section-wrap" style="border-top:none">
+      <div class="frame">
+        <div class="eyebrow hud-label">
+          <span style="color:#ff6b4a">{_esc(eyebrow_tag)}</span>
+          <span style="color:var(--faint)">15 Pure Rust + WebAssembly Apps</span>
+        </div>
+        <div class="hero-pad">
+          <h1 class="font-display">{h1_html}</h1>
+          <p class="lead">{_esc(lead)}</p>
+        </div>
+        <div class="matrix-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th class="hud-label">Proprietary Software</th>
+                <th class="hud-label">Free AllCraft Replacement &amp; Formats</th>
+                <th class="hud-label">License &amp; Cost</th>
+                <th class="hud-label">Instant Browser App</th>
+              </tr>
+            </thead>
+            <tbody>{"".join(rows_html)}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-wrap">
+      <div class="frame">
+        <div class="eyebrow hud-label">
+          <span>Frequently Asked Questions</span>
+          <span style="color:var(--faint)">allcraft.app</span>
+        </div>
+        <div>{faqs_html}</div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="section-wrap">
+    <div class="footer-inner">
+      <a href="/" style="color:var(--ink-strong);font-weight:700">allcraft.app</a>
+      {footer_links}
+    </div>
+  </footer>
+
+  <script>
+    const sync = () => {{
+      const c = document.documentElement.getAttribute("data-theme") || "dark";
+      document.getElementById("theme-label").textContent = c === "dark" ? "Light" : "Dark";
+    }};
+    sync();
+    document.getElementById("theme-toggle").addEventListener("click", () => {{
+      const c = document.documentElement.getAttribute("data-theme") || "dark";
+      const n = c === "dark" ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", n);
+      localStorage.setItem("allcraft_theme", n);
+      sync();
+    }});
+  </script>
+</body>
+</html>
+"""
+
+
+def write_sitemap(dist_dir: pathlib.Path, all_apps: list[dict]) -> None:
+    today = datetime.date.today().isoformat()
+    urls = [
+        (f"{SITE_ORIGIN}/", "1.0", "weekly"),
+        (f"{SITE_ORIGIN}/adobe-alternative/", "0.95", "weekly"),
+        (f"{SITE_ORIGIN}/artcraft-web/", "0.90", "weekly"),
+    ]
+    for a in all_apps:
+        urls.append((f"{SITE_ORIGIN}/{a['slug']}/", "0.90", "weekly"))
+
+    items_xml = "\n".join(
+        f"""  <url>
+    <loc>{loc}</loc>
+    <lastmod>{today}</lastmod>
+    <changefreq>{freq}</changefreq>
+    <priority>{prio}</priority>
+  </url>"""
+        for loc, prio, freq in urls
+    )
+    xml = f"""<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+{items_xml}
+</urlset>
+"""
+    (dist_dir / "sitemap.xml").write_text(xml, encoding="utf-8")
+    print(f"    Generated dist/sitemap.xml ({len(urls)} canonical URLs on {SITE_ORIGIN})")
 
 
 def build_all(dist_dir: pathlib.Path) -> None:
@@ -813,7 +1123,52 @@ def build_all(dist_dir: pathlib.Path) -> None:
         out_dir.mkdir(parents=True, exist_ok=True)
         html_str = render_app_page(app, APPS_CATALOG)
         (out_dir / "index.html").write_text(html_str, encoding="utf-8")
-    print(f"    Generated {len(APPS_CATALOG)} direct root detail pages under dist/<slug>/index.html")
+
+    # 1. /adobe-alternative/ hub page
+    adobe_dir = dist_dir / "adobe-alternative"
+    adobe_dir.mkdir(parents=True, exist_ok=True)
+    (adobe_dir / "index.html").write_text(
+        render_comparison_hub_page(
+            slug="adobe-alternative",
+            title="Free Open-Source Adobe Creative Cloud, Office & AutoCAD Alternatives Online | AllCraft",
+            description="Replace expensive subscriptions with 15 free, open-source pure Rust + WebAssembly browser apps for Photoshop, Illustrator, Premiere Pro, Lightroom, Acrobat, After Effects, InDesign, Substance 3D, AutoCAD, Word, Excel & PowerPoint.",
+            keywords="free adobe alternative, adobe creative cloud alternative online, open source adobe suite, free photoshop illustrator premiere autocad alternative browser, allcraft",
+            eyebrow_tag="01 / Complete Replacement Matrix",
+            h1_html='15 free, open-source <span style="color:#ff6b4a">Adobe, Office &amp; AutoCAD</span> alternatives in your browser.',
+            lead="Every application in AllCraft Studio is compiled from pure Rust to WebGPU + WebAssembly — running 100% locally on your device at $0 forever with no account, no watermark, and no cloud uploads.",
+            faqs=[
+                ("What is the best free open-source alternative to Adobe Creative Cloud in 2026?", "AllCraft Studio (allcraft.app) unites 15 pure-Rust applications — including PhotoCraft (Photoshop), VectorCraft (Illustrator), FilmCraft (Premiere Pro), LightCraft (Lightroom), PdfCraft (Acrobat Pro), EffectCraft (After Effects), AniCraft (Animate), DesignCraft (InDesign), TextureCraft & MaterialCraft (Substance 3D) — running instantly in any modern browser."),
+                ("Do I need to install software or create an account?", "No. Click Launch on any of the 15 tools at allcraft.app to start editing PSD, SVG, RAW, MP4, PDF, AEP, FLA, IDML, DWG, DOCX, PPTX, and XLSX files right in your browser tab."),
+                ("Are AllCraft apps free for commercial work?", "Yes. All 15 codebases are dual-licensed under permissive MIT OR Apache-2.0 open-source licenses with zero watermarks and zero royalties."),
+            ],
+            all_apps=APPS_CATALOG,
+        ),
+        encoding="utf-8",
+    )
+
+    # 2. /artcraft-web/ transparent Craft / ArtCraft WebAssembly Cloud guide
+    art_dir = dist_dir / "artcraft-web"
+    art_dir.mkdir(parents=True, exist_ok=True)
+    (art_dir / "index.html").write_text(
+        render_comparison_hub_page(
+            slug="artcraft-web",
+            title="AllCraft Web Studio — Run All 15 Open-Source Craft / ArtCraft Rust Apps in Browser",
+            description="Run all 15 open-source pure-Rust Craft ecosystem apps (PhotoCraft, VectorCraft, FilmCraft, LightCraft, PdfCraft, EffectCraft, AniCraft, DesignCraft, TextureCraft, MaterialCraft, SoundCraft, WordCraft, DeckCraft, CADCraft & GridCraft) instantly in your browser on allcraft.app.",
+            keywords="artcraft web, artcraft online browser, run photocraft vectorcraft filmcraft cadcraft in browser, allcraft studio, open source rust creative suite webassembly",
+            eyebrow_tag="01 / Instant WebAssembly Browser Edition",
+            h1_html='All 15 open-source <span style="color:#ff6b4a">Craft</span> Rust apps, live in your browser.',
+            lead="AllCraft Studio (allcraft.app) is an independent, MIT/Apache-2.0 open-source WebAssembly cloud build of the 15 Craft repositories — engineered with parallel 6 MiB Wasm streaming and instant local CacheStorage so every tool runs right in your browser.",
+            faqs=[
+                ("How is AllCraft Studio related to the upstream ArtCraft repositories?", "AllCraft Studio is an independent open-source fork (MIT / Apache-2.0, not affiliated with the upstream ArtCraft Team) focused on hosting all 15 pure-Rust applications live in the browser at allcraft.app with instant local CacheStorage and parallel WebAssembly streaming."),
+                ("Can I run all 15 Craft apps in Chrome, Edge, Firefox, or Safari without compiling Rust?", "Yes. All 15 apps — including CADCraft, SoundCraft, WordCraft, DeckCraft, GridCraft, TextureCraft, MaterialCraft, and AniCraft — are pre-compiled to WebAssembly and ready in one click at allcraft.app."),
+            ],
+            all_apps=APPS_CATALOG,
+        ),
+        encoding="utf-8",
+    )
+
+    write_sitemap(dist_dir, APPS_CATALOG)
+    print(f"    Generated {len(APPS_CATALOG)} SEO detail pages + /adobe-alternative/ + /artcraft-web/")
 
 
 if __name__ == "__main__":
