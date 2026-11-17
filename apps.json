@@ -62,7 +62,7 @@
       "artifact_name": "the-allcraft-deck-web",
       "branch": "main",
       "mount_path": "deck",
-      "required": false
+      "required": true
     },
     {
       "id": "pdf",
