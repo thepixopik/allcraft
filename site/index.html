@@ -982,21 +982,21 @@
     <div class="footer-inner">
       <div>MIT OR Apache-2.0 &middot; Independent fork powered by The AllCraft Studio (not affiliated with upstream ArtCraft Team).</div>
       <div class="footer-links hud-label">
-        <a href="/apps/photocraft/">Photo</a>
-        <a href="/apps/vectorcraft/">Vector</a>
-        <a href="/apps/filmcraft/">Film</a>
-        <a href="/apps/lightcraft/">Light</a>
-        <a href="/apps/pdfcraft/">PDF</a>
-        <a href="/apps/effectcraft/">Effect</a>
-        <a href="/apps/anicraft/">Ani</a>
-        <a href="/apps/designcraft/">Design</a>
-        <a href="/apps/texturecraft/">Texture</a>
-        <a href="/apps/materialcraft/">Material</a>
-        <a href="/apps/soundcraft/">Sound</a>
-        <a href="/apps/wordcraft/">Word</a>
-        <a href="/apps/deckcraft/">Deck</a>
-        <a href="/apps/cadcraft/">CAD</a>
-        <a href="/apps/gridcraft/">Grid</a>
+        <a href="/photocraft/">Photo</a>
+        <a href="/vectorcraft/">Vector</a>
+        <a href="/filmcraft/">Film</a>
+        <a href="/lightcraft/">Light</a>
+        <a href="/pdfcraft/">PDF</a>
+        <a href="/effectcraft/">Effect</a>
+        <a href="/anicraft/">Ani</a>
+        <a href="/designcraft/">Design</a>
+        <a href="/texturecraft/">Texture</a>
+        <a href="/materialcraft/">Material</a>
+        <a href="/soundcraft/">Sound</a>
+        <a href="/wordcraft/">Word</a>
+        <a href="/deckcraft/">Deck</a>
+        <a href="/cadcraft/">CAD</a>
+        <a href="/gridcraft/">Grid</a>
       </div>
     </div>
   </footer>
@@ -1131,7 +1131,7 @@
     const cardsHtml = APPS.map((app) => {
       const fullName = `${app.prefix}Craft`;
       const titleHtml = `${app.prefix}<span class="craft-accent">Craft</span>`;
-      const detailHref = `/apps/${app.slug}/`;
+      const detailHref = `/${app.slug}/`;
       return `
         <div class="app-card" data-group="${app.group}" style="--app:${app.color}">
           <span class="app-topline" aria-hidden="true"></span>

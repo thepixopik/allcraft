@@ -7,10 +7,13 @@
   <script>
     (() => {
       const segs = location.pathname.split("/").filter(Boolean);
-      const apps = ["photo", "vector", "film", "light", "pdf", "effect", "ani", "design", "texture", "material", "sound", "word", "deck", "cad", "grid"];
-      const lastApp = [...segs].reverse().find((s) => apps.includes(s));
-      if (lastApp && location.pathname !== "/" + lastApp + "/") {
-        location.replace("/" + lastApp + "/");
+      const valid = [
+        "photo", "vector", "film", "light", "pdf", "effect", "ani", "design", "texture", "material", "sound", "word", "deck", "cad", "grid",
+        "photocraft", "vectorcraft", "filmcraft", "lightcraft", "pdfcraft", "effectcraft", "anicraft", "designcraft", "texturecraft", "materialcraft", "soundcraft", "wordcraft", "deckcraft", "cadcraft", "gridcraft"
+      ];
+      const match = [...segs].reverse().find((s) => valid.includes(s));
+      if (match && location.pathname !== "/" + match + "/") {
+        location.replace("/" + match + "/");
       }
     })();
   </script>

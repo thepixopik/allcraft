@@ -1,0 +1,5 @@
+# Redirect legacy /apps/<slug> URLs cleanly to direct root /<slug>/
+/apps/:slug /:slug/ 301
+/apps/:slug/ /:slug/ 301
+/apps /#lineup 301
+/apps/ /#lineup 301

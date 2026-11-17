@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate Swiss architectural HUD detail pages (/apps/<slug>/index.html) for all 15 AllCraft Studio apps."""
+"""Generate Swiss architectural HUD detail pages (/<slug>/index.html) for all 15 AllCraft Studio apps."""
 
 import html
 import pathlib
@@ -55,7 +55,7 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
             <span class="fam-cat hud-label">{_esc(o['category'])}</span>
             <a class="fam-launch hud-label" href="{o['mount']}" title="Launch {o_name} in Browser">● Launch</a>
           </div>
-          <a class="fam-link" href="/apps/{o['slug']}/">
+          <a class="fam-link" href="/{o['slug']}/">
             <div class="fam-hero">
               <img src="{o['hero']}" alt="{o_name}" loading="lazy" decoding="async" referrerpolicy="no-referrer"
                    onerror="this.style.display='none'">
@@ -85,7 +85,7 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
     )
 
     footer_app_links = "".join(
-        f'<a href="/apps/{a["slug"]}/">{_esc(a["prefix"])}Craft</a>' for a in all_apps
+        f'<a href="/{a["slug"]}/">{_esc(a["prefix"])}Craft</a>' for a in all_apps
     )
 
     return f"""<!DOCTYPE html>
@@ -97,6 +97,7 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
   <meta name="theme-color" content="#0b0b0c" id="meta-theme-color">
   <title>{full_name} — {_esc(cat)} | The AllCraft Studio</title>
   <meta name="description" content="{_esc(app['lead'])}">
+  <link rel="canonical" href="https://the-allcraft.pages.dev/{slug}/">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,500..900&family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
@@ -463,8 +464,6 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
           </svg>
           <span>ALLCRAFT</span>
         </a>
-        <span class="crumb-hide" style="color:var(--faint)">/</span>
-        <a href="/#lineup" class="crumb-hide" style="color:var(--muted)">Apps</a>
         <span style="color:var(--faint)">/</span>
         <span style="color:var(--app)">{full_name}</span>
       </div>
@@ -530,10 +529,10 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
           <div class="share-strip">
             <span class="share-cell label hud-label">Share</span>
             <button type="button" class="share-cell hud-label" id="copy-link-btn">Copy link</button>
-            <a class="share-cell hud-label" target="_blank" rel="noopener" href="https://x.com/intent/post?text={full_name}%20on%20The%20AllCraft%20Studio&url=https%3A%2F%2Fthe-allcraft.pages.dev%2Fapps%2F{slug}%2F">X</a>
-            <a class="share-cell hud-label" target="_blank" rel="noopener" href="https://www.reddit.com/submit?url=https%3A%2F%2Fthe-allcraft.pages.dev%2Fapps%2F{slug}%2F&title={full_name}%20%E2%80%94%20Open-Source%20Rust%20%2B%20WebAssembly">Reddit</a>
-            <a class="share-cell hud-label" target="_blank" rel="noopener" href="https://bsky.app/intent/compose?text={full_name}%20https%3A%2F%2Fthe-allcraft.pages.dev%2Fapps%2F{slug}%2F">Bluesky</a>
-            <a class="share-cell hud-label" target="_blank" rel="noopener" href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fthe-allcraft.pages.dev%2Fapps%2F{slug}%2F">LinkedIn</a>
+            <a class="share-cell hud-label" target="_blank" rel="noopener" href="https://x.com/intent/post?text={full_name}%20on%20The%20AllCraft%20Studio&url=https%3A%2F%2Fthe-allcraft.pages.dev%2F{slug}%2F">X</a>
+            <a class="share-cell hud-label" target="_blank" rel="noopener" href="https://www.reddit.com/submit?url=https%3A%2F%2Fthe-allcraft.pages.dev%2F{slug}%2F&title={full_name}%20%E2%80%94%20Open-Source%20Rust%20%2B%20WebAssembly">Reddit</a>
+            <a class="share-cell hud-label" target="_blank" rel="noopener" href="https://bsky.app/intent/compose?text={full_name}%20https%3A%2F%2Fthe-allcraft.pages.dev%2F{slug}%2F">Bluesky</a>
+            <a class="share-cell hud-label" target="_blank" rel="noopener" href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fthe-allcraft.pages.dev%2F{slug}%2F">LinkedIn</a>
           </div>
         </div>
 
@@ -668,10 +667,10 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
             <p class="hud-label" style="margin:0;color:var(--faint)">Technical Specifications</p>
             <h3 class="font-display" style="margin:12px 0 18px;font-size:28px;color:var(--ink-strong)">Open source down to the metal.</h3>
             <div class="kv-list">
+              <div class="kv-row"><span>Detail URL</span><code>the-allcraft.pages.dev/{slug}/</code></div>
+              <div class="kv-row"><span>Editor URL</span><code>the-allcraft.pages.dev{mount}</code></div>
               <div class="kv-row"><span>Repository</span><code>github.com/{repo}</code></div>
-              <div class="kv-row"><span>Web Route</span><code>the-allcraft.pages.dev{mount}</code></div>
               <div class="kv-row"><span>License</span><code>MIT OR Apache-2.0</code></div>
-              <div class="kv-row"><span>Cloud Uploads</span><code>None (100% Client-Side)</code></div>
             </div>
           </div>
 
@@ -809,14 +808,12 @@ cargo run --release</pre>
 
 
 def build_all(dist_dir: pathlib.Path) -> None:
-    apps_root = dist_dir / "apps"
-    apps_root.mkdir(parents=True, exist_ok=True)
     for app in APPS_CATALOG:
-        out_dir = apps_root / app["slug"]
+        out_dir = dist_dir / app["slug"]
         out_dir.mkdir(parents=True, exist_ok=True)
         html_str = render_app_page(app, APPS_CATALOG)
         (out_dir / "index.html").write_text(html_str, encoding="utf-8")
-    print(f"    Generated {len(APPS_CATALOG)} detail pages under dist/apps/<slug>/index.html")
+    print(f"    Generated {len(APPS_CATALOG)} direct root detail pages under dist/<slug>/index.html")
 
 
 if __name__ == "__main__":
