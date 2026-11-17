@@ -27,6 +27,15 @@
       "branch": "main",
       "mount_path": "film",
       "required": false
+    },
+    {
+      "id": "pdf",
+      "name": "The AllCraft PDF",
+      "repo": "thepixopik/pdfcraft",
+      "artifact_name": "the-allcraft-pdf-web",
+      "branch": "main",
+      "mount_path": "pdf",
+      "required": false
     }
   ]
 }
