@@ -2,6 +2,7 @@
 """Assemble all Craft web app artifacts from apps.json into a unified dist/ folder and inject Photoshop-style splash UI."""
 
 import datetime
+import hashlib
 import io
 import json
 import os
@@ -150,6 +151,40 @@ SPLASH_PROFILES = {
           <path d="M 38 234 L 54 222 L 66 244 L 82 220 L 96 242 L 112 226 L 128 244 L 146 221 L 164 240 L 182 226 L 204 238 L 218 232" fill="none" stroke="#e879f9" stroke-width="2"/>
           <line x1="134" y1="76" x2="134" y2="278" stroke="#fff" stroke-width="2"/>
           <polygon points="127,76 141,76 134,86" fill="#fff"/>
+        </svg>""",
+    },
+    "effect": {
+        "container_id": "loading",
+        "bar_id": "ec_load_bar",
+        "pct_id": "ec_load_pct",
+        "extra_status_id": "status",
+        "code": "Ef",
+        "title": "The AllCraft Effect",
+        "tagline": "Motion Graphics, 3D VFX Compositing & Roto Studio",
+        "accent": "#F472B6",
+        "accent_soft": "rgba(244, 114, 182, 0.24)",
+        "badge_bg": "#2D0C20",
+        "stages": [
+            "Initializing 32-Bit Float GPU Compositor…",
+            "Loading Keyframe Speed Graph & JS Expression Engine…",
+            "Preparing 3D Camera Tracker, Meshes & Lights…",
+            "Loading Roto Brush, Keying & VFX Shaders…",
+            "Opening Motion & VFX Studio…",
+        ],
+        "art_svg": """<svg viewBox="0 0 260 360" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="eg1" cx="55%" cy="32%" r="68%"><stop offset="0%" stop-color="#ec4899" stop-opacity="0.56"/><stop offset="100%" stop-color="#180c16" stop-opacity="0"/></radialGradient>
+            <linearGradient id="eg2" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#db2777"/><stop offset="100%" stop-color="#f9a8d4"/></linearGradient>
+          </defs>
+          <rect width="260" height="360" fill="#180c16"/>
+          <rect width="260" height="360" fill="url(#eg1)"/>
+          <polygon points="130,78 192,114 192,186 130,222 68,186 68,114" fill="rgba(244,114,182,0.08)" stroke="url(#eg2)" stroke-width="2"/>
+          <line x1="130" y1="78" x2="130" y2="222" stroke="rgba(249,168,212,0.35)" stroke-width="1.4"/>
+          <line x1="68" y1="114" x2="192" y2="186" stroke="rgba(249,168,212,0.35)" stroke-width="1.4"/>
+          <path d="M 36 274 C 86 274, 102 224, 130 224 C 158 224, 174 274, 224 274" fill="none" stroke="#f472b6" stroke-width="3"/>
+          <rect x="124" y="218" width="12" height="12" transform="rotate(45 130 224)" fill="#fff"/>
+          <rect x="52" y="268" width="10" height="10" transform="rotate(45 57 273)" fill="#f472b6"/>
+          <rect x="198" y="268" width="10" height="10" transform="rotate(45 203 273)" fill="#f472b6"/>
         </svg>""",
     },
     "pdf": {
@@ -461,6 +496,15 @@ def inject_photoshop_splash(target_dir: pathlib.Path, app_id: str) -> None:
         new_html = splash_css + observer_js + new_html
 
     index_path.write_text(new_html, encoding="utf-8")
+
+    # If the app ships a Service Worker (e.g. effectcraft sw.js), bump its VERSION hash so SW caches pick up the new HTML
+    sw_path = target_dir / "sw.js"
+    if sw_path.is_file():
+        sw_txt = sw_path.read_text(encoding="utf-8")
+        new_ver = hashlib.sha256(new_html.encode("utf-8")).hexdigest()[:16]
+        sw_txt = re.sub(r'const VERSION = "[^"]*";', f'const VERSION = "{new_ver}";', sw_txt, count=1)
+        sw_path.write_text(sw_txt, encoding="utf-8")
+
     print(f"    Injected Photoshop-style splash screen ({profile['code']}) into dist/{app_id}/index.html")
 
 

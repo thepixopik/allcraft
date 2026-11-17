@@ -26,7 +26,7 @@
       "artifact_name": "the-allcraft-light-web",
       "branch": "main",
       "mount_path": "light",
-      "required": false
+      "required": true
     },
     {
       "id": "film",
@@ -36,6 +36,15 @@
       "branch": "main",
       "mount_path": "film",
       "required": true
+    },
+    {
+      "id": "effect",
+      "name": "The AllCraft Effect",
+      "repo": "thepixopik/effectcraft",
+      "artifact_name": "the-allcraft-effect-web",
+      "branch": "main",
+      "mount_path": "effect",
+      "required": false
     },
     {
       "id": "pdf",

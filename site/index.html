@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#161618">
-  <title>The AllCraft Studio — Vector, Photo, Light, Film, PDF &amp; Design Suite</title>
+  <title>The AllCraft Studio — 7-App Creative Cloud Suite</title>
   <script>
     if (location.pathname !== "/" && location.pathname !== "/index.html") {
       history.replaceState(null, "", "/");
@@ -22,26 +22,27 @@
       --photo: #2b7de9;
       --light: #06b6d4;
       --film: #9b5de5;
+      --effect: #ec4899;
       --pdf: #10b981;
       --design: #f59e0b;
     }
     * { box-sizing: border-box; }
     html, body {
       margin: 0; padding: 0; min-height: 100%;
-      background: radial-gradient(circle at 10% 0%, rgba(232,87,63,0.10), transparent 30%),
-                  radial-gradient(circle at 28% 0%, rgba(43,125,233,0.10), transparent 30%),
-                  radial-gradient(circle at 46% 0%, rgba(6,182,212,0.10), transparent 30%),
-                  radial-gradient(circle at 64% 0%, rgba(155,93,229,0.11), transparent 30%),
-                  radial-gradient(circle at 82% 0%, rgba(16,185,129,0.10), transparent 30%),
-                  radial-gradient(circle at 96% 0%, rgba(245,158,11,0.10), transparent 30%),
+      background: radial-gradient(circle at 10% 0%, rgba(232,87,63,0.09), transparent 28%),
+                  radial-gradient(circle at 26% 0%, rgba(43,125,233,0.09), transparent 28%),
+                  radial-gradient(circle at 42% 0%, rgba(6,182,212,0.09), transparent 28%),
+                  radial-gradient(circle at 58% 0%, rgba(155,93,229,0.10), transparent 28%),
+                  radial-gradient(circle at 74% 0%, rgba(236,72,153,0.10), transparent 28%),
+                  radial-gradient(circle at 88% 0%, rgba(16,185,129,0.09), transparent 28%),
                   var(--bg);
       color: var(--text);
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
     .wrap {
-      max-width: 1160px;
+      max-width: 1180px;
       margin: 0 auto;
-      padding: 52px 24px 46px;
+      padding: 50px 24px 44px;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
@@ -72,7 +73,7 @@
     }
     .sub {
       margin: 0 auto 40px;
-      max-width: 700px;
+      max-width: 720px;
       text-align: center;
       font-size: 16px;
       line-height: 1.6;
@@ -80,7 +81,7 @@
     }
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
       gap: 20px;
     }
     .card {
@@ -103,6 +104,7 @@
     .card.photo:hover { border-color: rgba(43,125,233,0.65); box-shadow: 0 16px 36px rgba(43,125,233,0.14); }
     .card.light:hover { border-color: rgba(6,182,212,0.65); box-shadow: 0 16px 36px rgba(6,182,212,0.15); }
     .card.film:hover { border-color: rgba(155,93,229,0.65); box-shadow: 0 16px 36px rgba(155,93,229,0.16); }
+    .card.effect:hover { border-color: rgba(236,72,153,0.65); box-shadow: 0 16px 36px rgba(236,72,153,0.16); }
     .card.pdf:hover { border-color: rgba(16,185,129,0.65); box-shadow: 0 16px 36px rgba(16,185,129,0.15); }
     .card.design:hover { border-color: rgba(245,158,11,0.65); box-shadow: 0 16px 36px rgba(245,158,11,0.15); }
     .icon {
@@ -118,6 +120,7 @@
     .photo .icon { background: rgba(43,125,233,0.16); color: var(--photo); }
     .light .icon { background: rgba(6,182,212,0.16); color: var(--light); }
     .film .icon { background: rgba(155,93,229,0.16); color: var(--film); }
+    .effect .icon { background: rgba(236,72,153,0.16); color: var(--effect); }
     .pdf .icon { background: rgba(16,185,129,0.16); color: var(--pdf); }
     .design .icon { background: rgba(245,158,11,0.16); color: var(--design); }
     .card h2 {
@@ -160,6 +163,7 @@
     .photo .cta { background: var(--photo); }
     .light .cta { background: #0891b2; }
     .film .cta { background: var(--film); }
+    .effect .cta { background: #db2777; }
     .pdf .cta { background: var(--pdf); }
     .design .cta { background: #d97706; }
     footer {
@@ -174,9 +178,9 @@
 </head>
 <body>
   <main class="wrap">
-    <div class="badge">⚡ WebGPU &middot; Rust + WebAssembly &middot; 6-App Local-First Creative Cloud</div>
+    <div class="badge">⚡ WebGPU &middot; Rust + WebAssembly &middot; 7-App Local-First Creative Cloud</div>
     <h1>The AllCraft Studio</h1>
-    <p class="sub">Pro-grade Vector, Photo, RAW Darkroom, Video, PDF &amp; Publishing suite right in your browser. Zero cloud uploads — your files stay 100% on your device.</p>
+    <p class="sub">Pro-grade Vector, Photo, RAW Darkroom, Video, Motion VFX, PDF &amp; Publishing suite right in your browser. Zero cloud uploads — your files stay 100% on your device.</p>
 
     <div class="grid">
       <a class="card vector" href="/vector/">
@@ -265,6 +269,23 @@
         <span class="cta">Open Video Editor &rarr;</span>
       </a>
 
+      <a class="card effect" href="/effect/">
+        <div class="icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+          </svg>
+        </div>
+        <h2>The AllCraft Effect</h2>
+        <p>Motion graphics &amp; VFX compositing studio: keyframe graph editor, JS expressions, 3D cameras &amp; meshes, rotoscoping, keying, AEP &amp; Lottie.</p>
+        <div class="tags">
+          <span class="tag">AEP &amp; Lottie</span>
+          <span class="tag">3D &amp; Tracking</span>
+          <span class="tag">Expressions</span>
+          <span class="tag">Roto &amp; VFX</span>
+        </div>
+        <span class="cta">Open VFX Compositor &rarr;</span>
+      </a>
+
       <a class="card pdf" href="/pdf/">
         <div class="icon">
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -313,6 +334,7 @@
       <a href="https://github.com/thepixopik/photocraft" target="_blank" rel="noopener">Photo</a> &middot;
       <a href="https://github.com/thepixopik/lightcraft" target="_blank" rel="noopener">Light</a> &middot;
       <a href="https://github.com/thepixopik/filmcraft" target="_blank" rel="noopener">Film</a> &middot;
+      <a href="https://github.com/thepixopik/effectcraft" target="_blank" rel="noopener">Effect</a> &middot;
       <a href="https://github.com/thepixopik/pdfcraft" target="_blank" rel="noopener">PDF</a> &middot;
       <a href="https://github.com/thepixopik/designcraft" target="_blank" rel="noopener">Design</a>
     </footer>
