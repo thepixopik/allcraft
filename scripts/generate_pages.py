@@ -43,6 +43,13 @@ SHARED_THEME_CSS = """
     }
     * { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
+    html[data-autolaunch="1"], html[data-autolaunch="1"] body {
+      background: #141519 !important; overflow: hidden !important;
+    }
+    html[data-autolaunch="1"] body > *:not(#ac-studio-overlay) {
+      visibility: hidden !important; pointer-events: none !important;
+    }
+    #ac-studio-overlay { visibility: visible !important; pointer-events: auto !important; }
     body {
       margin: 0; background: var(--bg); color: var(--ink);
       font-family: "Inter", system-ui, -apple-system, sans-serif;
@@ -74,7 +81,7 @@ def _build_app_json_ld(app: dict) -> str:
             "@type": "WebApplication",
             "name": f"{full_name} (AllCraft Studio)",
             "alternateName": [f"The AllCraft {app['prefix']}", f"Free {app['replaces']} Alternative"],
-            "url": f"{SITE_ORIGIN}{app['mount']}",
+            "url": canonical,
             "mainEntityOfPage": canonical,
             "image": app["hero"],
             "description": app["lead"],
@@ -108,6 +115,7 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
     replaces = app["replaces"]
     color = app["color"]
     mount = app["mount"]
+    launch_href = f"/{slug}/#launch"
     repo = app["repo"]
     hero = app["hero"]
     icon = app["icon"]
@@ -146,6 +154,7 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
     family_cards = []
     for o in others:
         o_name = f"{o['prefix']}Craft"
+        o_slug = o["slug"]
         family_cards.append(
             f"""
         <div class="fam-card" style="--app:{o['color']}">
@@ -153,9 +162,9 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
           <div class="fam-head">
             <span class="fam-num hud-label">{o['num']}</span>
             <span class="fam-cat hud-label">{_esc(o['category'])}</span>
-            <a class="fam-launch hud-label" href="{o['mount']}" title="Launch {o_name} in Browser">● Launch</a>
+            <a class="fam-launch hud-label" href="/{o_slug}/#launch" data-launch-app="{o_slug}" title="Launch {o_name} in Browser">● Launch</a>
           </div>
-          <a class="fam-link" href="/{o['slug']}/">
+          <a class="fam-link" href="/{o_slug}/">
             <div class="fam-hero">
               <img src="{o['hero']}" alt="{o_name} — Free {_esc(o['replaces'])} alternative" loading="lazy" decoding="async" referrerpolicy="no-referrer"
                    onerror="this.style.display='none'">
@@ -193,7 +202,7 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
     encoded_url = f"https%3A%2F%2Fallcraft.app%2F{slug}%2F"
 
     return f"""<!DOCTYPE html>
-<html lang="en" data-theme="dark" data-preload-app="{mount}" style="--app:{color}">
+<html lang="en" data-theme="dark" data-preload-app="{slug}" style="--app:{color}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -221,7 +230,7 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,500..900&family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,500..900&family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" crossorigin="anonymous">
   <script src="/hover-preload.js" defer></script>
   <script>
     (() => {{
@@ -229,6 +238,14 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
       if (saved === "light" || saved === "dark") {{
         document.documentElement.setAttribute("data-theme", saved);
       }}
+      if (location.hash === "#launch" || location.search.includes("launch=1")) {{
+        document.documentElement.setAttribute("data-autolaunch", "1");
+      }}
+      window.addEventListener("popstate", (e) => {{
+        if (!e.state || !e.state.acStudioLaunch) {{
+          document.documentElement.removeAttribute("data-autolaunch");
+        }}
+      }});
     }})();
   </script>
   <style>
@@ -521,7 +538,7 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
       </nav>
 
       <div class="top-actions">
-        <a href="{mount}" class="launch-top-btn hud-label">&#9654; Launch Web</a>
+        <a href="{launch_href}" data-launch-app="{slug}" class="launch-top-btn hud-label">&#9654; Launch Web</a>
         <button type="button" id="theme-toggle" class="icon-btn hud-label"><span id="theme-label">Light</span></button>
       </div>
     </div>
@@ -559,7 +576,7 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
           <p class="hero-lead">{_esc(app['lead'])}</p>
 
           <div class="cta-row">
-            <a href="{mount}" class="btn-accent hud-label">&#9654; Launch {full_name} in Browser</a>
+            <a href="{launch_href}" data-launch-app="{slug}" class="btn-accent hud-label">&#9654; Launch {full_name} in Browser</a>
             <a href="/adobe-alternative/" class="btn-secondary hud-label">Compare All 15 Alternatives</a>
             <a href="https://github.com/{repo}" target="_blank" rel="noopener" class="btn-secondary hud-label">GitHub Source &nearr;</a>
           </div>
@@ -722,7 +739,7 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
             <h2 class="font-display" style="margin:14px 0 0;font-size:clamp(28px,4vw,42px);color:var(--ink-strong)">Run {full_name} <span style="color:var(--app)">instantly</span> in your browser.</h2>
             <p style="margin:12px 0 0;font-size:15.5px;line-height:1.6;color:var(--muted)">Decompressed WebAssembly locks directly into your browser&rsquo;s CacheStorage — opening in under 0.25s on repeat visits with zero cloud uploads.</p>
           </div>
-          <a href="{mount}" class="btn-accent hud-label">&#9654; Open {full_name} ({mount})</a>
+          <a href="{launch_href}" data-launch-app="{slug}" class="btn-accent hud-label">&#9654; Open {full_name} ({mount})</a>
         </div>
 
         <div class="plat-grid">
@@ -824,7 +841,7 @@ cargo run --release</pre>
           <p class="hud-label" style="margin:0;color:var(--faint)">Zero install &middot; Ready in seconds</p>
           <h2 class="font-display" style="margin:18px 0 0;font-size:clamp(40px,6vw,68px);line-height:0.98;color:var(--ink-strong)">Start crafting with <span style="color:var(--app)">{full_name}</span>.</h2>
           <div class="cta-row" style="margin-top:32px;justify-content:center">
-            <a href="{mount}" class="btn-accent hud-label">&#9654; Launch {full_name} Now</a>
+            <a href="{launch_href}" data-launch-app="{slug}" class="btn-accent hud-label">&#9654; Launch {full_name} Now</a>
             <a href="/" class="btn-secondary hud-label">Back to allcraft.app</a>
           </div>
         </div>
@@ -847,7 +864,7 @@ cargo run --release</pre>
         <div class="footer-apps" style="flex-direction:column;gap:8px">
           <a href="/adobe-alternative/">Free Adobe Creative Cloud Alternatives</a>
           <a href="/artcraft-web/">Craft / ArtCraft WebAssembly Cloud Guide</a>
-          <a href="{mount}">Launch {full_name} Web ({mount})</a>
+          <a href="{launch_href}" data-launch-app="{slug}">Launch {full_name} Web ({mount})</a>
           <a href="https://github.com/{repo}" target="_blank" rel="noopener">{repo} on GitHub</a>
         </div>
       </div>
@@ -861,7 +878,7 @@ cargo run --release</pre>
     <a href="#get-it">04 Get It</a>
     <a href="#faq">05 FAQ</a>
     <a href="#family">06 Family</a>
-    <a href="{mount}" style="color:var(--app)">&#9654; Launch App</a>
+    <a href="{launch_href}" data-launch-app="{slug}" style="color:var(--app)">&#9654; Launch App</a>
   </nav>
 
   <div id="toast" class="hud-label">Copied to clipboard</div>
@@ -917,13 +934,14 @@ def render_comparison_hub_page(
     rows_html = []
     for a in all_apps:
         full_name = f"{a['prefix']}Craft"
+        a_slug = a["slug"]
         rows_html.append(
             f"""
             <tr>
               <td><strong style="color:var(--ink-strong)">{_esc(a['replaces'])}</strong><br><span style="font-size:12.5px;color:var(--faint)">{_esc(a['category'])}</span></td>
-              <td><a href="/{a['slug']}/" style="font-weight:700;color:{a['color']}">{full_name} &nearr;</a><br><span style="font-size:12.5px;color:var(--muted)">{_esc(a['formats'])}</span></td>
+              <td><a href="/{a_slug}/" style="font-weight:700;color:{a['color']}">{full_name} &nearr;</a><br><span style="font-size:12.5px;color:var(--muted)">{_esc(a['formats'])}</span></td>
               <td class="hud-label" style="color:#4ade80">$0 Free (MIT/Apache-2.0)</td>
-              <td><a href="{a['mount']}" class="row-launch hud-label" style="border-color:{a['color']};color:{a['color']}">&#9654; Launch {a['mount']}</a></td>
+              <td><a href="/{a_slug}/#launch" data-launch-app="{a_slug}" class="row-launch hud-label" style="border-color:{a['color']};color:{a['color']}">&#9654; Launch {a['mount']}</a></td>
             </tr>"""
         )
 
@@ -979,7 +997,7 @@ def render_comparison_hub_page(
   <script type="application/ld+json">{ld_json}</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,500..900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,500..900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" crossorigin="anonymous">
   <script src="/hover-preload.js" defer></script>
   <script>
     (() => {{
@@ -1157,7 +1175,7 @@ def build_all(dist_dir: pathlib.Path) -> None:
             keywords="artcraft web, artcraft online browser, run photocraft vectorcraft filmcraft cadcraft in browser, allcraft studio, open source rust creative suite webassembly",
             eyebrow_tag="01 / Instant WebAssembly Browser Edition",
             h1_html='All 15 open-source <span style="color:#ff6b4a">Craft</span> Rust apps, live in your browser.',
-            lead="AllCraft Studio (allcraft.app) is an independent, MIT/Apache-2.0 open-source WebAssembly cloud build of the 15 Craft repositories — engineered with parallel 6 MiB Wasm streaming and instant local CacheStorage so every tool runs right in your browser.",
+            lead="AllCraft Studio (allcraft.app) is an independent, MIT/Apache-2.0 open-source WebAssembly cloud build of the 15 Craft repositories — engineered with parallel 1.5 MiB Wasm streaming and instant local CacheStorage so every tool runs right in your browser.",
             faqs=[
                 ("How is AllCraft Studio related to the upstream ArtCraft repositories?", "AllCraft Studio is an independent open-source fork (MIT / Apache-2.0, not affiliated with the upstream ArtCraft Team) focused on hosting all 15 pure-Rust applications live in the browser at allcraft.app with instant local CacheStorage and parallel WebAssembly streaming."),
                 ("Can I run all 15 Craft apps in Chrome, Edge, Firefox, or Safari without compiling Rust?", "Yes. All 15 apps — including CADCraft, SoundCraft, WordCraft, DeckCraft, GridCraft, TextureCraft, MaterialCraft, and AniCraft — are pre-compiled to WebAssembly and ready in one click at allcraft.app."),
