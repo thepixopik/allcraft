@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
-"""Generate SEO-optimized Swiss architectural HUD detail pages, comparison hubs (/adobe-alternative/, /artcraft-web/), and /sitemap.xml for https://allcraft.app."""
+"""Generate SEO-optimized Swiss architectural HUD detail pages, comparison hubs (/adobe-alternative/, /artcraft-web/), static home lineup grid, og-cover.png, and /sitemap.xml for https://allcraft.app."""
 
 import datetime
 import html
 import json
 import pathlib
+import re
+import struct
+import zlib
 from apps_catalog import APPS_CATALOG, SITE_ORIGIN
 
 
@@ -64,6 +67,23 @@ ALLCRAFT_LOGO_GROUP = (
     '<path d="M38.8 48.2L42.5 46.2L38.5 53.5Z" fill="#d5494d" stroke="#d5494d"/>'
     '</g>'
 )
+
+OG_IMAGE_URL = f"{SITE_ORIGIN}/og-cover.png"
+
+ORG_SCHEMA = {
+    "@type": "Organization",
+    "@id": f"{SITE_ORIGIN}/#organization",
+    "name": "AllCraft Studio",
+    "url": f"{SITE_ORIGIN}/",
+    "logo": {
+        "@type": "ImageObject",
+        "url": OG_IMAGE_URL,
+        "contentUrl": f"{SITE_ORIGIN}/favicon.svg",
+        "width": 1200,
+        "height": 630,
+    },
+    "sameAs": ["https://github.com/thepixopik/allcraft"],
+}
 
 
 SHARED_THEME_CSS = """
@@ -138,19 +158,21 @@ def _build_app_json_ld(app: dict) -> str:
         for q, a in app.get("faqs", [])
     ]
     graph = [
+        ORG_SCHEMA,
         {
             "@type": "WebApplication",
             "name": f"{full_name} (AllCraft Studio)",
             "alternateName": [f"The AllCraft {app['prefix']}", f"Free {app['replaces']} Alternative"],
             "url": canonical,
             "mainEntityOfPage": canonical,
-            "image": app["hero"],
+            "image": OG_IMAGE_URL,
             "description": app["lead"],
             "applicationCategory": app["app_category_schema"],
             "operatingSystem": "Web Browser, macOS, Windows, Linux, FreeBSD",
             "browserRequirements": "Requires HTML5 and WebAssembly (WebGPU/WebGL2 supported)",
             "license": "https://opensource.org/licenses/MIT",
             "isAccessibleForFree": True,
+            "publisher": {"@id": f"{SITE_ORIGIN}/#organization"},
             "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
         },
         {
@@ -180,6 +202,7 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
     repo = app["repo"]
     hero = app["hero"]
     icon = app["icon"]
+    seo_desc = app.get("seo_desc", app["lead"])
     canonical = f"{SITE_ORIGIN}/{slug}/"
     json_ld = _build_app_json_ld(app)
 
@@ -271,23 +294,26 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="apple-touch-icon" href="/favicon.svg">
   <title>{_esc(app['seo_title'])}</title>
-  <meta name="description" content="{_esc(app['lead'])}">
-  <meta name="keywords" content="{_esc(app['seo_keywords'])}">
+  <meta name="description" content="{_esc(seo_desc)}">
   <link rel="canonical" href="{canonical}">
 
   <!-- OpenGraph / Social Preview -->
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="AllCraft Studio">
   <meta property="og:title" content="{_esc(app['seo_title'])}">
-  <meta property="og:description" content="{_esc(app['lead'])}">
+  <meta property="og:description" content="{_esc(seo_desc)}">
   <meta property="og:url" content="{canonical}">
-  <meta property="og:image" content="{hero}">
+  <meta property="og:image" content="{OG_IMAGE_URL}">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="{_esc(full_name)} — Free Open-Source {_esc(replaces)} Alternative on AllCraft Studio">
 
   <!-- Twitter / X Large Image Card -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="{_esc(app['seo_title'])}">
-  <meta name="twitter:description" content="{_esc(app['short_desc'])}">
-  <meta name="twitter:image" content="{hero}">
+  <meta name="twitter:description" content="{_esc(seo_desc)}">
+  <meta name="twitter:image" content="{OG_IMAGE_URL}">
 
   <script type="application/ld+json">{json_ld}</script>
 
@@ -464,7 +490,6 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
     }}
     .kv-row code {{ font-family: "JetBrains Mono", monospace; font-size: 11.5px; color: var(--app); }}
 
-    /* Comparison Table & FAQ */
     .cmp-table {{ width: 100%; border-collapse: collapse; border-top: 1px solid var(--line); }}
     .cmp-table th, .cmp-table td {{
       padding: 15px 24px; border-bottom: 1px solid var(--line); text-align: left; font-size: 14.5px;
@@ -582,7 +607,7 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
     <div class="topbar-inner">
       <div class="crumbs hud-label">
         <a href="/" class="brand-link">
-          <svg width="20" height="16" viewBox="2 9 60 46" fill="none" aria-hidden="true">
+          <svg width="20" height="15" viewBox="3 10.5 58 43" fill="none" aria-hidden="true">
             {ALLCRAFT_LOGO_GROUP}
           </svg>
           <span>ALL<span class="brand-craft">CRAFT</span></span>
@@ -916,7 +941,7 @@ cargo run --release</pre>
     <div class="footer-grid">
       <div>
         <a href="/" class="brand-link" style="margin-bottom:10px">
-          <svg width="20" height="16" viewBox="2 9 60 46" fill="none" aria-hidden="true">
+          <svg width="20" height="15" viewBox="3 10.5 58 43" fill="none" aria-hidden="true">
             {ALLCRAFT_LOGO_GROUP}
           </svg>
           <span>ALL<span class="brand-craft">CRAFT</span> STUDIO</span>
@@ -989,9 +1014,9 @@ def urllib_safe(s: str) -> str:
 
 def render_comparison_hub_page(
     slug: str,
+    crumb_name: str,
     title: str,
     description: str,
-    keywords: str,
     eyebrow_tag: str,
     h1_html: str,
     lead: str,
@@ -1021,11 +1046,21 @@ def render_comparison_hub_page(
         {
             "@context": "https://schema.org",
             "@graph": [
+                ORG_SCHEMA,
                 {
                     "@type": "WebPage",
                     "name": title,
                     "url": canonical,
                     "description": description,
+                    "primaryImageOfPage": OG_IMAGE_URL,
+                    "publisher": {"@id": f"{SITE_ORIGIN}/#organization"},
+                },
+                {
+                    "@type": "BreadcrumbList",
+                    "itemListElement": [
+                        {"@type": "ListItem", "position": 1, "name": "AllCraft Studio", "item": f"{SITE_ORIGIN}/"},
+                        {"@type": "ListItem", "position": 2, "name": crumb_name, "item": canonical},
+                    ],
                 },
                 {"@type": "FAQPage", "mainEntity": faq_ld},
             ],
@@ -1049,21 +1084,25 @@ def render_comparison_hub_page(
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b0b0c" id="meta-theme-color">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="apple-touch-icon" href="/favicon.svg">
   <title>{_esc(title)}</title>
   <meta name="description" content="{_esc(description)}">
-  <meta name="keywords" content="{_esc(keywords)}">
   <link rel="canonical" href="{canonical}">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="AllCraft Studio">
   <meta property="og:title" content="{_esc(title)}">
   <meta property="og:description" content="{_esc(description)}">
   <meta property="og:url" content="{canonical}">
-  <meta property="og:image" content="https://getartcraft.com/images/apps/photocraft/hero.webp">
+  <meta property="og:image" content="{OG_IMAGE_URL}">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="{_esc(title)}">
   <meta name="twitter:description" content="{_esc(description)}">
+  <meta name="twitter:image" content="{OG_IMAGE_URL}">
   <script type="application/ld+json">{ld_json}</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1105,7 +1144,7 @@ def render_comparison_hub_page(
   <header class="topbar">
     <div class="topbar-inner">
       <a href="/" class="brand-link">
-        <svg width="20" height="16" viewBox="2 9 60 46" fill="none" aria-hidden="true">
+        <svg width="20" height="15" viewBox="3 10.5 58 43" fill="none" aria-hidden="true">
           {ALLCRAFT_LOGO_GROUP}
         </svg>
         <span>ALL<span class="brand-craft">CRAFT</span> STUDIO</span>
@@ -1159,7 +1198,7 @@ def render_comparison_hub_page(
   <footer class="section-wrap">
     <div class="footer-inner">
       <a href="/" class="brand-link" style="font-size:13px">
-        <svg width="17" height="13" viewBox="2 9 60 46" fill="none" aria-hidden="true">
+        <svg width="17" height="13" viewBox="3 10.5 58 43" fill="none" aria-hidden="true">
           {ALLCRAFT_LOGO_GROUP}
         </svg>
         <span>allcraft.app</span>
@@ -1172,6 +1211,7 @@ def render_comparison_hub_page(
     const sync = () => {{
       const c = document.documentElement.getAttribute("data-theme") || "dark";
       document.getElementById("theme-label").textContent = c === "dark" ? "Light" : "Dark";
+      document.getElementById("meta-theme-color").setAttribute("content", c === "dark" ? "#0b0b0c" : "#f2f1ee");
     }};
     sync();
     document.getElementById("theme-toggle").addEventListener("click", () => {{
@@ -1185,6 +1225,160 @@ def render_comparison_hub_page(
 </body>
 </html>
 """
+
+
+def write_og_cover_png(dist_dir: pathlib.Path) -> None:
+    """Generate a self-hosted 1200x630 RGB PNG OpenGraph social card (dist/og-cover.png) using pure stdlib."""
+    w, h = 1200, 630
+    stride = 1 + w * 3
+    buf = bytearray((b"\x00" + b"\x0b\x0b\x0e" * w) * h)
+
+    def set_px(x: int, y: int, r: int, g: int, b: int) -> None:
+        if 0 <= x < w and 0 <= y < h:
+            off = y * stride + 1 + x * 3
+            buf[off] = r
+            buf[off + 1] = g
+            buf[off + 2] = b
+
+    for gx in range(60, w, 60):
+        for y in range(h):
+            set_px(gx, y, 22, 23, 29)
+    for gy in range(45, h, 60):
+        off_row = gy * stride + 1
+        buf[off_row:off_row + w * 3] = b"\x16\x17\x1d" * w
+
+    for x in range(60, 1141):
+        set_px(x, 45, 48, 50, 62)
+        set_px(x, 585, 48, 50, 62)
+    for y in range(45, 586):
+        set_px(60, y, 48, 50, 62)
+        set_px(1140, y, 48, 50, 62)
+
+    for cx, cy in ((60, 45), (1140, 45), (60, 585), (1140, 585)):
+        for d in range(-9, 10):
+            set_px(cx + d, cy, 125, 130, 152)
+            set_px(cx, cy + d, 125, 130, 152)
+
+    for x in range(61, 1140):
+        t = (x - 61) / 1078.0
+        r = int(44 + (253 - 44) * t)
+        g = int(191 + (98 - 191) * t)
+        b = int(167 + (68 - 167) * t)
+        for y in range(580, 585):
+            set_px(x, y, r, g, b)
+
+    raw_facets = re.findall(
+        r'd="M([\d.]+) ([\d.]+)L([\d.]+) ([\d.]+)L([\d.]+) ([\d.]+)Z" fill="#([0-9a-f]{6})"',
+        ALLCRAFT_LOGO_GROUP,
+    )
+    scale = 8.4
+    for sx1, sy1, sx2, sy2, sx3, sy3, hex_col in raw_facets:
+        cr, cg, cb = int(hex_col[0:2], 16), int(hex_col[2:4], 16), int(hex_col[4:6], 16)
+        ax, ay = (float(sx1) - 32.0) * scale + 600.0, (float(sy1) - 32.0) * scale + 315.0
+        bx, by = (float(sx2) - 32.0) * scale + 600.0, (float(sy2) - 32.0) * scale + 315.0
+        cx, cy = (float(sx3) - 32.0) * scale + 600.0, (float(sy3) - 32.0) * scale + 315.0
+        min_x = max(0, int(min(ax, bx, cx)))
+        max_x = min(w - 1, int(max(ax, bx, cx)) + 1)
+        min_y = max(0, int(min(ay, by, cy)))
+        max_y = min(h - 1, int(max(ay, by, cy)) + 1)
+        denom = (by - cy) * (ax - cx) + (cx - bx) * (ay - cy)
+        if abs(denom) < 1e-6:
+            continue
+        inv_d = 1.0 / denom
+        for py in range(min_y, max_y + 1):
+            pyc = py + 0.5
+            for px in range(min_x, max_x + 1):
+                pxc = px + 0.5
+                w1 = ((by - cy) * (pxc - cx) + (cx - bx) * (pyc - cy)) * inv_d
+                w2 = ((cy - ay) * (pxc - cx) + (ax - cx) * (pyc - cy)) * inv_d
+                w3 = 1.0 - w1 - w2
+                if w1 >= -0.002 and w2 >= -0.002 and w3 >= -0.002:
+                    set_px(px, py, cr, cg, cb)
+
+    def png_chunk(tag: bytes, data: bytes) -> bytes:
+        return (
+            struct.pack(">I", len(data))
+            + tag
+            + data
+            + struct.pack(">I", zlib.crc32(tag + data) & 0xFFFFFFFF)
+        )
+
+    ihdr = struct.pack(">IIBBBBB", w, h, 8, 2, 0, 0, 0)
+    compressed = zlib.compress(bytes(buf), 6)
+    png_bytes = (
+        b"\x89PNG\r\n\x1a\n"
+        + png_chunk(b"IHDR", ihdr)
+        + png_chunk(b"IDAT", compressed)
+        + png_chunk(b"IEND", b"")
+    )
+    (dist_dir / "og-cover.png").write_bytes(png_bytes)
+    print(f"    Generated dist/og-cover.png ({len(png_bytes)} bytes, 1200x630 RGB)")
+
+
+def inject_static_home_grid(dist_dir: pathlib.Path, all_apps: list[dict]) -> None:
+    """Pre-render all 15 app cards into dist/index.html #apps-grid for non-JS SEO/GEO crawlers & fast LCP."""
+    index_path = dist_dir / "index.html"
+    if not index_path.exists():
+        return
+    src = index_path.read_text(encoding="utf-8")
+    target = '<div class="lineup-grid" id="apps-grid"></div>'
+    if target not in src:
+        return
+
+    cards = []
+    for a in all_apps:
+        slug = a["slug"]
+        prefix = a["prefix"]
+        full_name = f"{prefix}Craft"
+        badge = a.get("card_replaces", f"{a['replaces']} Alt")
+        cards.append(
+            f"""
+          <div class="app-card" data-group="{a['group']}" style="--app:{a['color']}">
+            <span class="app-topline" aria-hidden="true"></span>
+            <div class="app-head">
+              <span class="app-num hud-label">{a['num']}</span>
+              <p class="app-cat hud-label" style="margin:0">{_esc(a['category'])}</p>
+              <a class="quick-launch-btn hud-label" href="/{slug}/#launch" data-launch-app="{slug}" title="Open {full_name} directly in browser">● Launch</a>
+            </div>
+            <a class="app-card-link" href="/{slug}/">
+              <div class="app-hero-wrap">
+                <img src="{a['hero']}" alt="{full_name} — Free {_esc(badge)} workspace preview" loading="lazy" decoding="async" referrerpolicy="no-referrer"
+                     onerror="this.style.display='none';this.parentElement.style.background='radial-gradient(circle at 60% 35%, {a['color']}33, var(--bg-sunken) 75%)'">
+              </div>
+              <div class="app-body">
+                <img class="app-icon" src="{a['icon']}" alt="" width="256" height="256" loading="lazy" decoding="async" referrerpolicy="no-referrer"
+                     onerror="this.outerHTML='<div class=\\'app-icon-fallback\\'>{a['code']}</div>'">
+                <h3 class="app-title">{_esc(prefix)}<span class="craft-accent">Craft</span></h3>
+                <p class="app-desc">{_esc(a['short_desc'])}</p>
+                <div class="app-pills">
+                  <span class="pill accent">{_esc(badge)}</span>
+                  <span class="pill accent">Instant Web</span>
+                  <span class="pill">$0 Free</span>
+                </div>
+                <span class="app-cta hud-label">
+                  Explore {full_name}
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
+                </span>
+              </div>
+            </a>
+          </div>"""
+        )
+
+    cards.append(
+        """
+          <div class="next-card" id="next-up-card">
+            <div>
+              <p class="hud-label" style="margin:0;color:var(--faint)">15 / 15 Replacement Matrix</p>
+              <h3 class="font-display" style="margin:14px 0 0;font-size:28px;line-height:1.08;color:var(--ink-strong)">Ditch every <span class="accent-word">subscription</span>.</h3>
+              <p style="margin:12px 0 0;font-size:14.5px;line-height:1.6;color:var(--muted)">Compare all 15 AllCraft tools side-by-side against Adobe Creative Cloud, Microsoft Office &amp; AutoCAD.</p>
+            </div>
+            <a href="/adobe-alternative/" class="btn-primary hud-label" style="height:40px;padding:0 16px;width:fit-content">Open Comparison Matrix &rarr;</a>
+          </div>"""
+    )
+
+    pre_rendered = f'<div class="lineup-grid" id="apps-grid">{"".join(cards)}\n        </div>'
+    index_path.write_text(src.replace(target, pre_rendered, 1), encoding="utf-8")
+    print("    Pre-rendered 15 static app cards into dist/index.html #apps-grid")
 
 
 def write_sitemap(dist_dir: pathlib.Path, all_apps: list[dict]) -> None:
@@ -1216,6 +1410,10 @@ def write_sitemap(dist_dir: pathlib.Path, all_apps: list[dict]) -> None:
 
 
 def build_all(dist_dir: pathlib.Path) -> None:
+    dist_dir.mkdir(parents=True, exist_ok=True)
+    write_og_cover_png(dist_dir)
+    inject_static_home_grid(dist_dir, APPS_CATALOG)
+
     for app in APPS_CATALOG:
         out_dir = dist_dir / app["slug"]
         out_dir.mkdir(parents=True, exist_ok=True)
@@ -1228,9 +1426,9 @@ def build_all(dist_dir: pathlib.Path) -> None:
     (adobe_dir / "index.html").write_text(
         render_comparison_hub_page(
             slug="adobe-alternative",
-            title="Free Open-Source Adobe Creative Cloud, Office & AutoCAD Alternatives Online | AllCraft",
-            description="Replace expensive subscriptions with 15 free, open-source pure Rust + WebAssembly browser apps for Photoshop, Illustrator, Premiere Pro, Lightroom, Acrobat, After Effects, InDesign, Substance 3D, AutoCAD, Word, Excel & PowerPoint.",
-            keywords="free adobe alternative, adobe creative cloud alternative online, open source adobe suite, free photoshop illustrator premiere autocad alternative browser, allcraft",
+            crumb_name="Adobe & Office Alternatives",
+            title="15 Free Open-Source Adobe & Office Alternatives | AllCraft",
+            description="Compare 15 free MIT/Apache-2.0 browser alternatives to Photoshop, Illustrator, Premiere Pro, Lightroom, Acrobat, After Effects, AutoCAD, Word & MS Excel.",
             eyebrow_tag="01 / Complete Replacement Matrix",
             h1_html='15 free, open-source <span style="color:#ff6b4a">Adobe, Office &amp; AutoCAD</span> alternatives in your browser.',
             lead="Every application in AllCraft Studio is compiled from pure Rust to WebGPU + WebAssembly — running 100% locally on your device at $0 forever with no account, no watermark, and no cloud uploads.",
@@ -1250,9 +1448,9 @@ def build_all(dist_dir: pathlib.Path) -> None:
     (art_dir / "index.html").write_text(
         render_comparison_hub_page(
             slug="artcraft-web",
-            title="AllCraft Web Studio — Run All 15 Open-Source Craft / ArtCraft Rust Apps in Browser",
-            description="Run all 15 open-source pure-Rust Craft ecosystem apps (PhotoCraft, VectorCraft, FilmCraft, LightCraft, PdfCraft, EffectCraft, AniCraft, DesignCraft, TextureCraft, MaterialCraft, SoundCraft, WordCraft, DeckCraft, CADCraft & GridCraft) instantly in your browser on allcraft.app.",
-            keywords="artcraft web, artcraft online browser, run photocraft vectorcraft filmcraft cadcraft in browser, allcraft studio, open source rust creative suite webassembly",
+            crumb_name="Craft Rust Web Guide",
+            title="All 15 Open-Source Craft Rust Apps in Browser | AllCraft",
+            description="Launch PhotoCraft, VectorCraft, FilmCraft, LightCraft, PdfCraft, CADCraft, GridCraft & all 15 pure-Rust WebAssembly apps instantly at allcraft.app.",
             eyebrow_tag="01 / Instant WebAssembly Browser Edition",
             h1_html='All 15 open-source <span style="color:#ff6b4a">Craft</span> Rust apps, live in your browser.',
             lead="AllCraft Studio (allcraft.app) is an independent, MIT/Apache-2.0 open-source WebAssembly cloud build of the 15 Craft repositories — engineered with parallel 1.5 MiB Wasm streaming and instant local CacheStorage so every tool runs right in your browser.",
