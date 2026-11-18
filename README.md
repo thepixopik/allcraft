@@ -7,10 +7,11 @@ Central multi-app WebAssembly assembler, SEO page generator & automated Cloudfla
 Whenever any of the 15 Craft app repositories finishes building its Rust → WebAssembly web artifact, it sends a `repository_dispatch` (`app-updated`) webhook to this hub repository:
 
 1. **`scripts/assemble.py`** fetches the latest non-expired GitHub Actions build artifact for all 15 apps listed in [`apps.json`](apps.json).
-2. **Wasm Stripper & 1.5 MiB Streaming Chunks:** Strips non-essential custom Wasm sections (`name`, `producers`, `.debug*`, `reloc.*`), recompresses at gzip level 9, slices binaries into **1.5 MiB `.part*` chunks** (staying well within Cloudflare Pages' 25 MiB per-file limit), and injects a **0ms `<head>` eager `DecompressionStream` + `CacheStorage` (`allcraft-wasm-v2`) loader** alongside each app's desktop-style loading splash.
-3. **`scripts/generate_pages.py` & `scripts/apps_catalog.py`** generate the 15 SEO detail pages (`/<slug>/`), comparison hubs (`/adobe-alternative/`, `/artcraft-web/`), and `/sitemap.xml`.
-4. **`site/`** contributes the main launcher (`site/index.html`), smart card hover preloader (`site/hover-preload.js`), security/caching/COOP+COEP headers (`site/_headers`), canonical & alias redirects (`site/_redirects`), `robots.txt`, and `404.html`.
-5. **`.github/workflows/deploy-studio.yml`** deploys the unified `dist/` bundle to Cloudflare Pages via Wrangler v4.
+2. **Permanent 90-Day Expiry Fallback (`studio-cache` Release):** Whenever a fresh artifact is downloaded, `scripts/assemble.py` incrementally mirrors `<app_id>.zip` + `cache-manifest.json` into the rolling [`studio-cache`](https://github.com/thepixopik/allcraft/releases/tag/studio-cache) GitHub pre-release (which never expires). If any app repository goes >90 days without a rebuild and its Actions artifact expires, `assemble.py` automatically restores that app from `studio-cache` so deployments never break.
+3. **Wasm Stripper & 1.5 MiB Streaming Chunks:** Strips non-essential custom Wasm sections (`name`, `producers`, `.debug*`, `reloc.*`), recompresses at gzip level 9, slices binaries into **1.5 MiB `.part*` chunks** (staying well within Cloudflare Pages' 25 MiB per-file limit), and injects a **0ms `<head>` eager `DecompressionStream` + `CacheStorage` (`allcraft-wasm-v2`) loader** alongside each app's desktop-style loading splash.
+4. **`scripts/generate_pages.py` & `scripts/apps_catalog.py`** generate the 15 SEO detail pages (`/<slug>/`), comparison hubs (`/adobe-alternative/`, `/artcraft-web/`), and `/sitemap.xml`.
+5. **`site/`** contributes the main launcher (`site/index.html`), smart card hover preloader (`site/hover-preload.js`), security/caching/COOP+COEP headers (`site/_headers`), canonical & alias redirects (`site/_redirects`), `robots.txt`, and `404.html`.
+6. **`.github/workflows/deploy-studio.yml`** deploys the unified `dist/` bundle to Cloudflare Pages via Wrangler v4.
 
 ## Integrated 15 Studio Apps
 
@@ -38,7 +39,7 @@ Configure these 3 repository secrets under **Settings → Secrets and variables 
 
 | Secret Name | Value / Permissions |
 |---|---|
-| `STUDIO_PAT` | GitHub Fine-Grained PAT scoped to `thepixopik` with **Actions: Read** (to download app artifacts) & **Contents: Read and write** |
+| `STUDIO_PAT` | GitHub Fine-Grained PAT scoped to `thepixopik` with **Actions: Read** (to download app artifacts) & **Contents: Read and write** (for `repository_dispatch` & `studio-cache` release backups) |
 | `CLOUDFLARE_ACCOUNT_ID` | `<YOUR_CLOUDFLARE_ACCOUNT_ID>` *(from Cloudflare Dashboard → Workers & Pages → Overview)* |
 | `CLOUDFLARE_API_TOKEN` | Cloudflare API Token with **Account → Cloudflare Pages → Edit** + **User → User Details → Read** |
 

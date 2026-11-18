@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Assemble all 15 Craft web app artifacts into dist/, strip + repack Wasm into 1.5 MiB pipelined streaming chunks, inject Photoshop-style splash UI + Zero-Clone CacheStorage Wasm loader, and emit /prefetch-manifest.json."""
+"""Assemble all 15 Craft web app artifacts into dist/, maintain a permanent rolling backup in the 'studio-cache' GitHub Release (90-day Actions artifact expiry fallback), strip + repack Wasm into 1.5 MiB pipelined streaming chunks, inject Photoshop-style splash UI + Zero-Clone CacheStorage Wasm loader, and emit /prefetch-manifest.json."""
 
 import datetime
 import gzip
@@ -24,6 +24,9 @@ SITE_DIR = ROOT / "site"
 DIST_DIR = ROOT / "dist"
 CF_MAX_FILE_BYTES = 25 * 1024 * 1024  # 25 MiB Cloudflare Pages single-asset limit
 STREAM_CHUNK_BYTES = int(1.5 * 1024 * 1024)  # 1.5 MiB pipelined streaming chunks
+HUB_REPO = (os.environ.get("GITHUB_REPOSITORY") or "thepixopik/allcraft").strip()
+CACHE_RELEASE_TAG = "studio-cache"
+CACHE_MANIFEST_ASSET = "cache-manifest.json"
 
 SPLASH_PROFILES = {
     "vector": {
@@ -539,18 +542,26 @@ class StripCrossOriginAuthRedirectHandler(urllib.request.HTTPRedirectHandler):
 OPENER = urllib.request.build_opener(StripCrossOriginAuthRedirectHandler)
 
 
+def gh_request_json(
+    method: str, url: str, token: str, payload: dict | None = None, timeout: int = 60
+) -> dict:
+    body = json.dumps(payload).encode("utf-8") if payload is not None else None
+    headers = {
+        "Accept": "application/vnd.github+json",
+        "Authorization": f"Bearer {token}",
+        "X-GitHub-Api-Version": "2022-11-28",
+        "User-Agent": "allcraft-studio-assembler",
+    }
+    if body is not None:
+        headers["Content-Type"] = "application/json; charset=utf-8"
+    req = urllib.request.Request(url, data=body, headers=headers, method=method)
+    with OPENER.open(req, timeout=timeout) as resp:
+        raw = resp.read()
+        return json.loads(raw.decode("utf-8")) if raw else {}
+
+
 def gh_get_json(url: str, token: str) -> dict:
-    req = urllib.request.Request(
-        url,
-        headers={
-            "Accept": "application/vnd.github+json",
-            "Authorization": f"Bearer {token}",
-            "X-GitHub-Api-Version": "2022-11-28",
-            "User-Agent": "allcraft-studio-assembler",
-        },
-    )
-    with OPENER.open(req, timeout=60) as resp:
-        return json.loads(resp.read().decode("utf-8"))
+    return gh_request_json("GET", url, token, timeout=60)
 
 
 def gh_download_bytes(url: str, token: str) -> bytes:
@@ -565,6 +576,134 @@ def gh_download_bytes(url: str, token: str) -> bytes:
     )
     with OPENER.open(req, timeout=180) as resp:
         return resp.read()
+
+
+def gh_download_release_asset(asset_api_url: str, token: str) -> bytes:
+    """Download raw binary bytes from a GitHub Release asset API URL."""
+    req = urllib.request.Request(
+        asset_api_url,
+        headers={
+            "Accept": "application/octet-stream",
+            "Authorization": f"Bearer {token}",
+            "X-GitHub-Api-Version": "2022-11-28",
+            "User-Agent": "allcraft-studio-assembler",
+        },
+    )
+    with OPENER.open(req, timeout=180) as resp:
+        return resp.read()
+
+
+def get_or_create_cache_release(
+    hub_repo: str, token: str, create_if_missing: bool = False
+) -> dict | None:
+    """Fetch (or create) the rolling 'studio-cache' pre-release on the Studio Hub repo."""
+    tag_url = f"https://api.github.com/repos/{hub_repo}/releases/tags/{CACHE_RELEASE_TAG}"
+    try:
+        return gh_get_json(tag_url, token)
+    except urllib.error.HTTPError as exc:
+        if exc.code != 404:
+            print(f"    WARN: [studio-cache] Could not read release '{CACHE_RELEASE_TAG}' (HTTP {exc.code})")
+            return None
+    except Exception as exc:
+        print(f"    WARN: [studio-cache] Release lookup error: {exc}")
+        return None
+
+    if not create_if_missing:
+        return None
+
+    create_url = f"https://api.github.com/repos/{hub_repo}/releases"
+    payload = {
+        "tag_name": CACHE_RELEASE_TAG,
+        "target_commitish": "main",
+        "name": "AllCraft Studio Artifact Cache (Rolling Backup)",
+        "body": (
+            "Automated rolling backup of the latest WebAssembly build archives for all 15 "
+            "AllCraft Studio apps. Protects `allcraft.app` deployments against GitHub Actions' "
+            "90-day artifact retention expiry."
+        ),
+        "draft": False,
+        "prerelease": True,
+        "make_latest": "false",
+    }
+    try:
+        rel = gh_request_json("POST", create_url, token, payload=payload, timeout=60)
+        print(f"    [studio-cache] Created rolling backup release '{CACHE_RELEASE_TAG}' (#{rel.get('id')})")
+        return rel
+    except Exception as exc:
+        print(f"    WARN: [studio-cache] Could not create release '{CACHE_RELEASE_TAG}': {exc}")
+        return None
+
+
+def replace_release_asset(
+    hub_repo: str, release: dict, asset_name: str, data: bytes, content_type: str, token: str
+) -> dict | None:
+    """Upload or atomically replace a named asset on the 'studio-cache' release."""
+    release_id = release["id"]
+    assets = release.setdefault("assets", [])
+
+    for existing in [a for a in assets if a.get("name") == asset_name]:
+        del_url = f"https://api.github.com/repos/{hub_repo}/releases/assets/{existing['id']}"
+        try:
+            gh_request_json("DELETE", del_url, token, timeout=60)
+        except urllib.error.HTTPError as exc:
+            if exc.code != 404:
+                raise
+        assets.remove(existing)
+
+    encoded = urllib.parse.quote(asset_name)
+    upload_url = f"https://uploads.github.com/repos/{hub_repo}/releases/{release_id}/assets?name={encoded}"
+
+    def _do_upload() -> dict:
+        req = urllib.request.Request(
+            upload_url,
+            data=data,
+            headers={
+                "Accept": "application/vnd.github+json",
+                "Authorization": f"Bearer {token}",
+                "X-GitHub-Api-Version": "2022-11-28",
+                "Content-Type": content_type,
+                "Content-Length": str(len(data)),
+                "User-Agent": "allcraft-studio-assembler",
+            },
+            method="POST",
+        )
+        with OPENER.open(req, timeout=240) as resp:
+            return json.loads(resp.read().decode("utf-8"))
+
+    try:
+        uploaded = _do_upload()
+    except urllib.error.HTTPError as exc:
+        if exc.code != 422:
+            raise
+        # Refresh asset list once if a stale duplicate existed, delete it, and retry
+        fresh = get_or_create_cache_release(hub_repo, token, create_if_missing=False)
+        if fresh:
+            release["assets"] = fresh.get("assets") or []
+            for dup in [a for a in list(release["assets"]) if a.get("name") == asset_name]:
+                del_url = f"https://api.github.com/repos/{hub_repo}/releases/assets/{dup['id']}"
+                gh_request_json("DELETE", del_url, token, timeout=60)
+                release["assets"].remove(dup)
+        uploaded = _do_upload()
+
+    release.setdefault("assets", []).append(uploaded)
+    return uploaded
+
+
+def load_cache_manifest(release: dict | None, token: str) -> dict[str, dict]:
+    """Read cache-manifest.json from 'studio-cache' release if present."""
+    if not release:
+        return {}
+    for asset in release.get("assets") or []:
+        if asset.get("name") == CACHE_MANIFEST_ASSET and asset.get("url"):
+            try:
+                raw = gh_download_release_asset(asset["url"], token)
+                parsed = json.loads(raw.decode("utf-8"))
+                if isinstance(parsed, dict):
+                    return parsed
+            except Exception as exc:
+                print(f"    WARN: [studio-cache] Could not parse {CACHE_MANIFEST_ASSET}: {exc}")
+            break
+    return {}
 
 
 def pick_latest_artifact(repo: str, artifact_name: str, branch: str, token: str) -> dict | None:
@@ -1182,6 +1321,12 @@ def main() -> None:
     shutil.copytree(SITE_DIR, DIST_DIR)
     generate_pages.build_all(DIST_DIR)
 
+    # Load rolling 'studio-cache' release metadata once (protects against 90-day Actions artifact expiry)
+    cache_release = get_or_create_cache_release(HUB_REPO, token, create_if_missing=False)
+    cache_manifest = load_cache_manifest(cache_release, token)
+    cache_dirty = False
+    synced_backups = 0
+
     manifest_entries = []
     prefetch_manifest: dict[str, dict] = {}
     for app in apps:
@@ -1193,33 +1338,136 @@ def main() -> None:
         mount_path = app["mount_path"].strip("/")
         required = app.get("required", True)
         target_dir = DIST_DIR / mount_path
+        cache_asset_name = f"{app_id}.zip"
 
         print(f"\n==> Fetching '{artifact_name}' from {repo} (branch: {branch})...")
+        art = None
         try:
             art = pick_latest_artifact(repo, artifact_name, branch, token)
-        except urllib.error.HTTPError as exc:
-            msg = f"GitHub API HTTP {exc.code} on {repo} — ensure STUDIO_PAT has Actions:Read access to {repo}."
-            if required:
-                print(f"ERROR: {msg}", file=sys.stderr)
-                sys.exit(1)
-            print(f"WARN: {msg} (writing building placeholder for '{app_id}')")
-            write_building_placeholder(target_dir, app_name)
-            continue
+        except (urllib.error.HTTPError, urllib.error.URLError) as exc:
+            print(f"    WARN: Live Actions artifact lookup failed on {repo}: {exc}")
 
-        if not art:
-            msg = f"No non-expired artifact '{artifact_name}' found in {repo}."
+        zip_bytes: bytes | None = None
+        artifact_id: int | str = "unknown"
+        sha = "unknown"
+        artifact_created_at: str | None = None
+        artifact_source = "actions-artifact"
+
+        if art:
+            dl_url = art["archive_download_url"]
+            size_mb = (art.get("size_in_bytes") or 0) / (1024 * 1024)
+            sha = (art.get("workflow_run") or {}).get("head_sha", "unknown")
+            artifact_id = art["id"]
+            artifact_created_at = art.get("created_at")
+            print(f"    Downloading artifact #{artifact_id} ({size_mb:.2f} MiB, commit {sha[:7]})...")
+            try:
+                candidate_bytes = gh_download_bytes(dl_url, token)
+                if zipfile.is_zipfile(io.BytesIO(candidate_bytes)):
+                    zip_bytes = candidate_bytes
+                else:
+                    print(f"    WARN: Downloaded artifact #{artifact_id} is not a valid zip; checking '{CACHE_RELEASE_TAG}' backup...")
+            except Exception as exc:
+                print(f"    WARN: Live download failed for artifact #{artifact_id} ({exc}); checking '{CACHE_RELEASE_TAG}' backup...")
+
+            # Mirror fresh artifact into permanent 'studio-cache' GitHub Release if changed
+            if zip_bytes is not None:
+                cached_entry = cache_manifest.get(app_id) or {}
+                existing_asset = next(
+                    (
+                        a
+                        for a in ((cache_release or {}).get("assets") or [])
+                        if a.get("name") == cache_asset_name
+                    ),
+                    None,
+                )
+                already_current = (
+                    existing_asset is not None
+                    and cached_entry.get("artifact_id") == artifact_id
+                    and existing_asset.get("size") == len(zip_bytes)
+                )
+                if already_current:
+                    print(f"    [studio-cache] Backup already up-to-date ({cache_asset_name}, artifact #{artifact_id})")
+                else:
+                    if cache_release is None:
+                        cache_release = get_or_create_cache_release(
+                            HUB_REPO, token, create_if_missing=True
+                        )
+                    if cache_release is not None:
+                        try:
+                            replace_release_asset(
+                                HUB_REPO,
+                                cache_release,
+                                cache_asset_name,
+                                zip_bytes,
+                                "application/zip",
+                                token,
+                            )
+                            cache_manifest[app_id] = {
+                                "app_id": app_id,
+                                "repo": repo,
+                                "artifact_name": artifact_name,
+                                "artifact_id": artifact_id,
+                                "commit_sha": sha,
+                                "artifact_created_at": artifact_created_at,
+                                "cached_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+                                "size_bytes": len(zip_bytes),
+                                "sha256": hashlib.sha256(zip_bytes).hexdigest(),
+                            }
+                            cache_dirty = True
+                            synced_backups += 1
+                            print(
+                                f"    [studio-cache] Backed up {cache_asset_name} "
+                                f"({len(zip_bytes)/1048576:.2f} MiB, commit {sha[:7]}) to permanent release"
+                            )
+                        except Exception as exc:
+                            print(f"    WARN: [studio-cache] Failed to back up {cache_asset_name}: {exc}")
+
+        # 90-day GitHub Actions artifact expiry fallback: restore from 'studio-cache' release
+        if zip_bytes is None:
+            if cache_release is None:
+                cache_release = get_or_create_cache_release(HUB_REPO, token, create_if_missing=False)
+                if cache_release and not cache_manifest:
+                    cache_manifest = load_cache_manifest(cache_release, token)
+
+            fallback_asset = next(
+                (
+                    a
+                    for a in ((cache_release or {}).get("assets") or [])
+                    if a.get("name") == cache_asset_name and a.get("url")
+                ),
+                None,
+            )
+            if fallback_asset is not None:
+                try:
+                    candidate_bytes = gh_download_release_asset(fallback_asset["url"], token)
+                    if zipfile.is_zipfile(io.BytesIO(candidate_bytes)):
+                        zip_bytes = candidate_bytes
+                        cached_entry = cache_manifest.get(app_id) or {}
+                        artifact_id = cached_entry.get("artifact_id", "cached")
+                        sha = cached_entry.get("commit_sha", "cached")
+                        artifact_created_at = cached_entry.get(
+                            "artifact_created_at", fallback_asset.get("updated_at")
+                        )
+                        artifact_source = "studio-cache-fallback"
+                        print(
+                            f"    WARN: [studio-cache] Actions artifact expired/unavailable in {repo} — "
+                            f"restored {cache_asset_name} ({len(zip_bytes)/1048576:.2f} MiB, commit {str(sha)[:7]}) "
+                            f"from permanent '{CACHE_RELEASE_TAG}' release!"
+                        )
+                except Exception as exc:
+                    print(f"    WARN: [studio-cache] Fallback download failed for {cache_asset_name}: {exc}")
+
+        if zip_bytes is None:
+            msg = (
+                f"No non-expired Actions artifact '{artifact_name}' in {repo} "
+                f"and no '{cache_asset_name}' backup found in '{CACHE_RELEASE_TAG}' release."
+            )
             if required:
                 print(f"ERROR: {msg} Run the build workflow in {repo} once first.", file=sys.stderr)
                 sys.exit(1)
             print(f"WARN: {msg} (writing building placeholder for '{app_id}')")
             write_building_placeholder(target_dir, app_name)
             continue
-
-        dl_url = art["archive_download_url"]
-        size_mb = (art.get("size_in_bytes") or 0) / (1024 * 1024)
-        sha = (art.get("workflow_run") or {}).get("head_sha", "unknown")
-        print(f"    Downloading artifact #{art['id']} ({size_mb:.2f} MiB, commit {sha[:7]})...")
-        zip_bytes = gh_download_bytes(dl_url, token)
 
         target_dir.mkdir(parents=True, exist_ok=True)
         with zipfile.ZipFile(io.BytesIO(zip_bytes)) as zf:
@@ -1245,11 +1493,30 @@ def main() -> None:
                 "name": app_name,
                 "repo": repo,
                 "mount": f"/{mount_path}/",
-                "artifact_id": art["id"],
+                "source": artifact_source,
+                "artifact_id": artifact_id,
                 "commit_sha": sha,
-                "artifact_created_at": art.get("created_at"),
+                "artifact_created_at": artifact_created_at,
             }
         )
+
+    if cache_dirty and cache_release is not None:
+        try:
+            manifest_bytes = json.dumps(cache_manifest, indent=2, sort_keys=True).encode("utf-8")
+            replace_release_asset(
+                HUB_REPO,
+                cache_release,
+                CACHE_MANIFEST_ASSET,
+                manifest_bytes,
+                "application/json",
+                token,
+            )
+            print(
+                f"\n==> [studio-cache] Rolling backup manifest updated "
+                f"({synced_backups} archive(s) refreshed across {len(cache_manifest)} cached app(s))."
+            )
+        except Exception as exc:
+            print(f"\nWARN: [studio-cache] Could not update {CACHE_MANIFEST_ASSET}: {exc}")
 
     (DIST_DIR / "prefetch-manifest.json").write_text(
         json.dumps(prefetch_manifest, separators=(",", ":")), encoding="utf-8"
