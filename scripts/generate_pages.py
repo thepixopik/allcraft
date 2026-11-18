@@ -12,6 +12,60 @@ def _esc(s: str) -> str:
     return html.escape(str(s), quote=True)
 
 
+ALLCRAFT_LOGO_GROUP = (
+    '<g stroke-linejoin="round" stroke-width=".35">'
+    '<path d="M27 10.5L37 10.5L32 20Z" fill="#6bd283" stroke="#6bd283"/>'
+    '<path d="M27 10.5L32 20L26.5 22Z" fill="#3bbd7c" stroke="#3bbd7c"/>'
+    '<path d="M27 10.5L21.7 20L26.5 22Z" fill="#87d6ab" stroke="#87d6ab"/>'
+    '<path d="M21.7 20L21.5 26.5L26.5 22Z" fill="#5ed3a4" stroke="#5ed3a4"/>'
+    '<path d="M32 20L26.5 22L25.9 30.5Z" fill="#1f9270" stroke="#1f9270"/>'
+    '<path d="M26.5 22L21.5 26.5L25.9 30.5Z" fill="#3ac98d" stroke="#3ac98d"/>'
+    '<path d="M21.7 20L15.8 30.5L21.5 26.5Z" fill="#25bcaa" stroke="#25bcaa"/>'
+    '<path d="M15.8 30.5L25.9 30.5L21.5 26.5Z" fill="#1da094" stroke="#1da094"/>'
+    '<path d="M15.8 30.5L9.4 42L25.9 30.5Z" fill="#24c3b1" stroke="#24c3b1"/>'
+    '<path d="M9.4 42L19.2 42L25.9 30.5Z" fill="#115f64" stroke="#115f64"/>'
+    '<path d="M9.4 42L12.2 48L19.2 42Z" fill="#198c87" stroke="#198c87"/>'
+    '<path d="M9.4 42L3 53.5L12.2 48Z" fill="#0f5e65" stroke="#0f5e65"/>'
+    '<path d="M3 53.5L12.5 53.5L12.2 48Z" fill="#0a4450" stroke="#0a4450"/>'
+    '<path d="M12.2 48L12.5 53.5L19.2 42Z" fill="#126168" stroke="#126168"/>'
+    '<path d="M37 10.5L38.2 24.5L32 20Z" fill="#c05939" stroke="#c05939"/>'
+    '<path d="M37 10.5L42.3 20L38.2 24.5Z" fill="#fb9b61" stroke="#fb9b61"/>'
+    '<path d="M42.3 20L42.8 27L38.2 24.5Z" fill="#f96e4c" stroke="#f96e4c"/>'
+    '<path d="M32 20L38.2 24.5L38.1 30.5Z" fill="#f75137" stroke="#f75137"/>'
+    '<path d="M38.2 24.5L42.8 27L38.1 30.5Z" fill="#dd4948" stroke="#dd4948"/>'
+    '<path d="M42.3 20L48.2 30.5L42.8 27Z" fill="#fa6244" stroke="#fa6244"/>'
+    '<path d="M48.2 30.5L38.1 30.5L42.8 27Z" fill="#de484b" stroke="#de484b"/>'
+    '<path d="M48.2 30.5L54.6 42L38.1 30.5Z" fill="#ff6343" stroke="#ff6343"/>'
+    '<path d="M38.1 30.5L54.6 42L42.5 38Z" fill="#6d2c80" stroke="#6d2c80"/>'
+    '<path d="M42.5 38L54.6 42L46.3 44.5Z" fill="#8c3c96" stroke="#8c3c96"/>'
+    '<path d="M54.6 42L52.5 48.2L46.3 44.5Z" fill="#9f48ed" stroke="#9f48ed"/>'
+    '<path d="M54.6 42L61 53.5L52.5 48.2Z" fill="#632caa" stroke="#632caa"/>'
+    '<path d="M61 53.5L51.5 53.5L52.5 48.2Z" fill="#451e82" stroke="#451e82"/>'
+    '<path d="M46.3 44.5L52.5 48.2L51.5 53.5Z" fill="#7534b4" stroke="#7534b4"/>'
+    '<path d="M25.9 30.5L38.1 30.5L29 36.2Z" fill="#45ca7e" stroke="#45ca7e"/>'
+    '<path d="M29 36.2L38.1 30.5L35.3 36.2Z" fill="#979f66" stroke="#979f66"/>'
+    '<path d="M38.1 30.5L42.5 38L38.8 36.2Z" fill="#f4764e" stroke="#f4764e"/>'
+    '<path d="M38.1 30.5L38.8 36.2L35.3 36.2Z" fill="#ee8353" stroke="#ee8353"/>'
+    '<path d="M35.3 36.2L38.8 36.2L37.5 40Z" fill="#fa774b" stroke="#fa774b"/>'
+    '<path d="M38.8 36.2L42.5 38L37.5 40Z" fill="#fb6b45" stroke="#fb6b45"/>'
+    '<path d="M25.9 30.5L29 36.2L24.8 36.2Z" fill="#28ae8e" stroke="#28ae8e"/>'
+    '<path d="M25.9 30.5L24.8 36.2L19.2 42Z" fill="#23948c" stroke="#23948c"/>'
+    '<path d="M24.8 36.2L29 36.2L25.8 42Z" fill="#1a8a73" stroke="#1a8a73"/>'
+    '<path d="M19.2 42L24.8 36.2L25.8 42Z" fill="#16817a" stroke="#16817a"/>'
+    '<path d="M19.2 42L25.8 42L24 47.6Z" fill="#239f94" stroke="#239f94"/>'
+    '<path d="M25.8 42L29 47.6L24 47.6Z" fill="#24c2ac" stroke="#24c2ac"/>'
+    '<path d="M19.2 42L24 47.6L25.8 53.5Z" fill="#147075" stroke="#147075"/>'
+    '<path d="M24 47.6L29 47.6L25.8 53.5Z" fill="#17817e" stroke="#17817e"/>'
+    '<path d="M25.8 53.5L29 47.6L38.5 53.5Z" fill="#10606b" stroke="#10606b"/>'
+    '<path d="M29 47.6L35.3 47.6L38.5 53.5Z" fill="#ce484d" stroke="#ce484d"/>'
+    '<path d="M35.3 47.6L37.5 44L38.8 48.2Z" fill="#fe593d" stroke="#fe593d"/>'
+    '<path d="M37.5 44L42.5 46.2L38.8 48.2Z" fill="#ff5b40" stroke="#ff5b40"/>'
+    '<path d="M35.3 47.6L38.8 48.2L38.5 53.5Z" fill="#d84949" stroke="#d84949"/>'
+    '<path d="M38.8 48.2L42.5 46.2L38.5 53.5Z" fill="#d5494d" stroke="#d5494d"/>'
+    '</g>'
+)
+
+
 SHARED_THEME_CSS = """
     :root, html[data-theme="dark"] {
       --bg: #0b0b0c;
@@ -60,6 +114,13 @@ SHARED_THEME_CSS = """
     .hud-label {
       font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
       font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; line-height: 1.3;
+    }
+    .brand-link svg { flex-shrink: 0; }
+    .brand-craft {
+      background: linear-gradient(90deg, #2cbfa7 0%, #4eb884 35%, #f86544 80%, #fd6244 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
     }
 """
 
@@ -207,6 +268,8 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0b0b0c" id="meta-theme-color">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" href="/favicon.svg">
   <title>{_esc(app['seo_title'])}</title>
   <meta name="description" content="{_esc(app['lead'])}">
   <meta name="keywords" content="{_esc(app['seo_keywords'])}">
@@ -519,10 +582,10 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
     <div class="topbar-inner">
       <div class="crumbs hud-label">
         <a href="/" class="brand-link">
-          <svg width="18" height="15" viewBox="0 0 116.34 97.5" fill="currentColor" aria-hidden="true">
-            <path d="M104.28,49.49L81.55,0h-31.23l-3.17,4.76L14.75,53.63,0,75.85l21.55,21.55,63.79-36.94,16.99,37.04,14.01-21.74-12.06-26.27ZM32.89,65.66l32.42-48.87,10.91,23.77-43.32,25.09Z"></path>
+          <svg width="20" height="16" viewBox="2 9 60 46" fill="none" aria-hidden="true">
+            {ALLCRAFT_LOGO_GROUP}
           </svg>
-          <span>ALLCRAFT</span>
+          <span>ALL<span class="brand-craft">CRAFT</span></span>
         </a>
         <span style="color:var(--faint)">/</span>
         <span style="color:var(--app)">{full_name}</span>
@@ -852,7 +915,12 @@ cargo run --release</pre>
   <footer class="site-footer">
     <div class="footer-grid">
       <div>
-        <div class="brand-link" style="margin-bottom:10px">ALLCRAFT STUDIO</div>
+        <a href="/" class="brand-link" style="margin-bottom:10px">
+          <svg width="20" height="16" viewBox="2 9 60 46" fill="none" aria-hidden="true">
+            {ALLCRAFT_LOGO_GROUP}
+          </svg>
+          <span>ALL<span class="brand-craft">CRAFT</span> STUDIO</span>
+        </a>
         <p style="margin:0;font-size:13px;line-height:1.6;color:var(--faint)">15 open-source pure Rust + WebAssembly creative, 3D, media, office and CAD tools on allcraft.app. Dual-licensed under MIT OR Apache-2.0. Independent web cloud fork not affiliated with upstream ArtCraft Team.</p>
       </div>
       <div>
@@ -981,6 +1049,8 @@ def render_comparison_hub_page(
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" href="/favicon.svg">
   <title>{_esc(title)}</title>
   <meta name="description" content="{_esc(description)}">
   <meta name="keywords" content="{_esc(keywords)}">
@@ -1028,13 +1098,18 @@ def render_comparison_hub_page(
     @media (max-width: 768px) {{ .faq-item {{ padding: 18px 20px; }} }}
     .faq-item summary {{ cursor: pointer; font-size: 19px; color: var(--ink-strong); list-style: none; }}
     .faq-item p {{ margin: 12px 0 0; max-width: 820px; font-size: 15px; line-height: 1.65; color: var(--muted); }}
-    .footer-inner {{ max-width: 1280px; margin: 0 auto; padding: 32px 40px; border-left: 1px solid var(--line); border-right: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 12px 18px; font-size: 13px; color: var(--muted); }}
+    .footer-inner {{ max-width: 1280px; margin: 0 auto; padding: 32px 40px; border-left: 1px solid var(--line); border-right: 1px solid var(--line); display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; font-size: 13px; color: var(--muted); }}
   </style>
 </head>
 <body>
   <header class="topbar">
     <div class="topbar-inner">
-      <a href="/" class="brand-link">ALLCRAFT STUDIO</a>
+      <a href="/" class="brand-link">
+        <svg width="20" height="16" viewBox="2 9 60 46" fill="none" aria-hidden="true">
+          {ALLCRAFT_LOGO_GROUP}
+        </svg>
+        <span>ALL<span class="brand-craft">CRAFT</span> STUDIO</span>
+      </a>
       <div style="display:flex;gap:8px">
         <a href="/#lineup" class="icon-btn hud-label">All 15 Apps</a>
         <button type="button" id="theme-toggle" class="icon-btn hud-label"><span id="theme-label">Light</span></button>
@@ -1083,7 +1158,12 @@ def render_comparison_hub_page(
 
   <footer class="section-wrap">
     <div class="footer-inner">
-      <a href="/" style="color:var(--ink-strong);font-weight:700">allcraft.app</a>
+      <a href="/" class="brand-link" style="font-size:13px">
+        <svg width="17" height="13" viewBox="2 9 60 46" fill="none" aria-hidden="true">
+          {ALLCRAFT_LOGO_GROUP}
+        </svg>
+        <span>allcraft.app</span>
+      </a>
       {footer_links}
     </div>
   </footer>
