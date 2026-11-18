@@ -1,6 +1,7 @@
 (() => {
   const CACHE_NAME = "allcraft-wasm-v2";
   const OVERLAY_ID = "ac-studio-overlay";
+  const ISOLATED_SLUGS = new Set(["pdfcraft", "effectcraft"]);
   let manifestPromise = null;
   const inflight = new Set();
 
@@ -33,6 +34,11 @@
 
   const slugToRuntime = (slug) => (slug ? `/runtime/${slug}/` : null);
 
+  const getCurrentSlug = () => {
+    const seg = location.pathname.replace(/^\/+|\/+$/g, "");
+    return SHORT_TO_SLUG[seg] && !LEGACY_SHORTS.has(seg) ? SHORT_TO_SLUG[seg] : null;
+  };
+
   const resolveSlug = (raw) => {
     if (!raw) return null;
     try {
@@ -53,11 +59,11 @@
 
   const resolveMount = (href) => slugToRuntime(resolveSlug(href));
 
-  // In-place Studio Launcher: keeps browser URL cleanly at /<slug>/ (e.g. /photocraft/)
   let savedHtmlOverflow = "";
   let savedBodyOverflow = "";
 
   const closeInPlace = () => {
+    document.documentElement.removeAttribute("data-autolaunch");
     const existing = document.getElementById(OVERLAY_ID);
     if (!existing) return;
     existing.remove();
@@ -76,7 +82,12 @@
       history.replaceState({ acStudioLaunch: slug }, "", cleanPath);
     }
 
-    if (document.getElementById(OVERLAY_ID)) return;
+    const existing = document.getElementById(OVERLAY_ID);
+    if (existing) {
+      const existingFrame = existing.querySelector("iframe");
+      if (existingFrame && existingFrame.getAttribute("data-slug") === slug) return;
+      existing.remove();
+    }
 
     const mountOverlay = () => {
       if (document.getElementById(OVERLAY_ID)) return;
@@ -93,6 +104,7 @@
       const frame = document.createElement("iframe");
       frame.src = runtimeUrl;
       frame.title = slug;
+      frame.setAttribute("data-slug", slug);
       frame.setAttribute(
         "allow",
         "cross-origin-isolated; clipboard-read; clipboard-write; fullscreen; microphone; camera; midi; autoplay"
@@ -120,14 +132,13 @@
     }
   };
 
-  // Detect auto-launch arrival (/photocraft/#launch or ?launch=1) immediately so URL stays /photocraft/
-  const currentSeg = location.pathname.replace(/^\/+|\/+$/g, "");
-  const currentSlug = SHORT_TO_SLUG[currentSeg] && !LEGACY_SHORTS.has(currentSeg) ? SHORT_TO_SLUG[currentSeg] : null;
+  // Detect auto-launch arrival (/photocraft?launch=1 or #launch) immediately
+  const initialSlug = getCurrentSlug();
   const wantsAutoLaunch =
     location.hash === "#launch" || new URLSearchParams(location.search).get("launch") === "1";
 
-  if (currentSlug && wantsAutoLaunch) {
-    launchInPlace(currentSlug, false);
+  if (initialSlug && wantsAutoLaunch) {
+    launchInPlace(initialSlug, false);
   }
 
   window.addEventListener("popstate", (e) => {
@@ -166,11 +177,15 @@
     if (!isLaunchLink) return;
 
     e.preventDefault();
-    if (currentSlug === targetSlug) {
-      launchInPlace(targetSlug, true);
-    } else {
-      location.href = `/${targetSlug}/#launch`;
+    const curSlug = getCurrentSlug();
+
+    // PDF & Effect need COOP/COEP headers from their own /<slug> page for SharedArrayBuffer
+    if (ISOLATED_SLUGS.has(targetSlug) && !window.crossOriginIsolated && curSlug !== targetSlug) {
+      location.href = `/${targetSlug}?launch=1`;
+      return;
     }
+
+    launchInPlace(targetSlug, curSlug !== targetSlug);
   });
 
   const canPrefetch = () => {
@@ -263,7 +278,7 @@
     "pointerover",
     (e) => {
       const a = e.target && e.target.closest ? e.target.closest("a[href]") : null;
-      const mount = a ? resolveMount(a.getAttribute("href")) : null;
+      const mount = a ? resolveMount(a.getAttribute("data-launch-app") || a.getAttribute("href")) : null;
       if (!mount) return;
       clearTimeout(hoverTimer);
       hoverTimer = setTimeout(() => warmApp(mount), 90);
@@ -275,13 +290,13 @@
     "touchstart",
     (e) => {
       const a = e.target && e.target.closest ? e.target.closest("a[href]") : null;
-      const mount = a ? resolveMount(a.getAttribute("href")) : null;
+      const mount = a ? resolveMount(a.getAttribute("data-launch-app") || a.getAttribute("href")) : null;
       if (mount) warmApp(mount);
     },
     { passive: true }
   );
 
-  const pageApp = resolveMount(document.documentElement.getAttribute("data-preload-app") || currentSlug);
+  const pageApp = resolveMount(document.documentElement.getAttribute("data-preload-app") || initialSlug);
   if (pageApp && canPrefetch() && !wantsAutoLaunch) {
     setTimeout(() => warmApp(pageApp), 300);
   }

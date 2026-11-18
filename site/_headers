@@ -8,7 +8,7 @@
 /runtime/*
   X-Robots-Tag: noindex, nofollow
 
-# Entry HTML, SEO & manifest files: revalidate on every visit so updates appear immediately
+# Entry HTML, SEO & manifest files: revalidate on every visit (both with & without trailing slash!)
 /
   Cache-Control: no-cache
 
@@ -23,7 +23,13 @@
   Content-Type: text/plain; charset=utf-8
   Cache-Control: no-cache
 
+/adobe-alternative
+  Cache-Control: no-cache
+
 /adobe-alternative/
+  Cache-Control: no-cache
+
+/artcraft-web
   Cache-Control: no-cache
 
 /artcraft-web/
@@ -40,6 +46,7 @@
 
 # Cross-Origin Isolation on PDF & Effect detail/launch pages so embedded runtimes get SharedArrayBuffer
 /pdfcraft
+  Cache-Control: no-cache
   Cross-Origin-Opener-Policy: same-origin
   Cross-Origin-Embedder-Policy: credentialless
 
@@ -54,6 +61,7 @@
   Cross-Origin-Embedder-Policy: credentialless
 
 /effectcraft
+  Cache-Control: no-cache
   Cross-Origin-Opener-Policy: same-origin
   Cross-Origin-Embedder-Policy: credentialless
 
@@ -67,6 +75,9 @@
   Cross-Origin-Opener-Policy: same-origin
   Cross-Origin-Embedder-Policy: credentialless
 
+/:slug
+  Cache-Control: no-cache
+
 /:slug/
   Cache-Control: no-cache
 
@@ -74,6 +85,9 @@
   Cache-Control: no-cache
 
 # Runtime HTML & non-hashed worker/glue scripts: revalidate on every deploy
+/runtime/:slug
+  Cache-Control: no-cache
+
 /runtime/:slug/
   Cache-Control: no-cache
 
@@ -89,45 +103,58 @@
 /runtime/anicraft/anicraft.js
   Cache-Control: no-cache
 
+/runtime/pdfcraft
+  Cache-Control: no-cache
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Embedder-Policy: credentialless
+  Cross-Origin-Resource-Policy: same-origin
+
 /runtime/pdfcraft/*
   Cross-Origin-Opener-Policy: same-origin
-  Cross-Origin-Embedder-Policy: require-corp
+  Cross-Origin-Embedder-Policy: credentialless
   Cross-Origin-Resource-Policy: same-origin
 
 /runtime/pdfcraft/
   Cache-Control: no-cache
   Cross-Origin-Opener-Policy: same-origin
-  Cross-Origin-Embedder-Policy: require-corp
+  Cross-Origin-Embedder-Policy: credentialless
   Cross-Origin-Resource-Policy: same-origin
 
 /runtime/pdfcraft/index.html
   Cache-Control: no-cache
   Cross-Origin-Opener-Policy: same-origin
-  Cross-Origin-Embedder-Policy: require-corp
+  Cross-Origin-Embedder-Policy: credentialless
   Cross-Origin-Resource-Policy: same-origin
 
 /runtime/pdfcraft/models/*
   Cache-Control: no-cache
 
+/runtime/effectcraft
+  Cache-Control: no-cache
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Embedder-Policy: credentialless
+  Cross-Origin-Resource-Policy: same-origin
+
 /runtime/effectcraft/*
   Cross-Origin-Opener-Policy: same-origin
-  Cross-Origin-Embedder-Policy: require-corp
+  Cross-Origin-Embedder-Policy: credentialless
   Cross-Origin-Resource-Policy: same-origin
 
 /runtime/effectcraft/
   Cache-Control: no-cache
   Cross-Origin-Opener-Policy: same-origin
-  Cross-Origin-Embedder-Policy: require-corp
+  Cross-Origin-Embedder-Policy: credentialless
   Cross-Origin-Resource-Policy: same-origin
 
 /runtime/effectcraft/index.html
   Cache-Control: no-cache
   Cross-Origin-Opener-Policy: same-origin
-  Cross-Origin-Embedder-Policy: require-corp
+  Cross-Origin-Embedder-Policy: credentialless
   Cross-Origin-Resource-Policy: same-origin
 
 /runtime/effectcraft/sw.js
   Cache-Control: no-cache
+  Service-Worker-Allowed: /runtime/
 
 /runtime/effectcraft/effectcraft_web.js
   Cache-Control: no-cache

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Assemble all 15 Craft web app artifacts into dist/, maintain a permanent rolling backup in the 'studio-cache' GitHub Release (90-day Actions artifact expiry fallback), strip + repack Wasm into 1.5 MiB pipelined streaming chunks, inject Photoshop-style splash UI + Zero-Clone CacheStorage Wasm loader, and emit /prefetch-manifest.json."""
+"""Assemble all 15 Craft web app artifacts into dist/, maintain a permanent rolling backup in the 'studio-cache' GitHub Release (90-day Actions artifact expiry fallback), strip + repack Wasm into 1.5 MiB pipelined streaming chunks, inject <base href> + Photoshop-style splash UI + Zero-Clone CacheStorage Wasm loader, and emit /prefetch-manifest.json."""
 
 import datetime
 import gzip
@@ -675,7 +675,6 @@ def replace_release_asset(
     except urllib.error.HTTPError as exc:
         if exc.code != 422:
             raise
-        # Refresh asset list once if a stale duplicate existed, delete it, and retry
         fresh = get_or_create_cache_release(hub_repo, token, create_if_missing=False)
         if fresh:
             release["assets"] = fresh.get("assets") or []
@@ -778,16 +777,24 @@ def strip_wasm_bytes(raw: bytes) -> bytes:
 
 
 def build_streaming_loader_script(
-    app_id: str, bar_id: str, pct_id: str, chunks_map: dict, parts_hash: str, first_parts: list[str]
+    app_id: str,
+    mount_path: str,
+    bar_id: str,
+    pct_id: str,
+    chunks_map: dict,
+    parts_hash: str,
+    first_parts: list[str],
 ) -> str:
+    runtime_base = f"/{mount_path.strip('/')}/"
     manifest_json = json.dumps(chunks_map, separators=(",", ":"))
     preload_links = "\n  ".join(
-        f'<link rel="preload" href="./{p}" as="fetch" crossorigin>' for p in first_parts[:3]
+        f'<link rel="preload" href="{runtime_base}{p}" as="fetch" crossorigin>' for p in first_parts[:3]
     )
     return f"""{preload_links}
   <script id="ac-stream-wasm-loader">
 (() => {{
   const chunks = {manifest_json};
+  const DEFAULT_DIR = "{runtime_base}";
   const CACHE_NAME = "allcraft-wasm-v2";
   const APP_PREFIX = "https://allcraft.cache/wasm/{app_id}/";
   const BUILD_PREFIX = "https://allcraft.cache/wasm/{app_id}/{parts_hash}/";
@@ -848,7 +855,7 @@ def build_streaming_loader_script(
     schedule(() => setTimeout(run, 1800));
   }};
 
-  const startWasmStream = (fileName, meta, dir = "./") => {{
+  const startWasmStream = (fileName, meta, dir = DEFAULT_DIR) => {{
     const cacheKey = BUILD_PREFIX + fileName;
     const promise = (async () => {{
       if ("caches" in window) {{
@@ -866,7 +873,6 @@ def build_streaming_loader_script(
       const totalBytes = meta.total || 0;
       let loadedBytes = 0;
 
-      // Windowed-3 prefetcher + packet-by-packet streaming into DecompressionStream & instantiateStreaming
       const CONCURRENCY = 3;
       const started = new Array(parts.length);
       let nextToStart = 0;
@@ -931,9 +937,9 @@ def build_streaming_loader_script(
     return promise;
   }};
 
-  // Eager start at 0ms in <head> before JS glue module finishes downloading!
+  // Eager start at 0ms in <head> using canonical runtime directory
   for (const [fn, meta] of Object.entries(chunks)) {{
-    startWasmStream(fn, meta, "./");
+    startWasmStream(fn, meta, DEFAULT_DIR);
   }}
 
   window.fetch = async (input, init) => {{
@@ -950,20 +956,31 @@ def build_streaming_loader_script(
     if (!meta) {{
       return origFetch(input, init);
     }}
-    const dir = slash >= 0 ? cleanUrl.substring(0, slash + 1) : "./";
-    return startWasmStream(fileName, meta, dir);
+    return startWasmStream(fileName, meta, DEFAULT_DIR);
   }};
 }})();
 </script>"""
 
 
 def repack_and_optimize_app(target_dir: pathlib.Path, app_id: str, mount_path: str) -> dict:
-    """Strip Wasm symbols, slice into 1.5 MiB streaming chunks, and upgrade index.html's loader script."""
+    """Ensure <base href>, strip Wasm symbols, slice into 1.5 MiB streaming chunks, and upgrade index.html's loader script."""
     profile = SPLASH_PROFILES[app_id]
     bar_id = profile["bar_id"]
     pct_id = profile["pct_id"]
     index_path = target_dir / "index.html"
     html = index_path.read_text(encoding="utf-8")
+
+    # CRITICAL FIX: Cloudflare Pages Pretty URLs strips trailing slashes (/runtime/<slug>/ -> 308 /runtime/<slug>).
+    # Injecting <base href="/runtime/<slug>/"> ensures all relative JS, Wasm, Worker, and icon paths resolve inside /runtime/<slug>/!
+    base_tag = f'<base href="/{mount_path.strip("/")}/">'
+    html = re.sub(r"<base\b[^>]*>", "", html, flags=re.IGNORECASE)
+    html = re.sub(
+        r"(<head\b[^>]*>)",
+        r"\1\n  " + base_tag,
+        html,
+        count=1,
+        flags=re.IGNORECASE,
+    )
 
     for sidecar in list(target_dir.glob("*.gz")) + list(target_dir.glob("*.br")):
         sidecar.unlink()
@@ -1036,17 +1053,18 @@ def repack_and_optimize_app(target_dir: pathlib.Path, app_id: str, mount_path: s
     if new_chunks_map:
         html = re.sub(r'<link\b[^>]*\bhref="[^"]*\.wasm"[^>]*>', "", html)
         new_loader = build_streaming_loader_script(
-            app_id, bar_id, pct_id, new_chunks_map, parts_hash, all_new_parts
+            app_id, mount_path, bar_id, pct_id, new_chunks_map, parts_hash, all_new_parts
         )
         if m:
             m2 = old_shim_re.search(html)
             if m2:
                 html = html[: m2.start()] + new_loader + html[m2.end() :]
             else:
-                html = re.sub(r"(<head\b[^>]*>)", r"\1\n  " + new_loader, html, count=1, flags=re.IGNORECASE)
+                html = re.sub(r"(<base\b[^>]*>)", r"\1\n  " + new_loader, html, count=1, flags=re.IGNORECASE)
         else:
-            html = re.sub(r"(<head\b[^>]*>)", r"\1\n  " + new_loader, html, count=1, flags=re.IGNORECASE)
-        index_path.write_text(html, encoding="utf-8")
+            html = re.sub(r"(<base\b[^>]*>)", r"\1\n  " + new_loader, html, count=1, flags=re.IGNORECASE)
+
+    index_path.write_text(html, encoding="utf-8")
 
     js_files = [
         f"/{mount_path}/{f.name}"
@@ -1068,7 +1086,7 @@ def repack_and_optimize_app(target_dir: pathlib.Path, app_id: str, mount_path: s
 
 def replace_div_by_id(html: str, div_id: str, replacement: str) -> tuple[str, bool]:
     pattern = re.compile(
-        r"<div\b[^>]*\bid=(?:\"|\')?" + re.escape(div_id) + r"(?:\"|\')?(?=[\s>/])[^>]*>",
+        r"<div\b[^>]*\bid=(?:\"|')?" + re.escape(div_id) + r"(?:\"|')?(?=[\s>/])[^>]*>",
         re.IGNORECASE,
     )
     m = pattern.search(html)
@@ -1247,7 +1265,6 @@ def inject_photoshop_splash(target_dir: pathlib.Path, app_id: str) -> None:
 
     index_path.write_text(new_html, encoding="utf-8")
 
-    # Refresh sw.js if present (e.g. effectcraft) so FILES & VERSION match new 1.5 MiB .part* files
     sw_path = target_dir / "sw.js"
     if sw_path.is_file():
         rel_files = sorted(
@@ -1321,7 +1338,6 @@ def main() -> None:
     shutil.copytree(SITE_DIR, DIST_DIR)
     generate_pages.build_all(DIST_DIR)
 
-    # Load rolling 'studio-cache' release metadata once (protects against 90-day Actions artifact expiry)
     cache_release = get_or_create_cache_release(HUB_REPO, token, create_if_missing=False)
     cache_manifest = load_cache_manifest(cache_release, token)
     cache_dirty = False
@@ -1369,7 +1385,6 @@ def main() -> None:
             except Exception as exc:
                 print(f"    WARN: Live download failed for artifact #{artifact_id} ({exc}); checking '{CACHE_RELEASE_TAG}' backup...")
 
-            # Mirror fresh artifact into permanent 'studio-cache' GitHub Release if changed
             if zip_bytes is not None:
                 cached_entry = cache_manifest.get(app_id) or {}
                 existing_asset = next(
@@ -1422,7 +1437,6 @@ def main() -> None:
                         except Exception as exc:
                             print(f"    WARN: [studio-cache] Failed to back up {cache_asset_name}: {exc}")
 
-        # 90-day GitHub Actions artifact expiry fallback: restore from 'studio-cache' release
         if zip_bytes is None:
             if cache_release is None:
                 cache_release = get_or_create_cache_release(HUB_REPO, token, create_if_missing=False)
