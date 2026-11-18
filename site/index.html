@@ -79,7 +79,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,500..900&family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,500..900&family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" crossorigin="anonymous">
   <script src="/hover-preload.js" defer></script>
   <script>
     if (location.pathname !== "/" && location.pathname !== "/index.html") {
@@ -445,7 +445,7 @@
             </a>
           </div>
 
-          <p class="hero-note">Instant WebGPU + WebAssembly Studio &middot; <a href="/photo/">Launch PhotoCraft</a> or <a href="/vector/">VectorCraft</a> in 1 click.</p>
+          <p class="hero-note">Instant WebGPU + WebAssembly Studio &middot; <a href="/photocraft/#launch" data-launch-app="photocraft">Launch PhotoCraft</a> or <a href="/vectorcraft/#launch" data-launch-app="vectorcraft">VectorCraft</a> in 1 click.</p>
 
           <div class="hero-meta hud-label">
             <a href="https://github.com/thepixopik/allcraft" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px">
@@ -624,9 +624,9 @@
           <p class="sec-lead" style="margin-left:auto;margin-right:auto">Open PSDs, SVGs, RAW photos, multi-track video, AEP &amp; FLA animations, 3D PBR textures &amp; materials, audio sessions, DOCX, XLSX, PPTX, DWG drawings and PDFs in a single click.</p>
           <div class="cta-row">
             <a href="/adobe-alternative/" class="btn-primary hud-label">Full Adobe Replacement Matrix</a>
-            <a href="/vector/" class="btn-secondary hud-label">Open VectorCraft</a>
-            <a href="/texture/" class="btn-secondary hud-label">Open TextureCraft</a>
-            <a href="/cad/" class="btn-secondary hud-label">Open CADCraft</a>
+            <a href="/vectorcraft/#launch" data-launch-app="vectorcraft" class="btn-secondary hud-label">Open VectorCraft</a>
+            <a href="/texturecraft/#launch" data-launch-app="texturecraft" class="btn-secondary hud-label">Open TextureCraft</a>
+            <a href="/cadcraft/#launch" data-launch-app="cadcraft" class="btn-secondary hud-label">Open CADCraft</a>
           </div>
         </div>
       </div>
@@ -681,105 +681,105 @@
     const APPS = [
       {
         num: "01", slug: "photocraft", prefix: "Photo", code: "Ph", category: "Image editor", replaces: "Photoshop Alt", group: "creative",
-        color: "#31a8ff", mount: "/photo/",
+        color: "#31a8ff", mount: "/photocraft/",
         hero: "https://getartcraft.com/images/apps/photocraft/hero.webp",
         icon: "https://getartcraft.com/images/apps/photocraft/icon.webp",
         desc: "Free open-source Adobe Photoshop alternative in your browser with native PSD & RAW."
       },
       {
         num: "02", slug: "vectorcraft", prefix: "Vector", code: "Vc", category: "Vector illustration", replaces: "Illustrator Alt", group: "creative",
-        color: "#ff7b3a", mount: "/vector/",
+        color: "#ff7b3a", mount: "/vectorcraft/",
         hero: "https://getartcraft.com/images/apps/vectorcraft/hero.webp",
         icon: "https://getartcraft.com/images/apps/vectorcraft/icon.webp",
         desc: "Free open-source Adobe Illustrator alternative for SVG, PDF & multi-artboard design."
       },
       {
         num: "03", slug: "filmcraft", prefix: "Film", code: "Fm", category: "Video editor", replaces: "Premiere Pro Alt", group: "media",
-        color: "#a855f7", mount: "/film/",
+        color: "#a855f7", mount: "/filmcraft/",
         hero: "https://getartcraft.com/images/apps/filmcraft/color.webp",
         icon: "https://getartcraft.com/images/apps/filmcraft/icon.webp",
         desc: "Free open-source Premiere Pro video editor with scopes, audio mixer & no watermark."
       },
       {
         num: "04", slug: "lightcraft", prefix: "Light", code: "Lc", category: "Photo library & raw", replaces: "Lightroom Alt", group: "creative",
-        color: "#22d3ee", mount: "/light/",
+        color: "#22d3ee", mount: "/lightcraft/",
         hero: "https://getartcraft.com/images/apps/lightcraft/hero.webp",
         icon: "https://getartcraft.com/images/apps/lightcraft/icon.webp",
         desc: "Free open-source Lightroom Classic alternative for culling & 16-bit Camera RAW."
       },
       {
         num: "05", slug: "pdfcraft", prefix: "Pdf", code: "Pd", category: "PDF workbench", replaces: "Acrobat Pro Alt", group: "office",
-        color: "#10b981", mount: "/pdf/",
+        color: "#10b981", mount: "/pdfcraft/",
         hero: "https://getartcraft.com/images/apps/pdfcraft/hero.webp",
         icon: "https://getartcraft.com/images/apps/pdfcraft/icon.webp",
         desc: "Free open-source Acrobat Pro workbench: edit, combine, offline OCR, sign & redact."
       },
       {
         num: "06", slug: "effectcraft", prefix: "Effect", code: "Ef", category: "Motion graphics & VFX", replaces: "After Effects Alt", group: "media",
-        color: "#f472b6", mount: "/effect/",
+        color: "#f472b6", mount: "/effectcraft/",
         hero: "https://getartcraft.com/images/apps/effectcraft/hero.webp",
         icon: "https://getartcraft.com/images/apps/effectcraft/icon.webp",
         desc: "Free open-source After Effects motion graphics, 3D VFX & Lottie animation studio."
       },
       {
         num: "07", slug: "anicraft", prefix: "Ani", code: "An", category: "2D vector animation", replaces: "Animate Alt", group: "media",
-        color: "#c084fc", mount: "/ani/",
+        color: "#c084fc", mount: "/anicraft/",
         hero: "https://getartcraft.com/images/apps/anicraft/hero.webp",
         icon: "https://getartcraft.com/images/apps/anicraft/icon.webp",
         desc: "Free open-source Adobe Animate 2D vector animation with bone rigs, FLA & Lottie."
       },
       {
         num: "08", slug: "designcraft", prefix: "Design", code: "Ds", category: "Page layout & print", replaces: "InDesign Alt", group: "creative",
-        color: "#f59e0b", mount: "/design/",
+        color: "#f59e0b", mount: "/designcraft/",
         hero: "https://getartcraft.com/images/apps/designcraft/hero.webp",
         icon: "https://getartcraft.com/images/apps/designcraft/icon.webp",
         desc: "Free open-source InDesign page layout for books, magazines, IDML, EPUB & PDF/X."
       },
       {
         num: "09", slug: "texturecraft", prefix: "Texture", code: "Tx", category: "3D texture painting", replaces: "Substance Painter Alt", group: "creative",
-        color: "#fb7185", mount: "/texture/",
+        color: "#fb7185", mount: "/texturecraft/",
         hero: "https://getartcraft.com/images/apps/texturecraft/hero.webp",
         icon: "https://getartcraft.com/images/apps/texturecraft/icon.webp",
         desc: "Free open-source Substance 3D Painter alternative with PBR viewport & mesh bakers."
       },
       {
         num: "10", slug: "materialcraft", prefix: "Material", code: "Mt", category: "Procedural materials", replaces: "Substance Designer Alt", group: "creative",
-        color: "#e879f9", mount: "/material/",
+        color: "#e879f9", mount: "/materialcraft/",
         hero: "https://getartcraft.com/images/apps/materialcraft/hero.webp",
         icon: "https://getartcraft.com/images/apps/materialcraft/icon.webp",
         desc: "Free open-source Substance 3D Designer procedural node PBR material studio."
       },
       {
         num: "11", slug: "soundcraft", prefix: "Sound", code: "Sd", category: "Audio DAW", replaces: "Audition / DAW Alt", group: "media",
-        color: "#2dd4bf", mount: "/sound/",
+        color: "#2dd4bf", mount: "/soundcraft/",
         hero: "https://getartcraft.com/images/apps/soundcraft/hero.webp",
         icon: "https://getartcraft.com/images/apps/soundcraft/icon.webp",
         desc: "Free open-source multi-track audio DAW, waveform editor, MIDI & LUFS mastering."
       },
       {
         num: "12", slug: "wordcraft", prefix: "Word", code: "Wd", category: "Word processing", replaces: "MS Word Alt", group: "office",
-        color: "#818cf8", mount: "/word/",
+        color: "#818cf8", mount: "/wordcraft/",
         hero: "https://getartcraft.com/images/apps/wordcraft/hero.webp",
         icon: "https://getartcraft.com/images/apps/wordcraft/icon.webp",
         desc: "Free open-source Microsoft Word processor with DOCX, Track Changes & LaTeX."
       },
       {
         num: "13", slug: "deckcraft", prefix: "Deck", code: "Dk", category: "Presentations", replaces: "PowerPoint Alt", group: "office",
-        color: "#fb923c", mount: "/deck/",
+        color: "#fb923c", mount: "/deckcraft/",
         hero: "https://getartcraft.com/images/apps/deckcraft/hero.webp",
         icon: "https://getartcraft.com/images/apps/deckcraft/icon.webp",
         desc: "Free open-source PowerPoint & Keynote slide studio with PPTX & Morph animations."
       },
       {
         num: "14", slug: "cadcraft", prefix: "CAD", code: "Cd", category: "2D/3D CAD & DWG", replaces: "AutoCAD Alt", group: "office",
-        color: "#f87171", mount: "/cad/",
+        color: "#f87171", mount: "/cadcraft/",
         hero: "https://getartcraft.com/images/apps/cadcraft/hero.webp",
         icon: "https://getartcraft.com/images/apps/cadcraft/icon.webp",
         desc: "Free open-source AutoCAD drafting workstation with native DWG/DXF & command line."
       },
       {
         num: "15", slug: "gridcraft", prefix: "Grid", code: "Gd", category: "Spreadsheets", replaces: "MS Excel Alt", group: "office",
-        color: "#4ade80", mount: "/grid/",
+        color: "#4ade80", mount: "/gridcraft/",
         hero: "https://getartcraft.com/images/apps/gridcraft/hero.webp",
         icon: "https://getartcraft.com/images/apps/gridcraft/icon.webp",
         desc: "Free open-source Microsoft Excel spreadsheet with 400+ formulas, XLOOKUP & XLSX."
@@ -791,13 +791,14 @@
       const fullName = `${app.prefix}Craft`;
       const titleHtml = `${app.prefix}<span class="craft-accent">Craft</span>`;
       const detailHref = `/${app.slug}/`;
+      const launchHref = `/${app.slug}/#launch`;
       return `
         <div class="app-card" data-group="${app.group}" style="--app:${app.color}">
           <span class="app-topline" aria-hidden="true"></span>
           <div class="app-head">
             <span class="app-num hud-label">${app.num}</span>
             <p class="app-cat hud-label" style="margin:0">${app.category}</p>
-            <a class="quick-launch-btn hud-label" href="${app.mount}" title="Open ${fullName} directly in browser">● Launch</a>
+            <a class="quick-launch-btn hud-label" href="${launchHref}" data-launch-app="${app.slug}" title="Open ${fullName} directly in browser">● Launch</a>
           </div>
           <a class="app-card-link" href="${detailHref}">
             <div class="app-hero-wrap">
