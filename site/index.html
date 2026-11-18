@@ -6,45 +6,89 @@
   <meta name="theme-color" content="#0b0b0c" id="meta-theme-color">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="apple-touch-icon" href="/favicon.svg">
-  <title>AllCraft — Free Open-Source Adobe Creative Cloud, Office &amp; AutoCAD Alternative Online</title>
-  <meta name="description" content="AllCraft Studio (allcraft.app) unites 15 free, open-source pure Rust + WebAssembly browser tools — instant online alternatives to Photoshop, Illustrator, Premiere Pro, Lightroom, Acrobat, After Effects, InDesign, Substance 3D, AutoCAD, Word, Excel &amp; PowerPoint.">
-  <meta name="keywords" content="allcraft, free adobe alternative, open source creative cloud, online photoshop illustrator premiere lightroom acrobat after effects indesign autocad excel alternative, artcraft web, photocraft, vectorcraft, filmcraft, cadcraft, gridcraft">
+  <title>AllCraft — 15 Free Open-Source Adobe &amp; Office Alternatives</title>
+  <meta name="description" content="Run 15 free open-source Rust + WebAssembly apps in your browser — instant local alternatives to Photoshop, Illustrator, Premiere, Acrobat, AutoCAD &amp; Excel.">
   <link rel="canonical" href="https://allcraft.app/">
 
   <!-- OpenGraph / Social Preview -->
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="AllCraft Studio">
-  <meta property="og:title" content="AllCraft — 15 Free Open-Source Adobe, Office &amp; CAD Tools in Your Browser">
-  <meta property="og:description" content="Edit PSD, SVG, RAW, MP4, PDF, AEP, FLA, IDML, 3D PBR, Audio, DOCX, PPTX, DWG &amp; XLSX locally in your browser with zero subscription and zero cloud uploads.">
+  <meta property="og:title" content="AllCraft — 15 Free Open-Source Adobe &amp; Office Alternatives">
+  <meta property="og:description" content="Run 15 free open-source Rust + WebAssembly apps in your browser — instant local alternatives to Photoshop, Illustrator, Premiere, Acrobat, AutoCAD &amp; Excel.">
   <meta property="og:url" content="https://allcraft.app/">
-  <meta property="og:image" content="https://getartcraft.com/images/apps/photocraft/hero.webp">
+  <meta property="og:image" content="https://allcraft.app/og-cover.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="AllCraft Studio — 15 Free Open-Source Adobe, Office &amp; AutoCAD Alternatives">
 
   <!-- Twitter / X Large Card -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="AllCraft — 15 Free Open-Source Creative, 3D, Office &amp; CAD Apps">
-  <meta name="twitter:description" content="Pure Rust + WebGPU + WebAssembly tools running right in your browser at allcraft.app — $0 forever.">
-  <meta name="twitter:image" content="https://getartcraft.com/images/apps/photocraft/hero.webp">
+  <meta name="twitter:title" content="AllCraft — 15 Free Open-Source Adobe &amp; Office Alternatives">
+  <meta name="twitter:description" content="Run 15 free open-source Rust + WebAssembly apps in your browser — instant local alternatives to Photoshop, Illustrator, Premiere, Acrobat, AutoCAD &amp; Excel.">
+  <meta name="twitter:image" content="https://allcraft.app/og-cover.png">
 
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@graph": [
       {
+        "@type": "Organization",
+        "@id": "https://allcraft.app/#organization",
+        "name": "AllCraft Studio",
+        "url": "https://allcraft.app/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://allcraft.app/og-cover.png",
+          "contentUrl": "https://allcraft.app/favicon.svg",
+          "width": 1200,
+          "height": 630
+        },
+        "sameAs": [
+          "https://github.com/thepixopik/allcraft"
+        ]
+      },
+      {
         "@type": "WebSite",
+        "@id": "https://allcraft.app/#website",
         "name": "AllCraft Studio",
         "alternateName": ["The AllCraft", "AllCraft Web Suite", "Open-Source Craft Web Apps"],
-        "url": "https://allcraft.app/"
+        "url": "https://allcraft.app/",
+        "publisher": { "@id": "https://allcraft.app/#organization" }
       },
       {
         "@type": "SoftwareApplication",
         "name": "AllCraft Studio (15-App Creative, 3D, Office & CAD Suite)",
         "url": "https://allcraft.app/",
+        "image": "https://allcraft.app/og-cover.png",
         "applicationCategory": "DesignApplication",
         "operatingSystem": "Web Browser, macOS, Windows, Linux, FreeBSD",
         "isAccessibleForFree": true,
         "license": "https://opensource.org/licenses/MIT",
+        "publisher": { "@id": "https://allcraft.app/#organization" },
         "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
         "description": "Unified suite of 15 open-source pure Rust + WebAssembly creative, 3D, media, office and CAD tools running locally in your browser."
+      },
+      {
+        "@type": "ItemList",
+        "name": "AllCraft Studio — 15 Open-Source Browser Applications",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "PhotoCraft — Free Photoshop Alternative", "url": "https://allcraft.app/photocraft/" },
+          { "@type": "ListItem", "position": 2, "name": "VectorCraft — Free Illustrator Alternative", "url": "https://allcraft.app/vectorcraft/" },
+          { "@type": "ListItem", "position": 3, "name": "FilmCraft — Free Premiere Pro Alternative", "url": "https://allcraft.app/filmcraft/" },
+          { "@type": "ListItem", "position": 4, "name": "LightCraft — Free Lightroom Alternative", "url": "https://allcraft.app/lightcraft/" },
+          { "@type": "ListItem", "position": 5, "name": "PdfCraft — Free Acrobat Pro Alternative", "url": "https://allcraft.app/pdfcraft/" },
+          { "@type": "ListItem", "position": 6, "name": "EffectCraft — Free After Effects Alternative", "url": "https://allcraft.app/effectcraft/" },
+          { "@type": "ListItem", "position": 7, "name": "AniCraft — Free Adobe Animate Alternative", "url": "https://allcraft.app/anicraft/" },
+          { "@type": "ListItem", "position": 8, "name": "DesignCraft — Free InDesign Alternative", "url": "https://allcraft.app/designcraft/" },
+          { "@type": "ListItem", "position": 9, "name": "TextureCraft — Free Substance 3D Painter Alternative", "url": "https://allcraft.app/texturecraft/" },
+          { "@type": "ListItem", "position": 10, "name": "MaterialCraft — Free Substance 3D Designer Alternative", "url": "https://allcraft.app/materialcraft/" },
+          { "@type": "ListItem", "position": 11, "name": "SoundCraft — Free Online DAW & Audition Alternative", "url": "https://allcraft.app/soundcraft/" },
+          { "@type": "ListItem", "position": 12, "name": "WordCraft — Free Microsoft Word Alternative", "url": "https://allcraft.app/wordcraft/" },
+          { "@type": "ListItem", "position": 13, "name": "DeckCraft — Free PowerPoint Alternative", "url": "https://allcraft.app/deckcraft/" },
+          { "@type": "ListItem", "position": 14, "name": "CADCraft — Free AutoCAD & DWG Alternative", "url": "https://allcraft.app/cadcraft/" },
+          { "@type": "ListItem", "position": 15, "name": "GridCraft — Free Microsoft Excel Alternative", "url": "https://allcraft.app/gridcraft/" }
+        ]
       },
       {
         "@type": "FAQPage",
@@ -808,56 +852,58 @@
     ];
 
     const grid = document.getElementById("apps-grid");
-    const cardsHtml = APPS.map((app) => {
-      const fullName = `${app.prefix}Craft`;
-      const titleHtml = `${app.prefix}<span class="craft-accent">Craft</span>`;
-      const detailHref = `/${app.slug}/`;
-      const launchHref = `/${app.slug}/#launch`;
-      return `
-        <div class="app-card" data-group="${app.group}" style="--app:${app.color}">
-          <span class="app-topline" aria-hidden="true"></span>
-          <div class="app-head">
-            <span class="app-num hud-label">${app.num}</span>
-            <p class="app-cat hud-label" style="margin:0">${app.category}</p>
-            <a class="quick-launch-btn hud-label" href="${launchHref}" data-launch-app="${app.slug}" title="Open ${fullName} directly in browser">● Launch</a>
-          </div>
-          <a class="app-card-link" href="${detailHref}">
-            <div class="app-hero-wrap">
-              <img src="${app.hero}" alt="${fullName} — Free ${app.replaces} workspace preview" loading="lazy" decoding="async" referrerpolicy="no-referrer"
-                   onerror="this.style.display='none';this.parentElement.style.background='radial-gradient(circle at 60% 35%, ${app.color}33, var(--bg-sunken) 75%)'">
+    if (grid && !grid.children.length) {
+      const cardsHtml = APPS.map((app) => {
+        const fullName = `${app.prefix}Craft`;
+        const titleHtml = `${app.prefix}<span class="craft-accent">Craft</span>`;
+        const detailHref = `/${app.slug}/`;
+        const launchHref = `/${app.slug}/#launch`;
+        return `
+          <div class="app-card" data-group="${app.group}" style="--app:${app.color}">
+            <span class="app-topline" aria-hidden="true"></span>
+            <div class="app-head">
+              <span class="app-num hud-label">${app.num}</span>
+              <p class="app-cat hud-label" style="margin:0">${app.category}</p>
+              <a class="quick-launch-btn hud-label" href="${launchHref}" data-launch-app="${app.slug}" title="Open ${fullName} directly in browser">● Launch</a>
             </div>
-            <div class="app-body">
-              <img class="app-icon" src="${app.icon}" alt="" width="256" height="256" loading="lazy" decoding="async" referrerpolicy="no-referrer"
-                   onerror="this.outerHTML='<div class=\\'app-icon-fallback\\'>${app.code}</div>'">
-              <h3 class="app-title">${titleHtml}</h3>
-              <p class="app-desc">${app.desc}</p>
-              <div class="app-pills">
-                <span class="pill accent">${app.replaces}</span>
-                <span class="pill accent">Instant Web</span>
-                <span class="pill">$0 Free</span>
+            <a class="app-card-link" href="${detailHref}">
+              <div class="app-hero-wrap">
+                <img src="${app.hero}" alt="${fullName} — Free ${app.replaces} workspace preview" loading="lazy" decoding="async" referrerpolicy="no-referrer"
+                     onerror="this.style.display='none';this.parentElement.style.background='radial-gradient(circle at 60% 35%, ${app.color}33, var(--bg-sunken) 75%)'">
               </div>
-              <span class="app-cta hud-label">
-                Explore ${fullName}
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
-              </span>
-            </div>
-          </a>
+              <div class="app-body">
+                <img class="app-icon" src="${app.icon}" alt="" width="256" height="256" loading="lazy" decoding="async" referrerpolicy="no-referrer"
+                     onerror="this.outerHTML='<div class=\\'app-icon-fallback\\'>${app.code}</div>'">
+                <h3 class="app-title">${titleHtml}</h3>
+                <p class="app-desc">${app.desc}</p>
+                <div class="app-pills">
+                  <span class="pill accent">${app.replaces}</span>
+                  <span class="pill accent">Instant Web</span>
+                  <span class="pill">$0 Free</span>
+                </div>
+                <span class="app-cta hud-label">
+                  Explore ${fullName}
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
+                </span>
+              </div>
+            </a>
+          </div>
+        `;
+      }).join("");
+
+      const studioCardHtml = `
+        <div class="next-card" id="next-up-card">
+          <div>
+            <p class="hud-label" style="margin:0;color:var(--faint)">15 / 15 Replacement Matrix</p>
+            <h3 class="font-display" style="margin:14px 0 0;font-size:28px;line-height:1.08;color:var(--ink-strong)">Ditch every <span class="accent-word">subscription</span>.</h3>
+            <p style="margin:12px 0 0;font-size:14.5px;line-height:1.6;color:var(--muted)">Compare all 15 AllCraft tools side-by-side against Adobe Creative Cloud, Microsoft Office &amp; AutoCAD.</p>
+          </div>
+          <a href="/adobe-alternative/" class="btn-primary hud-label" style="height:40px;padding:0 16px;width:fit-content">Open Comparison Matrix &rarr;</a>
         </div>
       `;
-    }).join("");
 
-    const studioCardHtml = `
-      <div class="next-card" id="next-up-card">
-        <div>
-          <p class="hud-label" style="margin:0;color:var(--faint)">15 / 15 Replacement Matrix</p>
-          <h3 class="font-display" style="margin:14px 0 0;font-size:28px;line-height:1.08;color:var(--ink-strong)">Ditch every <span class="accent-word">subscription</span>.</h3>
-          <p style="margin:12px 0 0;font-size:14.5px;line-height:1.6;color:var(--muted)">Compare all 15 AllCraft tools side-by-side against Adobe Creative Cloud, Microsoft Office &amp; AutoCAD.</p>
-        </div>
-        <a href="/adobe-alternative/" class="btn-primary hud-label" style="height:40px;padding:0 16px;width:fit-content">Open Comparison Matrix &rarr;</a>
-      </div>
-    `;
-
-    grid.innerHTML = cardsHtml + studioCardHtml;
+      grid.innerHTML = cardsHtml + studioCardHtml;
+    }
 
     document.querySelectorAll(".filter-btn").forEach((btn) => {
       btn.addEventListener("click", () => {
