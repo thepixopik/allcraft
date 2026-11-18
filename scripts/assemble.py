@@ -1143,9 +1143,19 @@ def inject_photoshop_splash(target_dir: pathlib.Path, app_id: str) -> None:
   box-shadow: 0 32px 90px rgba(0,0,0,0.72), 0 0 0 1px rgba(0,0,0,0.5);
   animation: acSplashIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }}
+html.ac-in-iframe .ac-ps-card {{
+  animation: none !important;
+}}
 @keyframes acSplashIn {{
   from {{ opacity: 0; transform: scale(0.97) translateY(6px); }}
   to {{ opacity: 1; transform: scale(1) translateY(0); }}
+}}
+canvas {{
+  animation: acCanvasReveal 0.22s ease-out;
+}}
+@keyframes acCanvasReveal {{
+  from {{ opacity: 0; }}
+  to {{ opacity: 1; }}
 }}
 .ac-ps-left {{
   padding: 32px 30px 28px; display: flex; flex-direction: column; justify-content: space-between; text-align: left;
@@ -1223,8 +1233,18 @@ def inject_photoshop_splash(target_dir: pathlib.Path, app_id: str) -> None:
 
     observer_js = f"""<script>
 (() => {{
+  if (window.parent !== window) {{
+    document.documentElement.classList.add("ac-in-iframe");
+  }}
   const stages = {stages_json};
   const bind = () => {{
+    requestAnimationFrame(() => {{
+      try {{
+        if (window.parent !== window) {{
+          window.parent.postMessage({{ type: "ac-runtime-splash-ready", app: "{app_id}" }}, location.origin);
+        }}
+      }} catch (_) {{}}
+    }});
     const rawEl = document.getElementById("{pct_id}");
     const stageEl = document.getElementById("ac_stage_text");
     const cleanEl = document.getElementById("ac_pct_clean");
@@ -1401,7 +1421,7 @@ def main() -> None:
                     and existing_asset.get("size") == len(zip_bytes)
                 )
                 if already_current:
-                    print(f"    [studio-cache] Backup already up-to-date ({cache_asset_name}, artifact #{artifact_id})")
+                    print(f"    [studio-cache] Backup already up-to-to-date ({cache_asset_name}, artifact #{artifact_id})")
                 else:
                     if cache_release is None:
                         cache_release = get_or_create_cache_release(
