@@ -4,6 +4,10 @@
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
 
+# Keep internal Wasm runtime mounts out of search engine indexes (100% SEO goes to /<slug>/)
+/runtime/*
+  X-Robots-Tag: noindex, nofollow
+
 # Entry HTML, SEO & manifest files: revalidate on every visit so updates appear immediately
 /
   Cache-Control: no-cache
@@ -34,210 +38,108 @@
 /build-manifest.json
   Cache-Control: no-cache
 
-/vector/
+# Cross-Origin Isolation on PDF & Effect detail/launch pages so embedded runtimes get SharedArrayBuffer
+/pdfcraft
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Embedder-Policy: credentialless
+
+/pdfcraft/
+  Cache-Control: no-cache
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Embedder-Policy: credentialless
+
+/pdfcraft/index.html
+  Cache-Control: no-cache
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Embedder-Policy: credentialless
+
+/effectcraft
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Embedder-Policy: credentialless
+
+/effectcraft/
+  Cache-Control: no-cache
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Embedder-Policy: credentialless
+
+/effectcraft/index.html
+  Cache-Control: no-cache
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Embedder-Policy: credentialless
+
+/:slug/
   Cache-Control: no-cache
 
-/vector/index.html
+/:slug/index.html
   Cache-Control: no-cache
 
-/photo/
+# Runtime HTML & non-hashed worker/glue scripts: revalidate on every deploy
+/runtime/:slug/
   Cache-Control: no-cache
 
-/photo/index.html
+/runtime/:slug/index.html
   Cache-Control: no-cache
 
-/light/
+/runtime/lightcraft/lightcraft_web.js
   Cache-Control: no-cache
 
-/light/index.html
+/runtime/lightcraft/worker.js
   Cache-Control: no-cache
 
-/light/lightcraft_web.js
+/runtime/anicraft/anicraft.js
   Cache-Control: no-cache
 
-/light/worker.js
-  Cache-Control: no-cache
-
-/design/
-  Cache-Control: no-cache
-
-/design/index.html
-  Cache-Control: no-cache
-
-/ani/
-  Cache-Control: no-cache
-
-/ani/index.html
-  Cache-Control: no-cache
-
-/ani/anicraft.js
-  Cache-Control: no-cache
-
-/texture/
-  Cache-Control: no-cache
-
-/texture/index.html
-  Cache-Control: no-cache
-
-/material/
-  Cache-Control: no-cache
-
-/material/index.html
-  Cache-Control: no-cache
-
-/word/
-  Cache-Control: no-cache
-
-/word/index.html
-  Cache-Control: no-cache
-
-/grid/
-  Cache-Control: no-cache
-
-/grid/index.html
-  Cache-Control: no-cache
-
-/deck/
-  Cache-Control: no-cache
-
-/deck/index.html
-  Cache-Control: no-cache
-
-/pdf/*
+/runtime/pdfcraft/*
   Cross-Origin-Opener-Policy: same-origin
   Cross-Origin-Embedder-Policy: require-corp
   Cross-Origin-Resource-Policy: same-origin
 
-/pdf/
+/runtime/pdfcraft/
   Cache-Control: no-cache
   Cross-Origin-Opener-Policy: same-origin
   Cross-Origin-Embedder-Policy: require-corp
   Cross-Origin-Resource-Policy: same-origin
 
-/pdf/index.html
+/runtime/pdfcraft/index.html
   Cache-Control: no-cache
   Cross-Origin-Opener-Policy: same-origin
   Cross-Origin-Embedder-Policy: require-corp
   Cross-Origin-Resource-Policy: same-origin
 
-/pdf/models/*
+/runtime/pdfcraft/models/*
   Cache-Control: no-cache
 
-/film/
-  Cache-Control: no-cache
-
-/film/index.html
-  Cache-Control: no-cache
-
-/effect/*
+/runtime/effectcraft/*
   Cross-Origin-Opener-Policy: same-origin
   Cross-Origin-Embedder-Policy: require-corp
   Cross-Origin-Resource-Policy: same-origin
 
-/effect/
+/runtime/effectcraft/
   Cache-Control: no-cache
   Cross-Origin-Opener-Policy: same-origin
   Cross-Origin-Embedder-Policy: require-corp
   Cross-Origin-Resource-Policy: same-origin
 
-/effect/index.html
+/runtime/effectcraft/index.html
   Cache-Control: no-cache
   Cross-Origin-Opener-Policy: same-origin
   Cross-Origin-Embedder-Policy: require-corp
   Cross-Origin-Resource-Policy: same-origin
 
-/effect/sw.js
+/runtime/effectcraft/sw.js
   Cache-Control: no-cache
 
-/effect/effectcraft_web.js
+/runtime/effectcraft/effectcraft_web.js
   Cache-Control: no-cache
 
-/effect/worker.js
+/runtime/effectcraft/worker.js
   Cache-Control: no-cache
 
-/sound/
-  Cache-Control: no-cache
-
-/sound/index.html
-  Cache-Control: no-cache
-
-/cad/
-  Cache-Control: no-cache
-
-/cad/index.html
-  Cache-Control: no-cache
-
-/:app/
-  Cache-Control: no-cache
-
-/:app/index.html
-  Cache-Control: no-cache
-
-# Hashed/chunked Wasm & JS assets across all Studio apps: cache for 1 year
-/vector/*.part*
+# Hashed/chunked Wasm & JS assets across all 15 Studio runtimes: cache for 1 year
+/runtime/:slug/*.part*
   Content-Type: application/octet-stream
   Cache-Control: public, max-age=31536000, immutable
 
-/photo/*.part*
-  Content-Type: application/octet-stream
-  Cache-Control: public, max-age=31536000, immutable
-
-/light/*.part*
-  Content-Type: application/octet-stream
-  Cache-Control: public, max-age=31536000, immutable
-
-/design/*.part*
-  Content-Type: application/octet-stream
-  Cache-Control: public, max-age=31536000, immutable
-
-/ani/*.part*
-  Content-Type: application/octet-stream
-  Cache-Control: public, max-age=31536000, immutable
-
-/texture/*.part*
-  Content-Type: application/octet-stream
-  Cache-Control: public, max-age=31536000, immutable
-
-/material/*.part*
-  Content-Type: application/octet-stream
-  Cache-Control: public, max-age=31536000, immutable
-
-/word/*.part*
-  Content-Type: application/octet-stream
-  Cache-Control: public, max-age=31536000, immutable
-
-/grid/*.part*
-  Content-Type: application/octet-stream
-  Cache-Control: public, max-age=31536000, immutable
-
-/deck/*.part*
-  Content-Type: application/octet-stream
-  Cache-Control: public, max-age=31536000, immutable
-
-/pdf/*.part*
-  Content-Type: application/octet-stream
-  Cache-Control: public, max-age=31536000, immutable
-
-/film/*.part*
-  Content-Type: application/octet-stream
-  Cache-Control: public, max-age=31536000, immutable
-
-/effect/*.part*
-  Content-Type: application/octet-stream
-  Cache-Control: public, max-age=31536000, immutable
-
-/sound/*.part*
-  Content-Type: application/octet-stream
-  Cache-Control: public, max-age=31536000, immutable
-
-/cad/*.part*
-  Content-Type: application/octet-stream
-  Cache-Control: public, max-age=31536000, immutable
-
-/:app/*.part*
-  Content-Type: application/octet-stream
-  Cache-Control: public, max-age=31536000, immutable
-
-/:app/*.wasm
+/runtime/:slug/*.wasm
   Content-Type: application/wasm
   Cache-Control: public, max-age=31536000, immutable

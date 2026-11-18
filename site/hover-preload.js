@@ -1,5 +1,6 @@
 (() => {
   const CACHE_NAME = "allcraft-wasm-v2";
+  const OVERLAY_ID = "ac-studio-overlay";
   let manifestPromise = null;
   const inflight = new Set();
 
@@ -7,23 +8,170 @@
     caches.delete("allcraft-wasm-v1").catch(() => {});
   }
 
-  const SLUG_TO_MOUNT = {
-    photo: "/photo/", photocraft: "/photo/",
-    vector: "/vector/", vectorcraft: "/vector/",
-    film: "/film/", filmcraft: "/film/",
-    light: "/light/", lightcraft: "/light/",
-    pdf: "/pdf/", pdfcraft: "/pdf/",
-    effect: "/effect/", effectcraft: "/effect/",
-    ani: "/ani/", anicraft: "/ani/",
-    design: "/design/", designcraft: "/design/",
-    texture: "/texture/", texturecraft: "/texture/",
-    material: "/material/", materialcraft: "/material/",
-    sound: "/sound/", soundcraft: "/sound/",
-    word: "/word/", wordcraft: "/word/",
-    deck: "/deck/", deckcraft: "/deck/",
-    cad: "/cad/", cadcraft: "/cad/",
-    grid: "/grid/", gridcraft: "/grid/",
+  const SHORT_TO_SLUG = {
+    photo: "photocraft", photocraft: "photocraft",
+    vector: "vectorcraft", vectorcraft: "vectorcraft",
+    film: "filmcraft", filmcraft: "filmcraft",
+    light: "lightcraft", lightcraft: "lightcraft",
+    pdf: "pdfcraft", pdfcraft: "pdfcraft",
+    effect: "effectcraft", effectcraft: "effectcraft",
+    ani: "anicraft", anicraft: "anicraft",
+    design: "designcraft", designcraft: "designcraft",
+    texture: "texturecraft", texturecraft: "texturecraft",
+    material: "materialcraft", materialcraft: "materialcraft",
+    sound: "soundcraft", soundcraft: "soundcraft",
+    word: "wordcraft", wordcraft: "wordcraft",
+    deck: "deckcraft", deckcraft: "deckcraft",
+    cad: "cadcraft", cadcraft: "cadcraft",
+    grid: "gridcraft", gridcraft: "gridcraft",
   };
+
+  const LEGACY_SHORTS = new Set([
+    "photo", "vector", "film", "light", "pdf", "effect", "ani", "design",
+    "texture", "material", "sound", "word", "deck", "cad", "grid",
+  ]);
+
+  const slugToRuntime = (slug) => (slug ? `/runtime/${slug}/` : null);
+
+  const resolveSlug = (raw) => {
+    if (!raw) return null;
+    try {
+      const cleaned = String(raw).trim();
+      if (SHORT_TO_SLUG[cleaned]) return SHORT_TO_SLUG[cleaned];
+      const u = new URL(cleaned, location.origin);
+      if (u.origin !== location.origin) return null;
+      const seg = u.pathname.replace(/^\/+|\/+$/g, "");
+      if (seg.startsWith("runtime/")) {
+        const sub = seg.slice("runtime/".length).split("/")[0];
+        return SHORT_TO_SLUG[sub] || null;
+      }
+      return SHORT_TO_SLUG[seg] || null;
+    } catch (_) {
+      return null;
+    }
+  };
+
+  const resolveMount = (href) => slugToRuntime(resolveSlug(href));
+
+  // In-place Studio Launcher: keeps browser URL cleanly at /<slug>/ (e.g. /photocraft/)
+  let savedHtmlOverflow = "";
+  let savedBodyOverflow = "";
+
+  const closeInPlace = () => {
+    const existing = document.getElementById(OVERLAY_ID);
+    if (!existing) return;
+    existing.remove();
+    document.documentElement.style.overflow = savedHtmlOverflow;
+    if (document.body) document.body.style.overflow = savedBodyOverflow;
+  };
+
+  const launchInPlace = (slug, pushHistory) => {
+    const runtimeUrl = slugToRuntime(slug);
+    if (!runtimeUrl) return;
+    const cleanPath = `/${slug}/`;
+
+    if (pushHistory) {
+      history.pushState({ acStudioLaunch: slug }, "", cleanPath);
+    } else {
+      history.replaceState({ acStudioLaunch: slug }, "", cleanPath);
+    }
+
+    if (document.getElementById(OVERLAY_ID)) return;
+
+    const mountOverlay = () => {
+      if (document.getElementById(OVERLAY_ID)) return;
+      savedHtmlOverflow = document.documentElement.style.overflow || "";
+      savedBodyOverflow = (document.body && document.body.style.overflow) || "";
+      document.documentElement.style.overflow = "hidden";
+      document.body.style.overflow = "hidden";
+
+      const wrap = document.createElement("div");
+      wrap.id = OVERLAY_ID;
+      wrap.style.cssText =
+        "position:fixed;inset:0;width:100vw;height:100dvh;z-index:2147483647;background:#141519;margin:0;padding:0;border:0;overflow:hidden;";
+
+      const frame = document.createElement("iframe");
+      frame.src = runtimeUrl;
+      frame.title = slug;
+      frame.setAttribute(
+        "allow",
+        "cross-origin-isolated; clipboard-read; clipboard-write; fullscreen; microphone; camera; midi; autoplay"
+      );
+      frame.setAttribute("allowfullscreen", "true");
+      frame.style.cssText = "width:100%;height:100%;border:0;display:block;background:#141519;";
+      frame.addEventListener("load", () => {
+        try {
+          frame.focus();
+          if (frame.contentWindow) frame.contentWindow.focus();
+        } catch (_) {}
+      });
+
+      wrap.appendChild(frame);
+      document.body.appendChild(wrap);
+      try {
+        frame.focus();
+      } catch (_) {}
+    };
+
+    if (document.body) {
+      mountOverlay();
+    } else {
+      document.addEventListener("DOMContentLoaded", mountOverlay, { once: true });
+    }
+  };
+
+  // Detect auto-launch arrival (/photocraft/#launch or ?launch=1) immediately so URL stays /photocraft/
+  const currentSeg = location.pathname.replace(/^\/+|\/+$/g, "");
+  const currentSlug = SHORT_TO_SLUG[currentSeg] && !LEGACY_SHORTS.has(currentSeg) ? SHORT_TO_SLUG[currentSeg] : null;
+  const wantsAutoLaunch =
+    location.hash === "#launch" || new URLSearchParams(location.search).get("launch") === "1";
+
+  if (currentSlug && wantsAutoLaunch) {
+    launchInPlace(currentSlug, false);
+  }
+
+  window.addEventListener("popstate", (e) => {
+    if (e.state && e.state.acStudioLaunch) {
+      launchInPlace(e.state.acStudioLaunch, false);
+    } else {
+      closeInPlace();
+    }
+  });
+
+  document.addEventListener("click", (e) => {
+    if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    const a = e.target && e.target.closest ? e.target.closest("a[href]") : null;
+    if (!a || a.target === "_blank") return;
+
+    const rawHref = a.getAttribute("href");
+    if (!rawHref) return;
+    let u;
+    try {
+      u = new URL(rawHref, location.origin);
+    } catch (_) {
+      return;
+    }
+    if (u.origin !== location.origin) return;
+
+    const pathSeg = u.pathname.replace(/^\/+|\/+$/g, "");
+    const targetSlug = a.getAttribute("data-launch-app") || SHORT_TO_SLUG[pathSeg];
+    if (!targetSlug) return;
+
+    const isLaunchLink =
+      a.hasAttribute("data-launch-app") ||
+      u.hash === "#launch" ||
+      u.searchParams.get("launch") === "1" ||
+      LEGACY_SHORTS.has(pathSeg);
+
+    if (!isLaunchLink) return;
+
+    e.preventDefault();
+    if (currentSlug === targetSlug) {
+      launchInPlace(targetSlug, true);
+    } else {
+      location.href = `/${targetSlug}/#launch`;
+    }
+  });
 
   const canPrefetch = () => {
     const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
@@ -110,18 +258,6 @@
     }
   };
 
-  const resolveMount = (href) => {
-    if (!href) return null;
-    try {
-      const u = new URL(href, location.origin);
-      if (u.origin !== location.origin) return null;
-      const seg = u.pathname.replace(/^\/+|\/+$/g, "");
-      return SLUG_TO_MOUNT[seg] || null;
-    } catch (_) {
-      return null;
-    }
-  };
-
   let hoverTimer = null;
   document.addEventListener(
     "pointerover",
@@ -145,8 +281,8 @@
     { passive: true }
   );
 
-  const pageApp = document.documentElement.getAttribute("data-preload-app");
-  if (pageApp && canPrefetch()) {
+  const pageApp = resolveMount(document.documentElement.getAttribute("data-preload-app") || currentSlug);
+  if (pageApp && canPrefetch() && !wantsAutoLaunch) {
     setTimeout(() => warmApp(pageApp), 300);
   }
 })();

@@ -7,6 +7,38 @@ https://the-allcraft.pages.dev/* https://allcraft.app/:splat 301!
 /apps /#lineup 301
 /apps/ /#lineup 301
 
+# Consolidate legacy short launch URLs (/photo/, /vector/, etc.) onto canonical /<slug>/
+/photo /photocraft/#launch 301
+/photo/ /photocraft/#launch 301
+/vector /vectorcraft/#launch 301
+/vector/ /vectorcraft/#launch 301
+/film /filmcraft/#launch 301
+/film/ /filmcraft/#launch 301
+/light /lightcraft/#launch 301
+/light/ /lightcraft/#launch 301
+/pdf /pdfcraft/#launch 301
+/pdf/ /pdfcraft/#launch 301
+/effect /effectcraft/#launch 301
+/effect/ /effectcraft/#launch 301
+/ani /anicraft/#launch 301
+/ani/ /anicraft/#launch 301
+/design /designcraft/#launch 301
+/design/ /designcraft/#launch 301
+/texture /texturecraft/#launch 301
+/texture/ /texturecraft/#launch 301
+/material /materialcraft/#launch 301
+/material/ /materialcraft/#launch 301
+/sound /soundcraft/#launch 301
+/sound/ /soundcraft/#launch 301
+/word /wordcraft/#launch 301
+/word/ /wordcraft/#launch 301
+/deck /deckcraft/#launch 301
+/deck/ /deckcraft/#launch 301
+/cad /cadcraft/#launch 301
+/cad/ /cadcraft/#launch 301
+/grid /gridcraft/#launch 301
+/grid/ /gridcraft/#launch 301
+
 # High-intent search alias redirects
 /photoshop-alternative /photocraft/ 301
 /photoshop-alternative/ /photocraft/ 301

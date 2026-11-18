@@ -7,7 +7,7 @@
       "repo": "thepixopik/photocraft",
       "artifact_name": "the-allcraft-photo-web",
       "branch": "main",
-      "mount_path": "photo",
+      "mount_path": "runtime/photocraft",
       "required": true
     },
     {
@@ -16,7 +16,7 @@
       "repo": "thepixopik/vectorcraft",
       "artifact_name": "the-allcraft-web-cloudflare",
       "branch": "main",
-      "mount_path": "vector",
+      "mount_path": "runtime/vectorcraft",
       "required": true
     },
     {
@@ -25,7 +25,7 @@
       "repo": "thepixopik/filmcraft",
       "artifact_name": "the-allcraft-film-web",
       "branch": "main",
-      "mount_path": "film",
+      "mount_path": "runtime/filmcraft",
       "required": true
     },
     {
@@ -34,7 +34,7 @@
       "repo": "thepixopik/lightcraft",
       "artifact_name": "the-allcraft-light-web",
       "branch": "main",
-      "mount_path": "light",
+      "mount_path": "runtime/lightcraft",
       "required": true
     },
     {
@@ -43,7 +43,7 @@
       "repo": "thepixopik/pdfcraft",
       "artifact_name": "the-allcraft-pdf-web",
       "branch": "main",
-      "mount_path": "pdf",
+      "mount_path": "runtime/pdfcraft",
       "required": true
     },
     {
@@ -52,7 +52,7 @@
       "repo": "thepixopik/effectcraft",
       "artifact_name": "the-allcraft-effect-web",
       "branch": "main",
-      "mount_path": "effect",
+      "mount_path": "runtime/effectcraft",
       "required": true
     },
     {
@@ -61,7 +61,7 @@
       "repo": "thepixopik/anicraft",
       "artifact_name": "the-allcraft-ani-web",
       "branch": "main",
-      "mount_path": "ani",
+      "mount_path": "runtime/anicraft",
       "required": true
     },
     {
@@ -70,7 +70,7 @@
       "repo": "thepixopik/designcraft",
       "artifact_name": "the-allcraft-design-web",
       "branch": "main",
-      "mount_path": "design",
+      "mount_path": "runtime/designcraft",
       "required": true
     },
     {
@@ -79,7 +79,7 @@
       "repo": "thepixopik/texturecraft",
       "artifact_name": "the-allcraft-texture-web",
       "branch": "main",
-      "mount_path": "texture",
+      "mount_path": "runtime/texturecraft",
       "required": true
     },
     {
@@ -88,7 +88,7 @@
       "repo": "thepixopik/materialcraft",
       "artifact_name": "the-allcraft-material-web",
       "branch": "main",
-      "mount_path": "material",
+      "mount_path": "runtime/materialcraft",
       "required": true
     },
     {
@@ -97,7 +97,7 @@
       "repo": "thepixopik/soundcraft",
       "artifact_name": "the-allcraft-sound-web",
       "branch": "main",
-      "mount_path": "sound",
+      "mount_path": "runtime/soundcraft",
       "required": true
     },
     {
@@ -106,7 +106,7 @@
       "repo": "thepixopik/wordcraft",
       "artifact_name": "the-allcraft-word-web",
       "branch": "main",
-      "mount_path": "word",
+      "mount_path": "runtime/wordcraft",
       "required": true
     },
     {
@@ -115,7 +115,7 @@
       "repo": "thepixopik/deckcraft",
       "artifact_name": "the-allcraft-deck-web",
       "branch": "main",
-      "mount_path": "deck",
+      "mount_path": "runtime/deckcraft",
       "required": true
     },
     {
@@ -124,7 +124,7 @@
       "repo": "thepixopik/cadcraft",
       "artifact_name": "the-allcraft-cad-web",
       "branch": "main",
-      "mount_path": "cad",
+      "mount_path": "runtime/cadcraft",
       "required": true
     },
     {
@@ -133,7 +133,7 @@
       "repo": "thepixopik/gridcraft",
       "artifact_name": "the-allcraft-grid-web",
       "branch": "main",
-      "mount_path": "grid",
+      "mount_path": "runtime/gridcraft",
       "required": true
     }
   ]
