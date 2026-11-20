@@ -1,43 +1,43 @@
 # Canonical Domain Redirect (consolidate all SEO equity onto allcraft.app)
 https://the-allcraft.pages.dev/* https://allcraft.app/:splat 301!
 
-# Redirect legacy /apps/* paths to new clean root slugs (/<slug>/)
-/apps/:slug /apps-redirect/:slug 302
-/apps-redirect/:slug /:slug/ 301
+# Redirect legacy /apps/* paths directly to canonical root slugs (/<slug>/)
+/apps/:slug /:slug/ 301
+/apps/:slug/ /:slug/ 301
 /apps /#lineup 301
 /apps/ /#lineup 301
 
-# Consolidate legacy short launch URLs (/photo/, /vector/, etc.) onto canonical /<slug>?launch=1
-/photo /photocraft?launch=1 301
-/photo/ /photocraft?launch=1 301
-/vector /vectorcraft?launch=1 301
-/vector/ /vectorcraft?launch=1 301
-/film /filmcraft?launch=1 301
-/film/ /filmcraft?launch=1 301
-/light /lightcraft?launch=1 301
-/light/ /lightcraft?launch=1 301
-/pdf /pdfcraft?launch=1 301
-/pdf/ /pdfcraft?launch=1 301
-/effect /effectcraft?launch=1 301
-/effect/ /effectcraft?launch=1 301
-/ani /anicraft?launch=1 301
-/ani/ /anicraft?launch=1 301
-/design /designcraft?launch=1 301
-/design/ /designcraft?launch=1 301
-/texture /texturecraft?launch=1 301
-/texture/ /texturecraft?launch=1 301
-/material /materialcraft?launch=1 301
-/material/ /materialcraft?launch=1 301
-/sound /soundcraft?launch=1 301
-/sound/ /soundcraft?launch=1 301
-/word /wordcraft?launch=1 301
-/word/ /wordcraft?launch=1 301
-/deck /deckcraft?launch=1 301
-/deck/ /deckcraft?launch=1 301
-/cad /cadcraft?launch=1 301
-/cad/ /cadcraft?launch=1 301
-/grid /gridcraft?launch=1 301
-/grid/ /gridcraft?launch=1 301
+# Consolidate legacy short launch URLs (/photo/, /vector/, etc.) onto canonical /<slug>/?launch=1
+/photo /photocraft/?launch=1 301
+/photo/ /photocraft/?launch=1 301
+/vector /vectorcraft/?launch=1 301
+/vector/ /vectorcraft/?launch=1 301
+/film /filmcraft/?launch=1 301
+/film/ /filmcraft/?launch=1 301
+/light /lightcraft/?launch=1 301
+/light/ /lightcraft/?launch=1 301
+/pdf /pdfcraft/?launch=1 301
+/pdf/ /pdfcraft/?launch=1 301
+/effect /effectcraft/?launch=1 301
+/effect/ /effectcraft/?launch=1 301
+/ani /anicraft/?launch=1 301
+/ani/ /anicraft/?launch=1 301
+/design /designcraft/?launch=1 301
+/design/ /designcraft/?launch=1 301
+/texture /texturecraft/?launch=1 301
+/texture/ /texturecraft/?launch=1 301
+/material /materialcraft/?launch=1 301
+/material/ /materialcraft/?launch=1 301
+/sound /soundcraft/?launch=1 301
+/sound/ /soundcraft/?launch=1 301
+/word /wordcraft/?launch=1 301
+/word/ /wordcraft/?launch=1 301
+/deck /deckcraft/?launch=1 301
+/deck/ /deckcraft/?launch=1 301
+/cad /cadcraft/?launch=1 301
+/cad/ /cadcraft/?launch=1 301
+/grid /gridcraft/?launch=1 301
+/grid/ /gridcraft/?launch=1 301
 
 # High-intent search alias redirects
 /photoshop-alternative /photocraft/ 301
