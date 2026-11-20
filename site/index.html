@@ -332,8 +332,65 @@
     .hero-meta { margin-top: 26px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px 24px; color: var(--faint); }
     .hero-meta a:hover { color: var(--ink-strong); }
 
-    .intro-body { padding: 72px 40px; }
-    @media (max-width: 768px) { .intro-body { padding: 48px 20px; } }
+    .intro-body {
+      padding: 72px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 48px;
+    }
+    .intro-copy { min-width: 0; flex: 1 1 auto; }
+    .intro-icons {
+      flex: 0 0 auto;
+      width: 100%;
+      max-width: 492px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 18px 14px;
+    }
+    .intro-app-tile {
+      width: 70px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 7px;
+      text-decoration: none;
+      color: var(--muted);
+      transition: color 0.15s ease;
+    }
+    .intro-app-tile img {
+      width: 56px;
+      height: 56px;
+      display: block;
+      filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.28));
+      transition: transform 0.22s ease, filter 0.22s ease;
+    }
+    .intro-app-tile:hover { color: var(--ink-strong); }
+    .intro-app-tile:hover img {
+      transform: translateY(-3px) scale(1.05);
+      filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.36));
+    }
+    .intro-app-name {
+      font-size: 11px;
+      font-weight: 500;
+      line-height: 1.2;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+    @media (max-width: 1120px) {
+      .intro-body { flex-direction: column; align-items: stretch; gap: 40px; }
+      .intro-icons { max-width: 100%; }
+    }
+    @media (max-width: 768px) {
+      .intro-body { padding: 48px 20px; }
+      .intro-icons { gap: 14px 10px; }
+      .intro-app-tile { width: 64px; }
+      .intro-app-tile img { width: 48px; height: 48px; }
+    }
     .sec-h2 { margin: 0; max-width: 780px; font-size: clamp(36px, 5.2vw, 60px); line-height: 1.02; color: var(--ink-strong); }
     .accent-word { color: var(--accent-ink); }
     .sec-lead { margin: 20px 0 0; max-width: 640px; font-size: 18px; line-height: 1.62; color: var(--muted); }
@@ -514,30 +571,47 @@
 
           <div class="hero-meta hud-label">
             <a href="https://github.com/thepixopik/allcraft" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
-              MIT / Apache-2.0 Open Source
-            </a>
-            <span>WebGPU &middot; macOS &middot; Windows &middot; Linux</span>
-            <span>$0 Forever &middot; No Sign-Up</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303<div class="intro-body">
+          <div class="intro-copy">
+          <h2 class="sec-h2 font-display">Fifteen apps. One <span class="accent-word">craft</span>.</h2>
+          <p class="sec-lead">Free, open-source browser alternatives for Photoshop (<strong>PhotoCraft</strong>), Illustrator (<strong>VectorCraft</strong>), Premiere Pro (<strong>FilmCraft</strong>), Lightroom (<strong>LightCraft</strong>), Acrobat Pro (<strong>PdfCraft</strong>), After Effects (<strong>EffectCraft</strong>), Animate (<strong>AniCraft</strong>), InDesign (<strong>DesignCraft</strong>), Substance 3D (<strong>TextureCraft</strong> &amp; <strong>MaterialCraft</strong>), Audition (<strong>SoundCraft</strong>), Word (<strong>WordCraft</strong>), PowerPoint (<strong>DeckCraft</strong>), AutoCAD (<strong>CADCraft</strong>) and Excel (<strong>GridCraft</strong>).</p>
+
+          <div class="intro-actions">
+            <a href="#lineup" class="btn-primary hud-label">Browse All 15 Apps</a>
+            <a href="/adobe-alternative/" class="btn-secondary hud-label">Full Replacement Matrix</a>
+            <a href="/artcraft-web/" class="btn-secondary hud-label">Craft / ArtCraft Web Guide</a>
+          </div>
+
+          <div class="share-strip">
+            <span class="share-cell label hud-label">Share</span>
+            <button type="button" class="share-cell hud-label" id="copy-link-btn">Copy link</button>
+            <a class="share-cell hud-label" target="_blank" rel="noopener" href="https://x.com/intent/post?text=AllCraft%20Studio%20%E2%80%94%2015%20free%20open-source%20Adobe%2C%20Office%20%26%20AutoCAD%20alternatives%20in%20your%20browser&url=https%3A%2F%2Fallcraft.app%2F">X</a>
+            <a class="share-cell hud-label" target="_blank" rel="noopener" href="https://www.reddit.com/submit?url=https%3A%2F%2Fallcraft.app%2F&title=AllCraft%20%E2%80%94%2015%20Free%20Open-Source%20Pure%20Rust%20%2B%20WebAssembly%20Creative%20%26%20Office%20Apps">Reddit</a>
+            <a class="share-cell hud-label" target="_blank" rel="noopener" href="https://bsky.app/intent/compose?text=AllCraft%20Studio%20https%3A%2F%2Fallcraft.app%2F">Bluesky</a>
+            <a class="share-cell hud-label" target="_blank" rel="noopener" href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fallcraft.app%2F">LinkedIn</a>
+          </div>
+          </div>
+
+          <div class="intro-icons" aria-label="All 15 AllCraft Apps">
+            <a href="/photocraft/" class="intro-app-tile" title="PhotoCraft — Image editor"><img src="https://getartcraft.com/images/apps/photocraft/icon.webp" alt="PhotoCraft" width="56" height="56" loading="lazy" decoding="async"><span class="intro-app-name">PhotoCraft</span></a>
+            <a href="/vectorcraft/" class="intro-app-tile" title="VectorCraft — Vector illustration"><img src="https://getartcraft.com/images/apps/vectorcraft/icon.webp" alt="VectorCraft" width="56" height="56" loading="lazy" decoding="async"><span class="intro-app-name">VectorCraft</span></a>
+            <a href="/filmcraft/" class="intro-app-tile" title="FilmCraft — Video editor"><img src="https://getartcraft.com/images/apps/filmcraft/icon.webp" alt="FilmCraft" width="56" height="56" loading="lazy" decoding="async"><span class="intro-app-name">FilmCraft</span></a>
+            <a href="/lightcraft/" class="intro-app-tile" title="LightCraft — Photo library & raw"><img src="https://getartcraft.com/images/apps/lightcraft/icon.webp" alt="LightCraft" width="56" height="56" loading="lazy" decoding="async"><span class="intro-app-name">LightCraft</span></a>
+            <a href="/pdfcraft/" class="intro-app-tile" title="PdfCraft — PDF workbench"><img src="https://getartcraft.com/images/apps/pdfcraft/icon.webp" alt="PdfCraft" width="56" height="56" loading="lazy" decoding="async"><span class="intro-app-name">PdfCraft</span></a>
+            <a href="/effectcraft/" class="intro-app-tile" title="EffectCraft — Motion graphics & VFX"><img src="https://getartcraft.com/images/apps/effectcraft/icon.webp" alt="EffectCraft" width="56" height="56" loading="lazy" decoding="async"><span class="intro-app-name">EffectCraft</span></a>
+            <a href="/anicraft/" class="intro-app-tile" title="AniCraft — 2D vector animation"><img src="https://getartcraft.com/images/apps/anicraft/icon.webp" alt="AniCraft" width="56" height="56" loading="lazy" decoding="async"><span class="intro-app-name">AniCraft</span></a>
+            <a href="/designcraft/" class="intro-app-tile" title="DesignCraft — Page layout & print"><img src="https://getartcraft.com/images/apps/designcraft/icon.webp" alt="DesignCraft" width="56" height="56" loading="lazy" decoding="async"><span class="intro-app-name">DesignCraft</span></a>
+            <a href="/texturecraft/" class="intro-app-tile" title="TextureCraft — 3D texture painting"><img src="https://getartcraft.com/images/apps/texturecraft/icon.webp" alt="TextureCraft" width="56" height="56" loading="lazy" decoding="async"><span class="intro-app-name">TextureCraft</span></a>
+            <a href="/materialcraft/" class="intro-app-tile" title="MaterialCraft — Procedural materials"><img src="https://getartcraft.com/images/apps/materialcraft/icon.webp" alt="MaterialCraft" width="56" height="56" loading="lazy" decoding="async"><span class="intro-app-name">MaterialCraft</span></a>
+            <a href="/soundcraft/" class="intro-app-tile" title="SoundCraft — Audio DAW"><img src="https://getartcraft.com/images/apps/soundcraft/icon.webp" alt="SoundCraft" width="56" height="56" loading="lazy" decoding="async"><span class="intro-app-name">SoundCraft</span></a>
+            <a href="/wordcraft/" class="intro-app-tile" title="WordCraft — Word processing"><img src="https://getartcraft.com/images/apps/wordcraft/icon.webp" alt="WordCraft" width="56" height="56" loading="lazy" decoding="async"><span class="intro-app-name">WordCraft</span></a>
+            <a href="/deckcraft/" class="intro-app-tile" title="DeckCraft — Presentations"><img src="https://getartcraft.com/images/apps/deckcraft/icon.webp" alt="DeckCraft" width="56" height="56" loading="lazy" decoding="async"><span class="intro-app-name">DeckCraft</span></a>
+            <a href="/cadcraft/" class="intro-app-tile" title="CADCraft — 2D/3D CAD & DWG"><img src="https://getartcraft.com/images/apps/cadcraft/icon.webp" alt="CADCraft" width="56" height="56" loading="lazy" decoding="async"><span class="intro-app-name">CADCraft</span></a>
+            <a href="/gridcraft/" class="intro-app-tile" title="GridCraft — Spreadsheets"><img src="https://getartcraft.com/images/apps/gridcraft/icon.webp" alt="GridCraft" width="56" height="56" loading="lazy" decoding="async"><span class="intro-app-name">GridCraft</span></a>
           </div>
         </div>
       </div>
-    </section>
-
-    <!-- 01 / CRAFTING APPS -->
-    <section id="apps" class="section-wrap">
-      <div class="frame">
-        <span class="tick tick-tl" aria-hidden="true"></span>
-        <span class="tick tick-tr" aria-hidden="true"></span>
-
-        <div class="eyebrow">
-          <p class="hud-label" style="margin:0;color:var(--muted)"><span style="color:var(--faint)">01</span> <span style="color:var(--faint);margin:0 6px">/</span> Crafting Apps</p>
-          <p class="hud-label" style="margin:0;color:var(--faint)">Fifteen apps &middot; Open source &middot; Pure Rust</p>
-        </div>
-
-        <div class="intro-body">
-          <h2 class="sec-h2 font-display">Fifteen apps. One <span class="accent-word">craft</span>.</h2>
-          <p class="sec-lead">Free, open-source browser alternatives for Photoshop (<strong>PhotoCraft</strong>), Illustrator (<strong>VectorCraft</strong>), Premiere Pro (<strong>FilmCraft</strong>), Lightroom (<strong>LightCraft</strong>), Acrobat Pro (<strong>PdfCraft</strong>), After Effects (<strong>EffectCraft</strong>), Animate (<strong>AniCraft</strong>), InDesign (<strong>DesignCraft</strong>), Substance 3D (<strong>TextureCraft</strong> &amp; <strong>MaterialCraft</strong>), Audition (<strong>SoundCraft</strong>), Word (<strong>WordCraft</strong>), PowerPoint (<strong>DeckCraft</strong>), AutoCAD (<strong>CADCraft</strong>) and Excel (<strong>GridCraft</strong>).</p>
+    </section>).</p>
 
           <div class="intro-actions">
             <a href="#lineup" class="btn-primary hud-label">Browse All 15 Apps</a>
