@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-"""Generate SEO-optimized Swiss architectural HUD detail pages, comparison hubs (/adobe-alternative/, /artcraft-web/), static home lineup grid, og-cover.png, and /sitemap.xml for https://allcraft.app."""
+"""Generate SEO-optimized Swiss architectural HUD detail pages, comparison hubs (/adobe-alternative/, /artcraft-web/), static home lineup grid, PNG favicons, og-cover.png, and /sitemap.xml for https://allcraft.app."""
 
 import datetime
 import html
 import json
 import pathlib
-import re
 import struct
 import zlib
 from apps_catalog import APPS_CATALOG, SITE_ORIGIN
@@ -15,57 +14,17 @@ def _esc(s: str) -> str:
     return html.escape(str(s), quote=True)
 
 
+ALLCRAFT_SPLIT_A_POLYS = (
+    ((15.9, 48.1), (30.2, 15.9), (36.7, 15.9), (23.2, 48.1)),
+    ((33.8, 27.6), (40.1, 27.6), (48.6, 48.1), (41.4, 48.1)),
+    ((28.9, 41.1), (31.2, 35.4), (35.9, 35.4), (38.2, 41.1)),
+)
+
 ALLCRAFT_LOGO_GROUP = (
-    '<g stroke-linejoin="round" stroke-width=".35">'
-    '<path d="M27 10.5L37 10.5L32 20Z" fill="#6bd283" stroke="#6bd283"/>'
-    '<path d="M27 10.5L32 20L26.5 22Z" fill="#3bbd7c" stroke="#3bbd7c"/>'
-    '<path d="M27 10.5L21.7 20L26.5 22Z" fill="#87d6ab" stroke="#87d6ab"/>'
-    '<path d="M21.7 20L21.5 26.5L26.5 22Z" fill="#5ed3a4" stroke="#5ed3a4"/>'
-    '<path d="M32 20L26.5 22L25.9 30.5Z" fill="#1f9270" stroke="#1f9270"/>'
-    '<path d="M26.5 22L21.5 26.5L25.9 30.5Z" fill="#3ac98d" stroke="#3ac98d"/>'
-    '<path d="M21.7 20L15.8 30.5L21.5 26.5Z" fill="#25bcaa" stroke="#25bcaa"/>'
-    '<path d="M15.8 30.5L25.9 30.5L21.5 26.5Z" fill="#1da094" stroke="#1da094"/>'
-    '<path d="M15.8 30.5L9.4 42L25.9 30.5Z" fill="#24c3b1" stroke="#24c3b1"/>'
-    '<path d="M9.4 42L19.2 42L25.9 30.5Z" fill="#115f64" stroke="#115f64"/>'
-    '<path d="M9.4 42L12.2 48L19.2 42Z" fill="#198c87" stroke="#198c87"/>'
-    '<path d="M9.4 42L3 53.5L12.2 48Z" fill="#0f5e65" stroke="#0f5e65"/>'
-    '<path d="M3 53.5L12.5 53.5L12.2 48Z" fill="#0a4450" stroke="#0a4450"/>'
-    '<path d="M12.2 48L12.5 53.5L19.2 42Z" fill="#126168" stroke="#126168"/>'
-    '<path d="M37 10.5L38.2 24.5L32 20Z" fill="#c05939" stroke="#c05939"/>'
-    '<path d="M37 10.5L42.3 20L38.2 24.5Z" fill="#fb9b61" stroke="#fb9b61"/>'
-    '<path d="M42.3 20L42.8 27L38.2 24.5Z" fill="#f96e4c" stroke="#f96e4c"/>'
-    '<path d="M32 20L38.2 24.5L38.1 30.5Z" fill="#f75137" stroke="#f75137"/>'
-    '<path d="M38.2 24.5L42.8 27L38.1 30.5Z" fill="#dd4948" stroke="#dd4948"/>'
-    '<path d="M42.3 20L48.2 30.5L42.8 27Z" fill="#fa6244" stroke="#fa6244"/>'
-    '<path d="M48.2 30.5L38.1 30.5L42.8 27Z" fill="#de484b" stroke="#de484b"/>'
-    '<path d="M48.2 30.5L54.6 42L38.1 30.5Z" fill="#ff6343" stroke="#ff6343"/>'
-    '<path d="M38.1 30.5L54.6 42L42.5 38Z" fill="#6d2c80" stroke="#6d2c80"/>'
-    '<path d="M42.5 38L54.6 42L46.3 44.5Z" fill="#8c3c96" stroke="#8c3c96"/>'
-    '<path d="M54.6 42L52.5 48.2L46.3 44.5Z" fill="#9f48ed" stroke="#9f48ed"/>'
-    '<path d="M54.6 42L61 53.5L52.5 48.2Z" fill="#632caa" stroke="#632caa"/>'
-    '<path d="M61 53.5L51.5 53.5L52.5 48.2Z" fill="#451e82" stroke="#451e82"/>'
-    '<path d="M46.3 44.5L52.5 48.2L51.5 53.5Z" fill="#7534b4" stroke="#7534b4"/>'
-    '<path d="M25.9 30.5L38.1 30.5L29 36.2Z" fill="#45ca7e" stroke="#45ca7e"/>'
-    '<path d="M29 36.2L38.1 30.5L35.3 36.2Z" fill="#979f66" stroke="#979f66"/>'
-    '<path d="M38.1 30.5L42.5 38L38.8 36.2Z" fill="#f4764e" stroke="#f4764e"/>'
-    '<path d="M38.1 30.5L38.8 36.2L35.3 36.2Z" fill="#ee8353" stroke="#ee8353"/>'
-    '<path d="M35.3 36.2L38.8 36.2L37.5 40Z" fill="#fa774b" stroke="#fa774b"/>'
-    '<path d="M38.8 36.2L42.5 38L37.5 40Z" fill="#fb6b45" stroke="#fb6b45"/>'
-    '<path d="M25.9 30.5L29 36.2L24.8 36.2Z" fill="#28ae8e" stroke="#28ae8e"/>'
-    '<path d="M25.9 30.5L24.8 36.2L19.2 42Z" fill="#23948c" stroke="#23948c"/>'
-    '<path d="M24.8 36.2L29 36.2L25.8 42Z" fill="#1a8a73" stroke="#1a8a73"/>'
-    '<path d="M19.2 42L24.8 36.2L25.8 42Z" fill="#16817a" stroke="#16817a"/>'
-    '<path d="M19.2 42L25.8 42L24 47.6Z" fill="#239f94" stroke="#239f94"/>'
-    '<path d="M25.8 42L29 47.6L24 47.6Z" fill="#24c2ac" stroke="#24c2ac"/>'
-    '<path d="M19.2 42L24 47.6L25.8 53.5Z" fill="#147075" stroke="#147075"/>'
-    '<path d="M24 47.6L29 47.6L25.8 53.5Z" fill="#17817e" stroke="#17817e"/>'
-    '<path d="M25.8 53.5L29 47.6L38.5 53.5Z" fill="#10606b" stroke="#10606b"/>'
-    '<path d="M29 47.6L35.3 47.6L38.5 53.5Z" fill="#ce484d" stroke="#ce484d"/>'
-    '<path d="M35.3 47.6L37.5 44L38.8 48.2Z" fill="#fe593d" stroke="#fe593d"/>'
-    '<path d="M37.5 44L42.5 46.2L38.8 48.2Z" fill="#ff5b40" stroke="#ff5b40"/>'
-    '<path d="M35.3 47.6L38.8 48.2L38.5 53.5Z" fill="#d84949" stroke="#d84949"/>'
-    '<path d="M38.8 48.2L42.5 46.2L38.5 53.5Z" fill="#d5494d" stroke="#d5494d"/>'
-    '</g>'
+    '<rect width="64" height="64" rx="14" fill="#FF5733"/>'
+    '<path d="M15.9 48.1L30.2 15.9H36.7L23.2 48.1H15.9Z'
+    'M33.8 27.6H40.1L48.6 48.1H41.4L33.8 27.6Z'
+    'M28.9 41.1L31.2 35.4H35.9L38.2 41.1H28.9Z" fill="#FFFFFF"/>'
 )
 
 OG_IMAGE_URL = f"{SITE_ORIGIN}/og-cover.png"
@@ -77,10 +36,10 @@ ORG_SCHEMA = {
     "url": f"{SITE_ORIGIN}/",
     "logo": {
         "@type": "ImageObject",
-        "url": OG_IMAGE_URL,
+        "url": f"{SITE_ORIGIN}/favicon-192.png",
         "contentUrl": f"{SITE_ORIGIN}/favicon.svg",
-        "width": 1200,
-        "height": 630,
+        "width": 192,
+        "height": 192,
     },
     "sameAs": ["https://github.com/thepixopik/allcraft"],
 }
@@ -292,7 +251,9 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0b0b0c" id="meta-theme-color">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-  <link rel="apple-touch-icon" href="/favicon.svg">
+  <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <title>{_esc(app['seo_title'])}</title>
   <meta name="description" content="{_esc(seo_desc)}">
   <link rel="canonical" href="{canonical}">
@@ -607,7 +568,7 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
     <div class="topbar-inner">
       <div class="crumbs hud-label">
         <a href="/" class="brand-link">
-          <svg width="20" height="15" viewBox="3 10.5 58 43" fill="none" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 64 64" fill="none" aria-hidden="true">
             {ALLCRAFT_LOGO_GROUP}
           </svg>
           <span>ALL<span class="brand-craft">CRAFT</span></span>
@@ -941,7 +902,7 @@ cargo run --release</pre>
     <div class="footer-grid">
       <div>
         <a href="/" class="brand-link" style="margin-bottom:10px">
-          <svg width="20" height="15" viewBox="3 10.5 58 43" fill="none" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 64 64" fill="none" aria-hidden="true">
             {ALLCRAFT_LOGO_GROUP}
           </svg>
           <span>ALL<span class="brand-craft">CRAFT</span> STUDIO</span>
@@ -1086,7 +1047,9 @@ def render_comparison_hub_page(
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0b0b0c" id="meta-theme-color">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-  <link rel="apple-touch-icon" href="/favicon.svg">
+  <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <title>{_esc(title)}</title>
   <meta name="description" content="{_esc(description)}">
   <link rel="canonical" href="{canonical}">
@@ -1144,7 +1107,7 @@ def render_comparison_hub_page(
   <header class="topbar">
     <div class="topbar-inner">
       <a href="/" class="brand-link">
-        <svg width="20" height="15" viewBox="3 10.5 58 43" fill="none" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 64 64" fill="none" aria-hidden="true">
           {ALLCRAFT_LOGO_GROUP}
         </svg>
         <span>ALL<span class="brand-craft">CRAFT</span> STUDIO</span>
@@ -1198,7 +1161,7 @@ def render_comparison_hub_page(
   <footer class="section-wrap">
     <div class="footer-inner">
       <a href="/" class="brand-link" style="font-size:13px">
-        <svg width="17" height="13" viewBox="3 10.5 58 43" fill="none" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 64 64" fill="none" aria-hidden="true">
           {ALLCRAFT_LOGO_GROUP}
         </svg>
         <span>allcraft.app</span>
@@ -1225,6 +1188,119 @@ def render_comparison_hub_page(
 </body>
 </html>
 """
+
+
+def _in_poly(vx: float, vy: float, poly: tuple[tuple[float, float], ...]) -> bool:
+    inside = False
+    x0, y0 = poly[-1]
+    for x1, y1 in poly:
+        if (y1 > vy) != (y0 > vy):
+            if vx < x0 + (vy - y0) * (x1 - x0) / (y1 - y0):
+                inside = not inside
+        x0, y0 = x1, y1
+    return inside
+
+
+def _sample_logo_px(
+    px: int,
+    py: int,
+    size: int,
+    samples: int = 3,
+    rounded: bool = True,
+) -> tuple[int, int, int, int]:
+    """Supersampled RGBA pixel for the 64x64 Coral-Orange (#FF5733) + Pure White (#FFFFFF) Split-A badge."""
+    inv_s = 64.0 / (size * samples)
+    base_x = px * samples
+    base_y = py * samples
+    r_acc = g_acc = b_acc = a_acc = 0
+    for sy in range(samples):
+        vy = (base_y + sy + 0.5) * inv_s
+        dy = max(14.0 - vy, 0.0, vy - 50.0)
+        dy2 = dy * dy
+        for sx in range(samples):
+            vx = (base_x + sx + 0.5) * inv_s
+            if rounded:
+                dx = max(14.0 - vx, 0.0, vx - 50.0)
+                if dx * dx + dy2 > 196.0:
+                    continue
+            in_glyph = False
+            for poly in ALLCRAFT_SPLIT_A_POLYS:
+                if _in_poly(vx, vy, poly):
+                    in_glyph = True
+                    break
+            if in_glyph:
+                r_acc += 255
+                g_acc += 255
+                b_acc += 255
+            else:
+                r_acc += 255
+                g_acc += 87
+                b_acc += 51
+            a_acc += 255
+    if a_acc == 0:
+        return (0, 0, 0, 0)
+    total = samples * samples
+    hits = a_acc // 255
+    return (
+        min(255, round(r_acc / hits)),
+        min(255, round(g_acc / hits)),
+        min(255, round(b_acc / hits)),
+        min(255, round(a_acc / total)),
+    )
+
+
+def _encode_png(w: int, h: int, color_type: int, raw_buf: bytes) -> bytes:
+    def png_chunk(tag: bytes, data: bytes) -> bytes:
+        return (
+            struct.pack(">I", len(data))
+            + tag
+            + data
+            + struct.pack(">I", zlib.crc32(tag + data) & 0xFFFFFFFF)
+        )
+
+    ihdr = struct.pack(">IIBBBBB", w, h, 8, color_type, 0, 0, 0)
+    compressed = zlib.compress(raw_buf, 6)
+    return (
+        b"\x89PNG\r\n\x1a\n"
+        + png_chunk(b"IHDR", ihdr)
+        + png_chunk(b"IDAT", compressed)
+        + png_chunk(b"IEND", b"")
+    )
+
+
+def write_png_favicons(dist_dir: pathlib.Path) -> None:
+    """Generate Google SERP-ready 48x48 & 192x192 RGBA PNG favicons and 180x180 Apple Touch Icon."""
+    for size, filename, samples in ((48, "favicon-48.png", 4), (192, "favicon-192.png", 3)):
+        stride = 1 + size * 4
+        buf = bytearray(stride * size)
+        for y in range(size):
+            row_off = y * stride
+            buf[row_off] = 0
+            for x in range(size):
+                r, g, b, a = _sample_logo_px(x, y, size, samples=samples, rounded=True)
+                off = row_off + 1 + x * 4
+                buf[off] = r
+                buf[off + 1] = g
+                buf[off + 2] = b
+                buf[off + 3] = a
+        png_bytes = _encode_png(size, size, 6, bytes(buf))
+        (dist_dir / filename).write_bytes(png_bytes)
+
+    touch_size = 180
+    t_stride = 1 + touch_size * 3
+    t_buf = bytearray(t_stride * touch_size)
+    for y in range(touch_size):
+        row_off = y * t_stride
+        t_buf[row_off] = 0
+        for x in range(touch_size):
+            r, g, b, _ = _sample_logo_px(x, y, touch_size, samples=3, rounded=False)
+            off = row_off + 1 + x * 3
+            t_buf[off] = r
+            t_buf[off + 1] = g
+            t_buf[off + 2] = b
+    touch_bytes = _encode_png(touch_size, touch_size, 2, bytes(t_buf))
+    (dist_dir / "apple-touch-icon.png").write_bytes(touch_bytes)
+    print("    Generated dist/favicon-48.png, dist/favicon-192.png & dist/apple-touch-icon.png")
 
 
 def write_og_cover_png(dist_dir: pathlib.Path) -> None:
@@ -1261,56 +1337,31 @@ def write_og_cover_png(dist_dir: pathlib.Path) -> None:
 
     for x in range(61, 1140):
         t = (x - 61) / 1078.0
-        r = int(44 + (253 - 44) * t)
-        g = int(191 + (98 - 191) * t)
-        b = int(167 + (68 - 167) * t)
+        r = int(44 + (255 - 44) * t)
+        g = int(191 + (87 - 191) * t)
+        b = int(167 + (51 - 167) * t)
         for y in range(580, 585):
             set_px(x, y, r, g, b)
 
-    raw_facets = re.findall(
-        r'd="M([\d.]+) ([\d.]+)L([\d.]+) ([\d.]+)L([\d.]+) ([\d.]+)Z" fill="#([0-9a-f]{6})"',
-        ALLCRAFT_LOGO_GROUP,
-    )
-    scale = 8.4
-    for sx1, sy1, sx2, sy2, sx3, sy3, hex_col in raw_facets:
-        cr, cg, cb = int(hex_col[0:2], 16), int(hex_col[2:4], 16), int(hex_col[4:6], 16)
-        ax, ay = (float(sx1) - 32.0) * scale + 600.0, (float(sy1) - 32.0) * scale + 315.0
-        bx, by = (float(sx2) - 32.0) * scale + 600.0, (float(sy2) - 32.0) * scale + 315.0
-        cx, cy = (float(sx3) - 32.0) * scale + 600.0, (float(sy3) - 32.0) * scale + 315.0
-        min_x = max(0, int(min(ax, bx, cx)))
-        max_x = min(w - 1, int(max(ax, bx, cx)) + 1)
-        min_y = max(0, int(min(ay, by, cy)))
-        max_y = min(h - 1, int(max(ay, by, cy)) + 1)
-        denom = (by - cy) * (ax - cx) + (cx - bx) * (ay - cy)
-        if abs(denom) < 1e-6:
-            continue
-        inv_d = 1.0 / denom
-        for py in range(min_y, max_y + 1):
-            pyc = py + 0.5
-            for px in range(min_x, max_x + 1):
-                pxc = px + 0.5
-                w1 = ((by - cy) * (pxc - cx) + (cx - bx) * (pyc - cy)) * inv_d
-                w2 = ((cy - ay) * (pxc - cx) + (ax - cx) * (pyc - cy)) * inv_d
-                w3 = 1.0 - w1 - w2
-                if w1 >= -0.002 and w2 >= -0.002 and w3 >= -0.002:
-                    set_px(px, py, cr, cg, cb)
+    badge_size = 240
+    left_x = (w - badge_size) // 2
+    top_y = (h - badge_size) // 2
+    for ly in range(badge_size):
+        for lx in range(badge_size):
+            sr, sg, sb, sa = _sample_logo_px(lx, ly, badge_size, samples=3, rounded=True)
+            if sa > 0:
+                px, py = left_x + lx, top_y + ly
+                off = py * stride + 1 + px * 3
+                bg_r, bg_g, bg_b = buf[off], buf[off + 1], buf[off + 2]
+                set_px(
+                    px,
+                    py,
+                    (sr * sa + bg_r * (255 - sa) + 127) // 255,
+                    (sg * sa + bg_g * (255 - sa) + 127) // 255,
+                    (sb * sa + bg_b * (255 - sa) + 127) // 255,
+                )
 
-    def png_chunk(tag: bytes, data: bytes) -> bytes:
-        return (
-            struct.pack(">I", len(data))
-            + tag
-            + data
-            + struct.pack(">I", zlib.crc32(tag + data) & 0xFFFFFFFF)
-        )
-
-    ihdr = struct.pack(">IIBBBBB", w, h, 8, 2, 0, 0, 0)
-    compressed = zlib.compress(bytes(buf), 6)
-    png_bytes = (
-        b"\x89PNG\r\n\x1a\n"
-        + png_chunk(b"IHDR", ihdr)
-        + png_chunk(b"IDAT", compressed)
-        + png_chunk(b"IEND", b"")
-    )
+    png_bytes = _encode_png(w, h, 2, bytes(buf))
     (dist_dir / "og-cover.png").write_bytes(png_bytes)
     print(f"    Generated dist/og-cover.png ({len(png_bytes)} bytes, 1200x630 RGB)")
 
@@ -1411,6 +1462,7 @@ def write_sitemap(dist_dir: pathlib.Path, all_apps: list[dict]) -> None:
 
 def build_all(dist_dir: pathlib.Path) -> None:
     dist_dir.mkdir(parents=True, exist_ok=True)
+    write_png_favicons(dist_dir)
     write_og_cover_png(dist_dir)
     inject_static_home_grid(dist_dir, APPS_CATALOG)
 
