@@ -1,5 +1,5 @@
-# Canonical Domain Redirect (consolidate all SEO equity onto allcraft.app)
-https://the-allcraft.pages.dev/* https://allcraft.app/:splat 301!
+# Host-level canonical 301 redirects (www.allcraft.app & *.pages.dev -> https://allcraft.app)
+# are enforced at the Cloudflare Pages edge by site/_worker.js.
 
 # Redirect legacy /apps/* paths directly to canonical root slugs (/<slug>/)
 /apps/:slug /:slug/ 301
