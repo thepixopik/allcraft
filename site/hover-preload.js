@@ -3,6 +3,7 @@
   const OVERLAY_ID = "ac-studio-overlay";
   const STYLE_ID = "ac-pre-splash-style";
   const ISOLATED_SLUGS = new Set(["pdfcraft", "effectcraft"]);
+  const COI_CACHE_BUST = "coi2";
   let manifestPromise = null;
   const inflight = new Set();
 
@@ -52,7 +53,8 @@
   ]);
 
   const slugToManifestKey = (slug) => (slug ? `/runtime/${slug}/` : null);
-  const slugToRuntimeUrl = (slug) => (slug ? `/runtime/${slug}` : null);
+  const slugToRuntimeUrl = (slug) =>
+    slug ? (ISOLATED_SLUGS.has(slug) ? `/runtime/${slug}?v=${COI_CACHE_BUST}` : `/runtime/${slug}`) : null;
 
   const getCurrentSlug = () => {
     const seg = location.pathname.replace(/^\/+|\/+$/g, "");
@@ -299,10 +301,15 @@
 
   // Detect auto-launch arrival (/photocraft?launch=1 or #launch) immediately
   const initialSlug = getCurrentSlug();
+  const searchParams = new URLSearchParams(location.search);
   const wantsAutoLaunch =
-    location.hash === "#launch" || new URLSearchParams(location.search).get("launch") === "1";
+    location.hash === "#launch" || searchParams.get("launch") === "1";
 
   if (initialSlug && wantsAutoLaunch) {
+    if (ISOLATED_SLUGS.has(initialSlug) && !window.crossOriginIsolated && !searchParams.has("_coi")) {
+      location.replace(`/${initialSlug}/?launch=1&_coi=1`);
+      return;
+    }
     launchInPlace(initialSlug, false, false);
   }
 
@@ -344,10 +351,14 @@
     e.preventDefault();
     const curSlug = getCurrentSlug();
 
-    // PDF & Effect need COOP/COEP headers from their own /<slug> page for SharedArrayBuffer
-    if (ISOLATED_SLUGS.has(targetSlug) && !window.crossOriginIsolated && curSlug !== targetSlug) {
-      location.href = `/${targetSlug}?launch=1`;
-      return;
+    // PDF & Effect need COOP/COEP headers on their own /<slug>/ document for SharedArrayBuffer.
+    // Also bust stale non-isolated browser cache once if already on /<slug>/ without crossOriginIsolated.
+    if (ISOLATED_SLUGS.has(targetSlug) && !window.crossOriginIsolated) {
+      const curParams = new URLSearchParams(location.search);
+      if (curSlug !== targetSlug || !curParams.has("_coi")) {
+        location.href = `/${targetSlug}/?launch=1&_coi=1`;
+        return;
+      }
     }
 
     launchInPlace(targetSlug, curSlug !== targetSlug, true);
@@ -396,8 +407,11 @@
       const entry = manifest[mount];
       if (!entry) return;
 
-      const cleanRuntimeUrl = mount.replace(/\/+$/, "");
-      fetch(cleanRuntimeUrl, { priority: "low" }).catch(() => {});
+      const warmSlug = resolveSlug(mount);
+      const runtimeWarmUrl = slugToRuntimeUrl(warmSlug);
+      if (runtimeWarmUrl) {
+        fetch(runtimeWarmUrl, { priority: "low" }).catch(() => {});
+      }
       for (const jsUrl of entry.js || []) {
         fetch(jsUrl, { priority: "low" }).catch(() => {});
       }

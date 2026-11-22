@@ -10,9 +10,10 @@
  * Also handles legacy /apps/*, short launch slugs (/photo, /vector, ...), and
  * *-alternative SEO aliases in 1 hop before falling through to env.ASSETS.fetch().
  *
- * Note: Cloudflare Pages does NOT apply _headers to responses returned by _worker.js
- * (even when served via env.ASSETS.fetch()), so required security, cache, and
- * Cross-Origin Isolation (COOP/COEP) headers for non-/runtime/* routes are attached here.
+ * Importantly, both the parent pages (/pdfcraft/*, /effectcraft/*) AND their embedded
+ * runtimes (/runtime/pdfcraft/*, /runtime/effectcraft/*) pass through this Worker so
+ * every document, redirect, JS worker, and Wasm response carries matching COOP, COEP,
+ * and CORP headers using a fresh mutable Headers instance.
  */
 
 const CANONICAL_HOST = "allcraft.app";
@@ -54,7 +55,7 @@ const SEO_ALIAS_MAP = {
   "excel-alternative": "gridcraft",
 };
 
-const ISOLATED_PATHS = new Set([
+const ISOLATED_PAGE_PATHS = new Set([
   "/pdfcraft",
   "/pdfcraft/",
   "/pdfcraft/index.html",
@@ -77,18 +78,56 @@ const NO_CACHE_PATHS = new Set([
   "/artcraft-web/",
 ]);
 
+function isIsolatedRuntimePath(lowerPath) {
+  return (
+    lowerPath === "/runtime/pdfcraft" ||
+    lowerPath.startsWith("/runtime/pdfcraft/") ||
+    lowerPath === "/runtime/effectcraft" ||
+    lowerPath.startsWith("/runtime/effectcraft/")
+  );
+}
+
 function applyCustomHeaders(response, pathname) {
-  const newResponse = new Response(response.body, response);
-  const headers = newResponse.headers;
+  const headers = new Headers(response.headers);
   const lowerPath = pathname.toLowerCase();
 
   headers.set("X-Content-Type-Options", "nosniff");
   headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
 
-  if (ISOLATED_PATHS.has(lowerPath)) {
-    headers.set("Cache-Control", "no-cache");
+  if (isIsolatedRuntimePath(lowerPath)) {
+    headers.set("X-Robots-Tag", "noindex, nofollow");
     headers.set("Cross-Origin-Opener-Policy", "same-origin");
     headers.set("Cross-Origin-Embedder-Policy", "credentialless");
+    headers.set("Cross-Origin-Resource-Policy", "same-origin");
+
+    if (lowerPath.endsWith(".wasm")) {
+      if (response.ok) headers.set("Content-Type", "application/wasm");
+      headers.set("Cache-Control", "public, max-age=31536000, immutable");
+    } else if (/\.part\d+$/.test(lowerPath)) {
+      if (response.ok) headers.set("Content-Type", "application/octet-stream");
+      headers.set("Cache-Control", "public, max-age=31536000, immutable");
+    } else {
+      headers.set("Cache-Control", "no-store, no-cache, must-revalidate");
+      if (lowerPath === "/runtime/effectcraft/sw.js") {
+        headers.set("Service-Worker-Allowed", "/runtime/");
+      }
+    }
+  } else if (ISOLATED_PAGE_PATHS.has(lowerPath)) {
+    headers.set("Cache-Control", "no-store, no-cache, must-revalidate");
+    headers.set("Cross-Origin-Opener-Policy", "same-origin");
+    headers.set("Cross-Origin-Embedder-Policy", "credentialless");
+    headers.set("Cross-Origin-Resource-Policy", "same-origin");
+  } else if (lowerPath.startsWith("/runtime/")) {
+    headers.set("X-Robots-Tag", "noindex, nofollow");
+    if (lowerPath.endsWith(".wasm")) {
+      if (response.ok) headers.set("Content-Type", "application/wasm");
+      headers.set("Cache-Control", "public, max-age=31536000, immutable");
+    } else if (/\.part\d+$/.test(lowerPath)) {
+      if (response.ok) headers.set("Content-Type", "application/octet-stream");
+      headers.set("Cache-Control", "public, max-age=31536000, immutable");
+    } else {
+      headers.set("Cache-Control", "no-cache");
+    }
   } else if (
     NO_CACHE_PATHS.has(lowerPath) ||
     /^\/[^/.]+(\/|\/index\.html)?$/.test(lowerPath)
@@ -104,7 +143,11 @@ function applyCustomHeaders(response, pathname) {
     }
   }
 
-  return newResponse;
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
 }
 
 function resolvePathRedirect(pathname, incomingSearchParams) {
@@ -181,7 +224,31 @@ export default {
       });
     }
 
-    const assetResponse = await env.ASSETS.fetch(request);
+    let assetResponse = await env.ASSETS.fetch(request);
+
+    // Resolve Cloudflare Pages Pretty-URL trailing-slash 308 redirects internally in 0 hops
+    // so canonical /<slug>/ pages and /runtime/<slug> iframes return 200 OK directly with headers intact.
+    if (
+      assetResponse.status === 308 ||
+      assetResponse.status === 307 ||
+      assetResponse.status === 301 ||
+      assetResponse.status === 302
+    ) {
+      const loc = assetResponse.headers.get("Location");
+      if (loc) {
+        try {
+          const locUrl = new URL(loc, url.origin);
+          if (
+            locUrl.origin === url.origin &&
+            locUrl.pathname.replace(/\/+$/, "") === url.pathname.replace(/\/+$/, "") &&
+            locUrl.pathname !== url.pathname
+          ) {
+            assetResponse = await env.ASSETS.fetch(new Request(locUrl.toString(), request));
+          }
+        } catch (_) {}
+      }
+    }
+
     return applyCustomHeaders(assetResponse, url.pathname);
   },
 };

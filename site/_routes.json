@@ -1,5 +1,19 @@
 {
   "version": 1,
   "include": ["/*"],
-  "exclude": ["/runtime/*"]
+  "exclude": [
+    "/runtime/photocraft/*",
+    "/runtime/vectorcraft/*",
+    "/runtime/filmcraft/*",
+    "/runtime/lightcraft/*",
+    "/runtime/anicraft/*",
+    "/runtime/designcraft/*",
+    "/runtime/texturecraft/*",
+    "/runtime/materialcraft/*",
+    "/runtime/soundcraft/*",
+    "/runtime/wordcraft/*",
+    "/runtime/deckcraft/*",
+    "/runtime/cadcraft/*",
+    "/runtime/gridcraft/*"
+  ]
 }
