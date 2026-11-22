@@ -9,6 +9,10 @@
  *
  * Also handles legacy /apps/*, short launch slugs (/photo, /vector, ...), and
  * *-alternative SEO aliases in 1 hop before falling through to env.ASSETS.fetch().
+ *
+ * Note: Cloudflare Pages does NOT apply _headers to responses returned by _worker.js
+ * (even when served via env.ASSETS.fetch()), so required security, cache, and
+ * Cross-Origin Isolation (COOP/COEP) headers for non-/runtime/* routes are attached here.
  */
 
 const CANONICAL_HOST = "allcraft.app";
@@ -49,6 +53,59 @@ const SEO_ALIAS_MAP = {
   "autocad-alternative": "cadcraft",
   "excel-alternative": "gridcraft",
 };
+
+const ISOLATED_PATHS = new Set([
+  "/pdfcraft",
+  "/pdfcraft/",
+  "/pdfcraft/index.html",
+  "/effectcraft",
+  "/effectcraft/",
+  "/effectcraft/index.html",
+]);
+
+const NO_CACHE_PATHS = new Set([
+  "/",
+  "/index.html",
+  "/sitemap.xml",
+  "/robots.txt",
+  "/hover-preload.js",
+  "/prefetch-manifest.json",
+  "/build-manifest.json",
+  "/adobe-alternative",
+  "/adobe-alternative/",
+  "/artcraft-web",
+  "/artcraft-web/",
+]);
+
+function applyCustomHeaders(response, pathname) {
+  const newResponse = new Response(response.body, response);
+  const headers = newResponse.headers;
+  const lowerPath = pathname.toLowerCase();
+
+  headers.set("X-Content-Type-Options", "nosniff");
+  headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+
+  if (ISOLATED_PATHS.has(lowerPath)) {
+    headers.set("Cache-Control", "no-cache");
+    headers.set("Cross-Origin-Opener-Policy", "same-origin");
+    headers.set("Cross-Origin-Embedder-Policy", "credentialless");
+  } else if (
+    NO_CACHE_PATHS.has(lowerPath) ||
+    /^\/[^/.]+(\/|\/index\.html)?$/.test(lowerPath)
+  ) {
+    headers.set("Cache-Control", "no-cache");
+  }
+
+  if (response.ok) {
+    if (lowerPath === "/sitemap.xml") {
+      headers.set("Content-Type", "application/xml; charset=utf-8");
+    } else if (lowerPath === "/robots.txt") {
+      headers.set("Content-Type", "text/plain; charset=utf-8");
+    }
+  }
+
+  return newResponse;
+}
 
 function resolvePathRedirect(pathname, incomingSearchParams) {
   const trimmed =
@@ -124,6 +181,7 @@ export default {
       });
     }
 
-    return env.ASSETS.fetch(request);
+    const assetResponse = await env.ASSETS.fetch(request);
+    return applyCustomHeaders(assetResponse, url.pathname);
   },
 };
