@@ -38,6 +38,8 @@
 /cad/ /cadcraft/?launch=1 301
 /grid /gridcraft/?launch=1 301
 /grid/ /gridcraft/?launch=1 301
+/mockup /mockupcraft/?launch=1 301
+/mockup/ /mockupcraft/?launch=1 301
 
 # High-intent search alias redirects
 /photoshop-alternative /photocraft/ 301
@@ -70,3 +72,5 @@
 /autocad-alternative/ /cadcraft/ 301
 /excel-alternative /gridcraft/ 301
 /excel-alternative/ /gridcraft/ 301
+/blankbuilder-alternative /mockupcraft/ 301
+/blankbuilder-alternative/ /mockupcraft/ 301

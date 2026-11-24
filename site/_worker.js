@@ -35,6 +35,7 @@ const SHORT_LAUNCH_MAP = {
   deck: "deckcraft",
   cad: "cadcraft",
   grid: "gridcraft",
+  mockup: "mockupcraft",
 };
 
 const SEO_ALIAS_MAP = {
@@ -53,6 +54,7 @@ const SEO_ALIAS_MAP = {
   "powerpoint-alternative": "deckcraft",
   "autocad-alternative": "cadcraft",
   "excel-alternative": "gridcraft",
+  "blankbuilder-alternative": "mockupcraft",
 };
 
 const ISOLATED_PAGE_PATHS = new Set([

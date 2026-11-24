@@ -135,6 +135,15 @@
       "branch": "main",
       "mount_path": "runtime/gridcraft",
       "required": true
+    },
+    {
+      "id": "mockup",
+      "name": "The AllCraft Mockup",
+      "repo": "thepixopik/mockupcraft",
+      "artifact_name": "the-allcraft-mockup-web",
+      "branch": "main",
+      "mount_path": "runtime/mockupcraft",
+      "required": false
     }
   ]
 }

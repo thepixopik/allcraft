@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" width="1200" height="720">
+  <defs>
+    <radialGradient id="glow" cx="68%" cy="48%" r="48%">
+      <stop offset="0%" stop-color="#6366f1" stop-opacity="0.34"/>
+      <stop offset="100%" stop-color="#09090b" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="shirt" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#27272a"/>
+      <stop offset="100%" stop-color="#141418"/>
+    </linearGradient>
+    <linearGradient id="crest" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#818cf8"/>
+      <stop offset="100%" stop-color="#34d399"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="720" fill="#09090b"/>
+  <rect width="1200" height="720" fill="url(#glow)"/>
+  <!-- Topbar -->
+  <rect width="1200" height="52" fill="#111114"/>
+  <line x1="0" y1="52" x2="1200" y2="52" stroke="#27272a"/>
+  <rect x="20" y="13" width="26" height="26" rx="7" fill="url(#crest)"/>
+  <text x="58" y="31" fill="#f4f4f5" font-family="system-ui,sans-serif" font-weight="700" font-size="16">MockupCraft</text>
+  <rect x="1040" y="13" width="136" height="26" rx="6" fill="#6366f1"/>
+  <text x="1108" y="30" text-anchor="middle" fill="#fff" font-family="system-ui,sans-serif" font-weight="600" font-size="12">300 DPI ZIP</text>
+  <!-- Left 2D Pattern Pane -->
+  <rect x="40" y="92" width="480" height="580" rx="14" fill="#111114" stroke="#27272a"/>
+  <text x="64" y="124" fill="#a1a1aa" font-family="monospace" font-size="12">2D SEWING PATTERN · 54 CM</text>
+  <rect x="74" y="150" width="190" height="270" rx="12" fill="#18181b" stroke="#3f3f46" stroke-width="1.5"/>
+  <rect x="292" y="150" width="190" height="270" rx="12" fill="#18181b" stroke="#3f3f46" stroke-width="1.5"/>
+  <rect x="106" y="205" width="126" height="126" rx="8" fill="none" stroke="#6366f1" stroke-width="2" stroke-dasharray="6 4"/>
+  <polygon points="169,235 198,288 140,288" fill="url(#crest)"/>
+  <rect x="74" y="454" width="122" height="100" rx="10" fill="#18181b" stroke="#3f3f46"/>
+  <rect x="218" y="454" width="122" height="100" rx="10" fill="#18181b" stroke="#3f3f46"/>
+  <rect x="362" y="468" width="120" height="72" rx="10" fill="#18181b" stroke="#3f3f46"/>
+  <!-- Right 3D Studio Pane -->
+  <rect x="556" y="92" width="604" height="580" rx="14" fill="rgba(17,17,20,0.65)" stroke="#27272a"/>
+  <text x="582" y="124" fill="#34d399" font-family="monospace" font-size="12">LIVE 3D STUDIO · 60 FPS · 2K CRISP</text>
+  <path d="M980 185 900 155a60 60 0 0 1-84 0l-80 30a32 32 0 0 0-20 36l16 74a16 16 0 0 0 16 12h36v245a28 28 0 0 0 28 28h104a28 28 0 0 0 28-28V307h36a16 16 0 0 0 16-12l16-74a32 32 0 0 0-20-36z" fill="url(#shirt)" stroke="#3f3f46" stroke-width="3"/>
+  <circle cx="858" cy="318" r="54" fill="none" stroke="#f4f4f5" stroke-width="4" opacity="0.9"/>
+  <polygon points="858,280 894,344 822,344" fill="url(#crest)"/>
+  <text x="858" y="408" text-anchor="middle" fill="#f4f4f5" font-family="system-ui,sans-serif" font-weight="800" font-size="22" letter-spacing="4">MOCKUPCRAFT</text>
+  <!-- Bottom Camera Dock -->
+  <rect x="728" y="616" width="260" height="36" rx="18" fill="#18181c" stroke="#3f3f46"/>
+  <text x="858" y="639" text-anchor="middle" fill="#a1a1aa" font-family="system-ui,sans-serif" font-size="12">Front  ·  Back  ·  Left  ·  Right  ·  Spin</text>
+</svg>

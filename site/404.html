@@ -13,8 +13,8 @@
     (() => {
       const segs = location.pathname.split("/").filter(Boolean);
       const valid = [
-        "photo", "vector", "film", "light", "pdf", "effect", "ani", "design", "texture", "material", "sound", "word", "deck", "cad", "grid",
-        "photocraft", "vectorcraft", "filmcraft", "lightcraft", "pdfcraft", "effectcraft", "anicraft", "designcraft", "texturecraft", "materialcraft", "soundcraft", "wordcraft", "deckcraft", "cadcraft", "gridcraft",
+        "photo", "vector", "film", "light", "pdf", "effect", "ani", "design", "texture", "material", "sound", "word", "deck", "cad", "grid", "mockup",
+        "photocraft", "vectorcraft", "filmcraft", "lightcraft", "pdfcraft", "effectcraft", "anicraft", "designcraft", "texturecraft", "materialcraft", "soundcraft", "wordcraft", "deckcraft", "cadcraft", "gridcraft", "mockupcraft",
         "adobe-alternative", "artcraft-web"
       ];
       const match = [...segs].reverse().find((s) => valid.includes(s));
