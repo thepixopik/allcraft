@@ -173,6 +173,7 @@
   let savedBodyOverflow = "";
 
   const closeInPlace = () => {
+    try { sessionStorage.removeItem("ac_active_studio"); } catch (_) {}
     document.documentElement.removeAttribute("data-autolaunch");
     const existing = document.getElementById(OVERLAY_ID);
     if (!existing) return;
@@ -184,12 +185,13 @@
   const launchInPlace = (slug, pushHistory, animateEntry = true) => {
     const runtimeUrl = slugToRuntimeUrl(slug);
     if (!runtimeUrl) return;
-    const cleanPath = `/${slug}/`;
+    const launchPath = `/${slug}/#launch`;
+    try { sessionStorage.setItem("ac_active_studio", slug); } catch (_) {}
 
     if (pushHistory) {
-      history.pushState({ acStudioLaunch: slug }, "", cleanPath);
+      history.pushState({ acStudioLaunch: slug }, "", launchPath);
     } else {
-      history.replaceState({ acStudioLaunch: slug }, "", cleanPath);
+      history.replaceState({ acStudioLaunch: slug }, "", launchPath);
     }
 
     const existing = document.getElementById(OVERLAY_ID);
@@ -304,8 +306,12 @@
   // Detect auto-launch arrival (/photocraft?launch=1 or #launch) immediately
   const initialSlug = getCurrentSlug();
   const searchParams = new URLSearchParams(location.search);
+  let sessionActiveSlug = null;
+  try { sessionActiveSlug = sessionStorage.getItem("ac_active_studio"); } catch (_) {}
   const wantsAutoLaunch =
-    location.hash === "#launch" || searchParams.get("launch") === "1";
+    location.hash === "#launch" ||
+    searchParams.get("launch") === "1" ||
+    (initialSlug && sessionActiveSlug === initialSlug);
 
   if (initialSlug && wantsAutoLaunch) {
     if (ISOLATED_SLUGS.has(initialSlug) && !window.crossOriginIsolated && !searchParams.has("_coi")) {
@@ -316,8 +322,9 @@
   }
 
   window.addEventListener("popstate", (e) => {
-    if (e.state && e.state.acStudioLaunch) {
-      launchInPlace(e.state.acStudioLaunch, false, true);
+    const seg = getCurrentSlug();
+    if ((e.state && e.state.acStudioLaunch) || (seg && location.hash === "#launch")) {
+      launchInPlace((e.state && e.state.acStudioLaunch) || seg, false, true);
     } else {
       closeInPlace();
     }

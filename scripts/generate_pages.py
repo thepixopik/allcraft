@@ -227,13 +227,13 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
         """
         <div class="fam-summary">
           <div>
-            <p class="hud-label" style="margin:0;color:var(--faint)">15 / 15 Open-Source Suite</p>
-            <h3 class="font-display" style="margin:12px 0 0;font-size:30px;color:var(--ink-strong)">Compare all 15 <span style="color:var(--app)">Adobe &amp; Office</span> alternatives.</h3>
+            <p class="hud-label" style="margin:0;color:var(--faint)">16 / 16 Open-Source Suite</p>
+            <h3 class="font-display" style="margin:12px 0 0;font-size:30px;color:var(--ink-strong)">Compare all 16 <span style="color:var(--app)">Adobe &amp; Office</span> alternatives.</h3>
             <p style="margin:10px 0 0;max-width:460px;font-size:14.5px;line-height:1.6;color:var(--muted)">See the side-by-side Creative Cloud, Office &amp; AutoCAD replacement matrix on a single page.</p>
           </div>
           <div style="display:flex;flex-wrap:wrap;gap:10px">
             <a href="/adobe-alternative/" class="btn-primary hud-label" style="height:40px;padding:0 16px">Full Comparison Matrix &rarr;</a>
-            <a href="/#lineup" class="btn-secondary hud-label" style="height:40px;padding:0 16px">All 15 Apps</a>
+            <a href="/#lineup" class="btn-secondary hud-label" style="height:40px;padding:0 16px">All 16 Apps</a>
           </div>
         </div>"""
     )
@@ -288,7 +288,9 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
       if (saved === "light" || saved === "dark") {{
         document.documentElement.setAttribute("data-theme", saved);
       }}
-      if (location.hash === "#launch" || location.search.includes("launch=1")) {{
+      let _acSess = null;
+      try {{ _acSess = sessionStorage.getItem("ac_active_studio"); }} catch (_) {{}}
+      if (location.hash === "#launch" || location.search.includes("launch=1") || _acSess === "{slug}") {{
         document.documentElement.setAttribute("data-autolaunch", "1");
       }}
       window.addEventListener("popstate", (e) => {{
@@ -602,7 +604,7 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
 
         <div class="eyebrow">
           <p class="hud-label" style="margin:0;color:var(--muted)"><span style="color:var(--faint)">01</span> <span style="color:var(--faint);margin:0 6px">/</span> {full_name} &middot; Free {_esc(replaces)} Alternative</p>
-          <p class="hud-label" style="margin:0;color:var(--faint)">{num} of 15 &middot; {_esc(cat)}</p>
+          <p class="hud-label" style="margin:0;color:var(--faint)">{num} of 16 &middot; {_esc(cat)}</p>
         </div>
 
         <div class="hero-pad">
@@ -626,7 +628,7 @@ def render_app_page(app: dict, all_apps: list[dict]) -> str:
 
           <div class="cta-row">
             <a href="{launch_href}" data-launch-app="{slug}" class="btn-accent hud-label">&#9654; Launch {full_name} in Browser</a>
-            <a href="/adobe-alternative/" class="btn-secondary hud-label">Compare All 15 Alternatives</a>
+            <a href="/adobe-alternative/" class="btn-secondary hud-label">Compare All 16 Alternatives</a>
             <a href="https://github.com/{repo}" target="_blank" rel="noopener" class="btn-secondary hud-label">GitHub Source &nearr;</a>
           </div>
 
@@ -907,10 +909,10 @@ cargo run --release</pre>
           </svg>
           <span>ALL<span class="brand-craft">CRAFT</span> STUDIO</span>
         </a>
-        <p style="margin:0;font-size:13px;line-height:1.6;color:var(--faint)">15 open-source pure Rust + WebAssembly creative, 3D, media, office and CAD tools on allcraft.app. Dual-licensed under MIT OR Apache-2.0. Independent web cloud fork not affiliated with upstream ArtCraft Team.</p>
+        <p style="margin:0;font-size:13px;line-height:1.6;color:var(--faint)">16 open-source creative, 3D, media, office and CAD tools on allcraft.app. Dual-licensed under MIT OR Apache-2.0. Independent web cloud fork not affiliated with upstream ArtCraft Team.</p>
       </div>
       <div>
-        <div class="hud-label" style="color:var(--ink-strong)">All 15 Tools</div>
+        <div class="hud-label" style="color:var(--ink-strong)">All 16 Tools</div>
         <div class="footer-apps">{footer_app_links}</div>
       </div>
       <div>
@@ -1113,7 +1115,7 @@ def render_comparison_hub_page(
         <span>ALL<span class="brand-craft">CRAFT</span> STUDIO</span>
       </a>
       <div style="display:flex;gap:8px">
-        <a href="/#lineup" class="icon-btn hud-label">All 15 Apps</a>
+        <a href="/#lineup" class="icon-btn hud-label">All 16 Apps</a>
         <button type="button" id="theme-toggle" class="icon-btn hud-label"><span id="theme-label">Light</span></button>
       </div>
     </div>
@@ -1419,9 +1421,9 @@ def inject_static_home_grid(dist_dir: pathlib.Path, all_apps: list[dict]) -> Non
         """
           <div class="next-card" id="next-up-card">
             <div>
-              <p class="hud-label" style="margin:0;color:var(--faint)">15 / 15 Replacement Matrix</p>
+              <p class="hud-label" style="margin:0;color:var(--faint)">16 / 16 Replacement Matrix</p>
               <h3 class="font-display" style="margin:14px 0 0;font-size:28px;line-height:1.08;color:var(--ink-strong)">Ditch every <span class="accent-word">subscription</span>.</h3>
-              <p style="margin:12px 0 0;font-size:14.5px;line-height:1.6;color:var(--muted)">Compare all 15 AllCraft tools side-by-side against Adobe Creative Cloud, Microsoft Office &amp; AutoCAD.</p>
+              <p style="margin:12px 0 0;font-size:14.5px;line-height:1.6;color:var(--muted)">Compare all 16 AllCraft tools side-by-side against Adobe Creative Cloud, Microsoft Office &amp; AutoCAD.</p>
             </div>
             <a href="/adobe-alternative/" class="btn-primary hud-label" style="height:40px;padding:0 16px;width:fit-content">Open Comparison Matrix &rarr;</a>
           </div>"""
@@ -1429,7 +1431,7 @@ def inject_static_home_grid(dist_dir: pathlib.Path, all_apps: list[dict]) -> Non
 
     pre_rendered = f'<div class="lineup-grid" id="apps-grid">{"".join(cards)}\n        </div>'
     index_path.write_text(src.replace(target, pre_rendered, 1), encoding="utf-8")
-    print("    Pre-rendered 15 static app cards into dist/index.html #apps-grid")
+    print("    Pre-rendered 16 static app cards into dist/index.html #apps-grid")
 
 
 def write_sitemap(dist_dir: pathlib.Path, all_apps: list[dict]) -> None:
@@ -1479,10 +1481,10 @@ def build_all(dist_dir: pathlib.Path) -> None:
         render_comparison_hub_page(
             slug="adobe-alternative",
             crumb_name="Adobe & Office Alternatives",
-            title="15 Free Open-Source Adobe & Office Alternatives | AllCraft",
-            description="Compare 15 free MIT/Apache-2.0 browser alternatives to Photoshop, Illustrator, Premiere Pro, Lightroom, Acrobat, After Effects, AutoCAD, Word & MS Excel.",
+            title="16 Free Open-Source Adobe & Office Alternatives | AllCraft",
+            description="Compare 16 free MIT/Apache-2.0 browser alternatives to Photoshop, Illustrator, Premiere Pro, Lightroom, Acrobat, After Effects, AutoCAD, Word & MS Excel.",
             eyebrow_tag="01 / Complete Replacement Matrix",
-            h1_html='15 free, open-source <span style="color:#ff6b4a">Adobe, Office &amp; AutoCAD</span> alternatives in your browser.',
+            h1_html='16 free, open-source <span style="color:#ff6b4a">Adobe, Office &amp; AutoCAD</span> alternatives in your browser.',
             lead="Every application in AllCraft Studio is compiled from pure Rust to WebGPU + WebAssembly — running 100% locally on your device at $0 forever with no account, no watermark, and no cloud uploads.",
             faqs=[
                 ("What is the best free open-source alternative to Adobe Creative Cloud in 2026?", "AllCraft Studio (allcraft.app) unites 15 pure-Rust applications — including PhotoCraft (Photoshop), VectorCraft (Illustrator), FilmCraft (Premiere Pro), LightCraft (Lightroom), PdfCraft (Acrobat Pro), EffectCraft (After Effects), AniCraft (Animate), DesignCraft (InDesign), TextureCraft & MaterialCraft (Substance 3D) — running instantly in any modern browser."),
@@ -1501,7 +1503,7 @@ def build_all(dist_dir: pathlib.Path) -> None:
         render_comparison_hub_page(
             slug="artcraft-web",
             crumb_name="Craft Rust Web Guide",
-            title="All 15 Open-Source Craft Rust Apps in Browser | AllCraft",
+            title="All 16 Open-Source Craft Apps in Browser | AllCraft",
             description="Launch PhotoCraft, VectorCraft, FilmCraft, LightCraft, PdfCraft, CADCraft, GridCraft & all 15 pure-Rust WebAssembly apps instantly at allcraft.app.",
             eyebrow_tag="01 / Instant WebAssembly Browser Edition",
             h1_html='All 15 open-source <span style="color:#ff6b4a">Craft</span> Rust apps, live in your browser.',
