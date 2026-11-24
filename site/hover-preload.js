@@ -27,6 +27,7 @@
     deck: "deckcraft", deckcraft: "deckcraft",
     cad: "cadcraft", cadcraft: "cadcraft",
     grid: "gridcraft", gridcraft: "gridcraft",
+    mockup: "mockupcraft", mockupcraft: "mockupcraft",
   };
 
   const APP_THEMES = {
@@ -45,11 +46,12 @@
     deckcraft:     { code: "Dk", title: "The AllCraft Deck",     tagline: "Presentations, Slide Masters, Animations & Live Show", accent: "#FB923C", soft: "rgba(251, 146, 60, 0.24)",  bg: "#2E1305", stage: "Initializing GPU Slide & Transition Renderer…" },
     cadcraft:      { code: "Cd", title: "The AllCraft CAD",      tagline: "2D/3D Technical Drafting, DWG/DXF & Parametric CAD",  accent: "#F87171", soft: "rgba(248, 113, 113, 0.24)", bg: "#2D0C0C", stage: "Initializing Precision 2D/3D CAD Viewport…" },
     gridcraft:     { code: "Gd", title: "The AllCraft Grid",     tagline: "Spreadsheets, 400+ Formulas, PivotTables & Analytics", accent: "#4ADE80", soft: "rgba(74, 222, 128, 0.24)",  bg: "#082914", stage: "Initializing Vectorized Calculation Engine…" },
+    mockupcraft:   { code: "Mk", title: "The AllCraft Mockup",   tagline: "3D Apparel Mockups, Sewing Patterns & 300 DPI Print",  accent: "#818CF8", soft: "rgba(129, 140, 248, 0.24)", bg: "#151330", stage: "Initializing 60 FPS WebGL2 Apparel Studio…" },
   };
 
   const LEGACY_SHORTS = new Set([
     "photo", "vector", "film", "light", "pdf", "effect", "ani", "design",
-    "texture", "material", "sound", "word", "deck", "cad", "grid",
+    "texture", "material", "sound", "word", "deck", "cad", "grid", "mockup",
   ]);
 
   const slugToManifestKey = (slug) => (slug ? `/runtime/${slug}/` : null);

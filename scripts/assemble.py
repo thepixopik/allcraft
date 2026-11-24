@@ -286,6 +286,34 @@ SPLASH_PROFILES = {
           <rect x="74" y="234" width="68" height="24" rx="5" fill="rgba(99,102,241,0.28)" stroke="#818cf8" stroke-width="1"/>
         </svg>""",
     },
+    "mockup": {
+        "container_id": "mockupcraft_loading",
+        "bar_id": "mk_load_bar",
+        "pct_id": "mk_load_pct",
+        "code": "Mk",
+        "title": "The AllCraft Mockup",
+        "tagline": "3D Apparel Mockups, Sewing Patterns, 2K Studio & 300 DPI Print",
+        "accent": "#818CF8",
+        "accent_soft": "rgba(129, 140, 248, 0.24)",
+        "badge_bg": "#151330",
+        "stages": [
+            "Initializing 60 FPS WebGL2 Apparel Studio…",
+            "Generating Contoured 3D Garment & UV Sewing Patterns…",
+            "Synthesizing PBR Cotton, Fleece & Waffle Weave Maps…",
+            "Preparing 2K Local Snapshot & 300 DPI Print Exporter…",
+            "Opening MockupCraft Studio…",
+        ],
+        "art_svg": """<svg viewBox="0 0 260 360" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="mk1" cx="55%" cy="34%" r="68%"><stop offset="0%" stop-color="#6366f1" stop-opacity="0.52"/><stop offset="100%" stop-color="#09090b" stop-opacity="0"/></radialGradient>
+          </defs>
+          <rect width="260" height="360" fill="#09090b"/>
+          <rect width="260" height="360" fill="url(#mk1)"/>
+          <path d="M196 108 156 92a30 30 0 0 1-52 0l-40 16a16 16 0 0 0-10 18l8 36a8 8 0 0 0 8 6h18v116a14 14 0 0 0 14 14h56a14 14 0 0 0 14-14V168h18a8 8 0 0 0 8-6l8-36a16 16 0 0 0-10-18z" fill="rgba(255,255,255,0.05)" stroke="#818cf8" stroke-width="2"/>
+          <circle cx="130" cy="186" r="24" fill="none" stroke="#34d399" stroke-width="2.2"/>
+          <polygon points="130,170 144,198 116,198" fill="#818cf8"/>
+        </svg>""",
+    },
     "grid": {
         "container_id": "gridcraft_loading",
         "bar_id": "gc_load_bar",
